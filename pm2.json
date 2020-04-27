@@ -1,13 +1,20 @@
 {
     "apps": [
         {
-            "name": "plothis-server",
-            "script": "./dist/app.js",
+            "name": "huobi-server",
+            "script": "./app.js",
             "cwd": "./",
             "watch": [
-                "dist/app",
-                "dist/lib",
-                "dist/app.js"
+                "app",
+                "bin",
+                "lib",
+                "app.js"
+            ],
+            "ignore_watch": [
+                "node_modules",
+                "logs",
+                "public",
+                ".*"
             ],
             "env": {
                 "NODE_ENV": "development"
@@ -17,7 +24,7 @@
             },
             "error_file": "./logs/err/app-err.log",
             "out_file": "./logs/out/app-out.log",
-            "log_date_format": "YYYY-MM-DD HH:mm ss"
+            "log_date_format": "YYYY-MM-DD HH:mZ"
         }
     ]
 }

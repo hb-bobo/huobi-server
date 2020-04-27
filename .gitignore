@@ -1,15 +1,11 @@
 .DS_Store
-/node_modules
-/logs
-/dist
-private
-public/upload/files
-public/upload/images
-public/upload/temp
+node_modules/
+logs/
+private/
+
 # 私有配置
 config/production.js
 
-public/upload/images
 npm-debug.log
 yarn-error.log
 npm-debug.log*
@@ -23,4 +19,3 @@ package-lock.json
 *.ntvs*
 *.njsproj
 *.sln
-.npm

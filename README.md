@@ -1,20 +1,9 @@
-### ts-server
+# huobi
 
-## run setup
+<a href="http://182.61.43.233:3000/">在线预览</a>
 
-``` bash
-# use npm
-npm install
-
-# run
-npm run dev
-
-# build
-npm run tsc
-
-# use pm2
-
-npm run pm2:prod
-
+```shell
+ssh -p 22  root@182.61.43.23
 ```
+
 
