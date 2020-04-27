@@ -1,0 +1,23 @@
+{
+    "extends": [
+        "tslint:latest",
+        "tslint-eslint-rules",
+        "tslint-config-prettier"
+    ],
+    "rules": {
+        "max-line-length": {
+            "options": [180]
+        },
+        "only-arrow-functions": false,
+        "interface-name": false,
+        "object-literal-sort-keys": false,
+        "no-implicit-dependencies": false,
+        "no-object-literal-type-assertion": false,
+        "no-submodule-imports": false
+    },
+    "jsRules": {
+        "max-line-length": {
+            "options": [180]
+        }
+    }
+}
