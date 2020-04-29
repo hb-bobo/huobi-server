@@ -11,10 +11,10 @@
     "dev": "npm run start",
     "gulp": "gulp",
     "build:ts": "ttsc",
-    "build": "npm run gulp && ttsc && node deploy.js master",
+    "build": "npm run gulp && ttsc && node scripts/deploy.js master",
     "prod": "cross-env NODE_ENV=production node dist/app.js",
     "pm2:prod": "pm2 start pm2.json --env production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node scripts/test.js"
   },
   "dependencies": {
     "config": "^3.0.0",
@@ -61,7 +61,6 @@
     "@types/koa-session": "^5.10.0",
     "@types/koa-static": "^4.0.1",
     "@types/lodash": "^4.14.144",
-    "@types/mongoose": "^5.5.28",
     "@types/node": "^12.12.6",
     "@types/request-promise": "^4.1.44",
     "@types/ws": "^6.0.3",

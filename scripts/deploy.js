@@ -1,6 +1,6 @@
 const ghpages = require('gh-pages');
 
-const pkg = require('./package.json');
+const pkg = require('../package.json');
 
 const repo = "git@github.com:hb-bobo/tv-server.git";
 let branch = process.argv[2] || 'beta';
