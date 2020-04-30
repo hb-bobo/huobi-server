@@ -4,7 +4,7 @@
  * @param {string} cmdStr
  * @returns {Promise<string>} 
  */
-function exec(cmdStr: string) {
+function cmd(cmdStr: string) {
     return new Promise(function (resolve, reject) {
         const exec = require('child_process').exec;
         exec(cmdStr, function (err: NodeJS.ErrnoException, stdout: string, srderr: string) {
@@ -16,4 +16,4 @@ function exec(cmdStr: string) {
         });
     });
 }
-export default exec;
+export default cmd;

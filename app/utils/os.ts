@@ -30,6 +30,6 @@ export function mkdir(p: string) {
  * @param name 
  */
 export function getFileExt(name: string) {
-    let ext = name.split('.');
+    const ext = name.split('.');
     return ext[ext.length - 1];
 }
