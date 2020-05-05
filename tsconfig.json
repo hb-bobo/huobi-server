@@ -10,7 +10,7 @@
     "moduleResolution": "node",          
     "baseUrl": "./",                      
     "paths": {                              
-      "APP/*": ["./app/*"]
+      "ROOT/*": ["src/*"]
     },
     "plugins": [
       { "transform": "typescript-transform-paths" }
@@ -18,7 +18,8 @@
     "typeRoots": ["./node_modules/@types", "./typings"],             
     "allowSyntheticDefaultImports": true, 
     "esModuleInterop": true,    
-    "experimentalDecorators": true     
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "logs",

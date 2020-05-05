@@ -14,13 +14,14 @@
     "build": "npm run gulp && ttsc && node scripts/deploy.js master",
     "prod": "cross-env NODE_ENV=production node dist/app.js",
     "pm2:prod": "pm2 start pm2.json --env production",
-    "test": "node scripts/test.js"
+    "test": "jest --colors --onlyChanged"
   },
   "dependencies": {
     "async-validator": "^3.2.4",
     "config": "^3.0.0",
     "crypto-js": "^4.0.0",
     "debug": "~2.6.8",
+    "json-bigint": "^0.3.0",
     "jsonwebtoken": "^8.4.0",
     "koa": "^2.3.0",
     "koa-body": "^4.1.1",
@@ -63,9 +64,9 @@
     "@types/koa-session": "^5.10.0",
     "@types/koa-static": "^4.0.1",
     "@types/lodash": "^4.14.144",
-    "@types/mocha": "^7.0.2",
     "@types/node": "^12.12.6",
     "@types/request-promise": "^4.1.44",
+    "@types/validator": "^13.0.0",
     "@types/ws": "^6.0.3",
     "babel-jest": "^25.5.1",
     "cross-env": "^5.2.0",
@@ -75,6 +76,7 @@
     "merge-stream": "^2.0.0",
     "nodemon": "^2.0.3",
     "prettier": "^1.18.2",
+    "ts-jest": "^25.4.0",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
@@ -85,6 +87,6 @@
   },
   "_moduleAliases": {
     "@root": ".",
-    "APP": "./app"
+    "ROOT": "./src"
   }
 }
