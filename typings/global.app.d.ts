@@ -1,5 +1,5 @@
 import { BaseContext, Context, ParameterizedContext } from 'koa';
-import { ResponseBody } from 'APP/interface/Http';
+import { ResponseBody } from 'ROOT/interface/Http';
 import { IRouterParamContext, RouterContext } from 'koa-router';
 
 export as namespace App;
@@ -24,6 +24,10 @@ export interface AppConfig{
         user: string;
         password: string
     };
+    huobi: {
+        ws_url_prex: string;
+        api: string;
+    }
 }
 
 export interface CustomState{

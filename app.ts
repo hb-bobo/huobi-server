@@ -1,7 +1,6 @@
 require('module-alias/register')
-
-
 import config from 'config';
+import http from 'http';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from 'koa-cors';
@@ -12,9 +11,11 @@ import Router from 'koa-router';
 import session from 'koa-session';
 import serve from 'koa-static';
 import historyApiFallback from 'koa2-connect-history-api-fallback';
-import { outLogger } from './app/common/logger';
-import { logger, send } from './app/middleware';
-import routes from './app/routes';
+import "reflect-metadata";
+import { outLogger } from 'ROOT/common/logger';
+import { logger, send } from 'ROOT/middleware';
+import routes from 'ROOT/routes';
+import { socketIO } from 'ROOT/ws/socketIO';
 // const debug = require('debug')('koa2:server')
 
 const app = new Koa()
@@ -63,6 +64,17 @@ app.on('error', function(err: Error, ctx: Koa.Context) {
   }
 })
 
-app.listen(port, () => {
+// app.listen(port, () => {
+//   outLogger.info(`Listening on http://localhost:${port}`)
+// })
+
+const server = http.createServer(app.callback());
+socketIO.attach(server, {
+    pingInterval: 10000,
+    pingTimeout: 5000,
+    cookie: false
+});
+
+server.listen(port, () => {
   outLogger.info(`Listening on http://localhost:${port}`)
-})
+});
