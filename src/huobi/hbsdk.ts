@@ -61,7 +61,7 @@ function call_get<T>(path: string, tip?: string): Promise<T>{
         errLogger.error('GET', '-', path, '异常', ex, tip);
     });
 }
-function call_post(path, payload, body, tip?: string){
+function call_post(path: string, payload, body, tip?: string){
     const payloadPath = `${path}?${payload}`;
     return post(payloadPath, body, {
             timeout,
@@ -93,7 +93,32 @@ export const hbsdk = {
         }
         return call_get<Data[]>('/api/v1/contract_contract_info');
     },
+    /** 获取合约指数信息 */
     contract_index(){
-
+        return call_get('/api/v1/contract_index');
+    },
+    /**
+     *  获取合约最高限价和最低限价
+     */
+    contract_price_limit(symbol: string) {
+        return call_get('/api/v1/contract_price_limit?symbol=BTC&contract_type=this_week');
+    },
+    /**
+     * 获取当前可用合约总持仓量
+     */
+    contract_open_interest() {
+        return call_get('/api/v1/contract_open_interest');
+    },
+    /**
+     * 获取用户账户信息
+     */
+    contract_account_info(params: {symbol: string}) {
+        const body = Object.assign(get_body('access_key'), params);
+        const path = `${BASE_URL}/api/v1/contract_account_info`;
+        return call_post(
+            path,
+            sign_sha('POST', path, 'secretkey', body),
+            body,
+        );
     }
 }
