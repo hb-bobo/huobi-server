@@ -2,14 +2,14 @@ import { errLogger } from "ROOT/common/logger";
 import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
 import { SaveOptions } from "typeorm";
 import { isNullOrUndefined, isNumber } from "util";
-import DepthModel from "./depth.entity";
+import OrderModel from "./order.entity";
 
 /**
  * 查询
  * @param {object} query 
  */
 export const find = async function(query: object) {
-    const res = await DepthModel.find({})
+    const res = await OrderModel.find({})
     return res;
 }
 
@@ -17,8 +17,8 @@ export const find = async function(query: object) {
  * 查询单个
  * @param {object} query 
  */
-export const findOne = async function(query: Partial<DepthModel>) {
-    return DepthModel.findOne(query);
+export const findOne = async function(query: Partial<OrderModel>) {
+    return OrderModel.findOne(query);
 }
 
 /**
@@ -26,8 +26,8 @@ export const findOne = async function(query: Partial<DepthModel>) {
  * @param {object} query 
  * @param { Document }
  */
-export const updateOne = async function(query: Partial<DepthModel>, newData: Partial<DepthModel>, options?: SaveOptions) {
-    return DepthModel.update(query, newData, options);
+export const updateOne = async function(query: Partial<OrderModel>, newData: Partial<OrderModel>, options?: SaveOptions) {
+    return OrderModel.update(query, newData, options);
 }
 
 /**
@@ -35,12 +35,12 @@ export const updateOne = async function(query: Partial<DepthModel>, newData: Par
  * @param {object} query 
  * @param { Document }
  */
-export const deleteOne = async function(query: Partial<DepthModel>) {
+export const deleteOne = async function(query: Partial<OrderModel>) {
     const target = await findOne(query);
     if (!target) {
         return Promise.reject('删除出错');
     }
-    const deleted = await DepthModel.remove(target);
+    const deleted = await OrderModel.remove(target);
     if (isNullOrUndefined(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
@@ -53,7 +53,7 @@ export const deleteOne = async function(query: Partial<DepthModel>) {
  * @param {object} query 
  * @param { Document }
  */
-export const create = async function(data: Partial<DepthModel>) {
-    const Doc = DepthModel.create(data)
+export const create = async function(data: Partial<OrderModel>) {
+    const Doc = OrderModel.create(data)
     return Doc.save();
 }

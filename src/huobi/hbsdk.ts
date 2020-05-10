@@ -110,10 +110,10 @@ export const hbsdk = {
         return call_get('/api/v1/contract_open_interest');
     },
     /**
-     * 获取用户账户信息
+     * 获取合约用户账户信息
      */
-    contract_account_info(params: {symbol: string}) {
-        const body = Object.assign(get_body('access_key'), params);
+    contract_account_info(params: {symbol: string, access_key: string}) {
+        const body = Object.assign(get_body(params.access_key), params);
         const path = `${BASE_URL}/api/v1/contract_account_info`;
         return call_post(
             path,
