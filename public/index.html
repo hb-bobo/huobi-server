@@ -137,4 +137,29 @@
             -webkit-transform: rotate(405deg);
             transform: rotate(405deg);
           }
-        }</style><div class="page-loading-warp"><div class="ant-spin ant-spin-lg ant-spin-spinning"><span class="ant-spin-dot ant-spin-dot-spin"><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i></span></div></div></div><script src="https://webapi.amap.com/maps?v=1.4.15&key=bcd052c068c71fe5656b0a8a734dbbd7"></script><script src="https://webapi.amap.com/ui/1.0/main.js?v=1.0.11"></script><script src="/umi.785229b6.js"></script></body></html>
+        }</style><div class="page-loading-warp"><div class="ant-spin ant-spin-lg ant-spin-spinning"><span class="ant-spin-dot ant-spin-dot-spin"><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i><i class="ant-spin-dot-item"></i></span></div></div></div><script src="https://webapi.amap.com/maps?v=1.4.15&key=bcd052c068c71fe5656b0a8a734dbbd7"></script><script src="https://webapi.amap.com/ui/1.0/main.js?v=1.0.11"></script><script src="/umi.785229b6.js">
+        
+
+function autoVideo() {
+  var v = document.getElementById('media');
+  if (!v) {
+    return;
+  }
+  v.play();
+  v.autoplay="autoplay";
+  v.oncanplay = function() {
+    v.play();
+  }
+  v.onpause = function() {
+    v.play();
+    console.log('重新开始');
+  }
+  v.onended = function () {
+    document.querySelector('.play-right-li-active').nextElementSibling.onclick();
+    setTimeout(() => {
+      autoVideo();
+    }, 1000);
+  }
+}
+autoVideo();
+        </script></body></html>
