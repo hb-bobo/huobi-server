@@ -1,34 +1,41 @@
 
 import config from 'config';
-
 import pako from 'pako';
 import { outLogger } from 'ROOT/common/logger';
 import { SocketFrom } from 'ROOT/interface/ws';
+import { dbEvent } from 'ROOT/orm';
 import { AppConfig } from 'typings/global.app';
 import { createWS } from './createWS';
 import { EventTypes, WSEmitter } from './events';
+import { ws_auth } from './huobi.cmd';
+import Sockette from './sockette';
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
-
-const ws = createWS(huobi.ws_url_prex, {
-  onmessage: data => {
-    const text = pako.inflate(data, {
-        to: 'string'
+let ws: Sockette;
+export function start (accessKey: string) {
+    ws = createWS(huobi.ws_url_prex, {
+        onopen: () => {
+            ws.json(ws_auth(accessKey));
+        },
+        onmessage: data => {
+            const text = pako.inflate(data, {
+                to: 'string'
+            });
+            const msg = JSON.parse(text);
+            if (msg.ping) {
+                ws.json({
+                    pong: msg.ping
+                });
+            } else if (msg.tick) {
+                // console.log(msg);
+                handle(msg);
+            } else {
+                outLogger.info(text);
+            }
+        }
     });
-    const msg = JSON.parse(text);
-    if (msg.ping) {
-        ws.json({
-            pong: msg.ping
-        });
-    } else if (msg.tick) {
-        // console.log(msg);
-        handle(msg);
-    } else {
-        outLogger.info(text);
-    }
-  }
-});
-
+    return ws;
+}
 const handleMap: Record<string, (data: any) => {type: EventTypes, data: any}> = {
     depth(data) {
         return {
@@ -60,16 +67,16 @@ function handle(data) {
     const symbol = data.ch.split('.')[1];
     const channel = data.ch.split('.')[2];
     if (handleMap[channel]) {
-        const eventData = handleMap[channel](data);
-        WSEmitter.emit(eventData.type, {
-            type: eventData.type,
+        const {type, data: otherData } = handleMap[channel](data);
+        WSEmitter.emit(type, {
+            type,
             from: SocketFrom.huobi,
             data: {
                 channel: data.channel,
                 ch: data.ch,
                 symbol,
-                ...eventData.data,
+                ...otherData,
             },
-        });
+        } as any);
     }
 }

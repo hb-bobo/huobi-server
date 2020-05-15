@@ -1,13 +1,11 @@
 import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
+
 @Entity()
-export default class UserEntity extends BaseEntity{
+export default class WatchEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
 
-    @Column()
-    public user!: string;
-
-    @Column()
-    public password!: string;
+    @Column({type: 'varchar'})
+    public symbol: number = 0;
 }

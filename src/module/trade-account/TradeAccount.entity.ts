@@ -2,10 +2,12 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
 
 @Entity()
-export default class TradeAccount extends BaseEntity{
+export default class TradeAccountEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
 
+    @Column({type: 'tinyint'})
+    public auto_trade: number = 0;
     @Column({type: 'varchar', length: 10})
     public exchange!: string;
     @Column({type: 'varchar', length: 64})

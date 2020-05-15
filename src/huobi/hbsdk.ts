@@ -16,34 +16,78 @@ const DEFAULT_HEADERS = {
 }
 const timeout = 3000;
 
-export function sign_sha( method: "GET" | "POST", cpath: string, secretkey, data) {
+/**
+ * 签名计算
+ * @param method
+ * @param url
+ * @param secretKey
+ * @param data
+ * @returns {*|string}
+ */
+export function sign_sha(method: 'GET' | 'POST', curl: string,  secretKey: string, data?: Record<string, any>): string {
     const pars: string[] = [];
-    const baseurl = url.parse(cpath).host;
-    const path = url.parse(cpath).path;
-    for (const item in data) {
-        if (!isNullOrUndefined(data[item]) && data[item] !== '') {
-            pars.push(item + "=" + encodeURIComponent(data[item]));
+    const { host, pathname } = url.parse(curl);
+    // 将参数值 encode
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+            const value = data[key];
+            pars.push(`${key}=${encodeURIComponent(value)}`);
         }
     }
-    let p = pars.sort().join("&");
-    const meta = [method, baseurl, path, p].join('\n');
-    // console.log(meta);
-    const hash = HmacSHA256(meta, secretkey);
-    const Signature = encodeURIComponent(CryptoJS.enc.Base64.stringify(hash));
-    // console.log(`Signature: ${Signature}`);
-    p += `&Signature=${Signature}`;
-    // console.log(p);
-    return p;
-}
+    // 排序 并加入&连接
+    const p = pars.sort().join("&");
 
-function get_body(access_key: string) {
-    return {
+    // 在method, host, path 后加入\n
+    const meta = [method, host, pathname, p].join('\n');
+
+    // 用HmacSHA256 进行加密
+    const hash = CryptoJS.HmacSHA256(meta, secretKey);
+    // 按Base64 编码 字符串
+    const Signature = CryptoJS.enc.Base64.stringify(hash);
+    // console.log(p);
+    return Signature;
+}
+// export function sign_sha( method: "GET" | "POST", cpath: string, secretkey, data) {
+//     const pars: string[] = [];
+//     const baseurl = url.parse(cpath).host;
+//     const path = url.parse(cpath).path;
+//     for (const item in data) {
+//         if (!isNullOrUndefined(data[item]) && data[item] !== '') {
+//             pars.push(item + "=" + encodeURIComponent(data[item]));
+//         }
+//     }
+//     let p = pars.sort().join("&");
+//     const meta = [method, baseurl, path, p].join('\n');
+//     // console.log(meta);
+//     const hash = HmacSHA256(meta, secretkey);
+//     const Signature = encodeURIComponent(CryptoJS.enc.Base64.stringify(hash));
+//     // console.log(`Signature: ${Signature}`);
+//     p += `&Signature=${Signature}`;
+//     // console.log(p);
+//     return p;
+// }
+export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, data: StringMap<string> = {}) {
+    const timestamp = moment.utc().format('YYYY-MM-DDTHH:mm:ss');
+    const body = { 
         AccessKeyId: access_key,
         SignatureMethod: "HmacSHA256",
-        SignatureVersion: 2,
-        Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss'),
-    };
+        SignatureVersion: "2",
+        Timestamp: timestamp,
+        ...data,
+    }
+    Object.assign(body,  {
+        Signature: sign_sha(method, curl, access_key, body),
+    });
+    return body;
 }
+// function get_body(access_key: string) {
+//     return {
+//         AccessKeyId: access_key,
+//         SignatureMethod: "HmacSHA256",
+//         SignatureVersion: 2,
+//         Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss'),
+//     };
+// }
 
 function call_get<T>(path: string, tip?: string): Promise<T>{
     return get(path, {
@@ -112,13 +156,13 @@ export const hbsdk = {
     /**
      * 获取合约用户账户信息
      */
-    contract_account_info(params: {symbol: string, access_key: string}) {
-        const body = Object.assign(get_body(params.access_key), params);
+    contract_account_info(access_key: string, data: {symbol: string}) {
+
         const path = `${BASE_URL}/api/v1/contract_account_info`;
         return call_post(
             path,
-            sign_sha('POST', path, 'secretkey', body),
-            body,
+            auth('POST', path, access_key, data),
+            data,
         );
     }
 }

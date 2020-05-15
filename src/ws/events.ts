@@ -5,6 +5,7 @@ export enum EventTypes {
     huobi_kline = 'huobi:kline',
     huobi_trade = 'huobi:trade',
     huobi_depth = 'huobi:depth',
+    huobi_open = 'huobi:open',
 }
 interface HuobiEventData<T extends string, D> extends SocketMessage{
     type: T;
@@ -26,9 +27,14 @@ export interface HuobiTrade {
 }
 
 export interface WSEvent{
-    "huobi:depth": HuobiEventData<EventTypes.huobi_depth, HuobiDepth>;
-    "huobi:kline": HuobiEventData<EventTypes.huobi_kline, HuobiKline>;
-    'huobi:trade': HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
+    [EventTypes.huobi_depth]: HuobiEventData<EventTypes.huobi_depth, HuobiDepth>;
+    [EventTypes.huobi_kline]: HuobiEventData<EventTypes.huobi_kline, HuobiKline>;
+    [EventTypes.huobi_trade]: HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
+    [EventTypes.huobi_open]: {
+        type: EventTypes.huobi_open,
+        from: SocketFrom.huobi,
+        ws_auth: (accessKey: string) => void;
+    };
 }
 class Eventss extends EventEmitter {
     public emit!: (event: keyof WSEvent, arg: WSEvent[keyof WSEvent]) => boolean;

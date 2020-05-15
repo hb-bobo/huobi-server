@@ -1,4 +1,12 @@
+import config from 'config'
+import CryptoJS from 'crypto-js';
+import moment from "moment"
+import { auth, sign_sha } from 'ROOT/huobi/hbsdk';
 import { Period } from "ROOT/interface/Huobi"
+import { AppConfig } from "typings/global.app"
+
+
+const huobi = config.get<AppConfig['huobi']>('huobi');
 
 export const ws_sub = {
     /**
@@ -52,5 +60,17 @@ export const ws_req = {
             "req": `market.${symbol}.detail`,
             "id": `req_${symbol}`
         }
+    }
+}
+
+
+/**
+ * 发送auth请求
+ * @param ws
+ */
+export function ws_auth(accessKey: string, data?: any) {
+    return {
+        op: 'auth',
+        ...auth('GET', huobi.ws_url_prex, accessKey, data)
     }
 }
