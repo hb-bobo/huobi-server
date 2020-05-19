@@ -16,6 +16,10 @@
     "pm2:prod": "pm2 start pm2.json --env production",
     "test": "jest --colors --onlyChanged"
   },
+  "_moduleAliases": {
+    "@root": ".",
+    "ROOT": "./src"
+  },
   "dependencies": {
     "async-validator": "^3.2.4",
     "config": "^3.0.0",
@@ -84,9 +88,5 @@
     "ttypescript": "^1.5.8",
     "typescript": "^3.6.4",
     "typescript-transform-paths": "^1.1.11"
-  },
-  "_moduleAliases": {
-    "@root": ".",
-    "ROOT": "./src"
   }
 }
