@@ -1,20 +1,23 @@
-import noop from 'lodash/noop';
-import WebSocket, { OpenEvent } from "ws";
+import { EventEmitter } from 'events';
+import WebSocket from "ws";
 import { isOpen } from './utils';
 
 export interface SocketteOptions {
     protocols?: string | string[];
     timeout?: number;
     maxAttempts?: number;
-    onopen?: (this: Sockette, ev: WebSocket.OpenEvent) => any;
-    onmessage?: (this: Sockette, ev: WebSocket.MessageEvent) => any;
-    onreconnect?: (this: Sockette, ev: WebSocket.OpenEvent | WebSocket.CloseEvent) => any;
-    onmaximum?: (this: Sockette, ev: WebSocket.CloseEvent) => any;
-    onclose?: (this: Sockette, ev: WebSocket.CloseEvent) => any;
-    onerror?: (this: Sockette, ev: WebSocket.ErrorEvent) => any;
+}
+interface EventMap {
+    open: (ev: WebSocket.OpenEvent) => any;
+    message: (ev: WebSocket.MessageEvent) => any;
+    reconnect: (ev: WebSocket.OpenEvent | WebSocket.CloseEvent) => any;
+    maximum: (ev: WebSocket.CloseEvent) => any;
+    close: (ev: WebSocket.CloseEvent) => any;
+    error: (ev: WebSocket.ErrorEvent) => any;
 }
 
-export default class Sockette{
+
+export default class Sockette extends EventEmitter{
     public wss!: WebSocket;
     public num: number;
     public timer: NodeJS.Timeout | number;
@@ -22,6 +25,7 @@ export default class Sockette{
     public opts: Partial<SocketteOptions>;
     public url: string;
     constructor(url:string , opts: SocketteOptions = {}){
+        super();
         this.url = url;
         this.opts = opts;
         this.num=0;
@@ -29,34 +33,48 @@ export default class Sockette{
         this.max = opts.maxAttempts || Infinity;
         this.open();
     }
+    /**
+     * @override
+     */
+    public emit = (event: keyof EventMap, ...arg: Parameters<EventMap[keyof EventMap]>) => {
+        return super.emit(event, arg);
+    };
+    /**
+     * @override
+     */
+    public on = (event: keyof EventMap, listener: (arg: Parameters<EventMap[keyof EventMap]>) => void) => {
+        return super.on(event, listener);
+    };
     public open =  () => {
 		this.wss = new WebSocket(this.url, this.opts.protocols || []);
 
-		this.wss.onmessage = this.opts.onmessage || noop;
+		this.wss.onmessage = (e) => {
+            this.emit('message', e);
+        };
 
 		this.wss.onopen = (e) => {
-			(this.opts.onopen || noop)(e);
+			this.emit('open', e);
 			this.num = 0;
 		};
 
 		this.wss.onclose =  (e) => {
 			e.code === 1e3 || e.code === 1001 || e.code === 1005 || this.reconnect(e);
-			(this.opts.onclose || noop)(e);
+			this.emit('close', e);
 		};
 
 		this.wss.onerror =  (e) => {
-			(e && e.type==='ECONNREFUSED') ? this.reconnect(e) : (this.opts.onerror || noop)(e);
+			(e && e.type==='ECONNREFUSED') ? this.reconnect(e) : this.emit('error', e);
 		};
 	};
 
 	public reconnect =  (e) => {
 		if (this.timer && this.num++ < this.max) {
 			this.timer = setTimeout( () => {
-				(this.opts.onreconnect || noop)(e);
+				this.emit('reconnect', e);
 				this.open();
 			}, this.opts.timeout || 1e3);
 		} else {
-			(this.opts.onmaximum || noop)(e);
+            this.emit('maximum', e);
 		}
 	};
 
