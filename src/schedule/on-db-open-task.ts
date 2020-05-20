@@ -3,7 +3,7 @@ import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.ser
 import * as WatchEntityService from 'ROOT/module/watch/watch.service';
 import { dbEvent } from "ROOT/orm";
 import { start as huobiWSStart} from 'ROOT/ws/huobi';
-import { ws_req, ws_sub} from 'ROOT/ws/huobi.cmd';
+import { WS_REQ, WS_SUB} from 'ROOT/ws/huobi.cmd';
 /**
  * 自动任务开始
  */
@@ -16,7 +16,7 @@ export async function start() {
    const huobi_ws = huobiWSStart(account.secret_key);
    const symbols = await WatchEntityService.find({});
    symbols.forEach((symbol) => {
-       huobi_ws.json(ws_sub.kline('BTCUSDT', '1min'))
+       huobi_ws.json(WS_SUB.kline('BTCUSDT', '1min'))
    });
 }
 

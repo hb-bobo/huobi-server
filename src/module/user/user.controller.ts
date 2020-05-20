@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 
+import { AppContext } from 'ROOT/interface/App';
 import { isValidValue } from '../../utils/validator';
 import UserEntity from './user.entity';
 import * as UserService from './user.service';
@@ -15,7 +16,7 @@ const sign = config.get<string>('sign');
  * @param {Koa.Context} ctx 
  * @param {Function} next 
  */
-export const login = async (ctx: App.KoaContext) => {
+export const login = async (ctx: AppContext) => {
     const data = ctx.request.body;
     if (!isValidValue(data.userName) || !isValidValue(data.password)) {
         ctx.sendError({message: '用户名或密码为空'});
@@ -54,7 +55,7 @@ export const login = async (ctx: App.KoaContext) => {
  * @param {Koa.Context} ctx 
  * @param {Function} next 
  */
-export const createUser = async (ctx: App.KoaContext) => {
+export const createUser = async (ctx: AppContext) => {
     const data = ctx.request.body;
     if (!isValidValue(data.user) || !isValidValue(data.password)) {
         ctx.sendError({message: '内容有误'});
@@ -81,7 +82,7 @@ export const createUser = async (ctx: App.KoaContext) => {
  * @param {Koa.Context} ctx 
  * @param {Function} next 
  */
-export const createFirstUser = async (ctx: App.KoaContext) => {
+export const createFirstUser = async (ctx: AppContext) => {
     const {user, password, authority} = ctx.query;
     if (!isValidValue(user) || !isValidValue(password)) {
         ctx.sendError({message: '内容有误'});
@@ -103,7 +104,7 @@ export const createFirstUser = async (ctx: App.KoaContext) => {
  * @param {Koa.Context} ctx 
  * @param {Function} next 
  */
-export const userInfo = async (ctx: App.KoaContext) => {
+export const userInfo = async (ctx: AppContext) => {
     if (!ctx.state.user) {
         ctx.sendError({message: '没有权限'});
         return;

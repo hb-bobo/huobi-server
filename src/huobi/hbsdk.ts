@@ -4,7 +4,7 @@ import HmacSHA256 from 'crypto-js/hmac-sha256';
 import JSONbig from 'json-bigint';
 import moment from 'moment';
 import { errLogger, outLogger } from 'ROOT/common/logger';
-import { AppConfig } from 'typings/global.app';
+import { AppConfig } from 'ROOT/interface/App.ts';
 import url from 'url';
 import { isNullOrUndefined } from 'util';
 import {form_post, get, post} from '../../lib/http/httpClient';
@@ -66,7 +66,7 @@ export function sign_sha(method: 'GET' | 'POST', curl: string,  secretKey: strin
 //     // console.log(p);
 //     return p;
 // }
-export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, data: StringMap<string> = {}) {
+export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, data: Record<string, string> = {}) {
     const timestamp = moment.utc().format('YYYY-MM-DDTHH:mm:ss');
     const body = { 
         AccessKeyId: access_key,

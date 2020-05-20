@@ -1,5 +1,6 @@
 import config from 'config';
 import jwt from 'jsonwebtoken';
+import { AppContext, AppState } from 'ROOT/interface/App';
 import { outLogger } from "../common/logger";
 
 const sign = config.get<string>('sign');
@@ -7,7 +8,7 @@ const sign = config.get<string>('sign');
 /**
  * 判断token是否可用
  */
-export default async (ctx: App.KoaContext, next: () => Promise<void> ) => {
+export default async (ctx: AppContext, next: () => Promise<void> ) => {
     
     // 拿到token
     const authorization = ctx.get('Authorization') || ctx.session.token;
@@ -22,8 +23,8 @@ export default async (ctx: App.KoaContext, next: () => Promise<void> ) => {
 
     // const token = authorization.split(' ')[1];
     try {
-        let payload: App.CustomState['user'];
-        payload = await jwt.verify(authorization, sign) as App.CustomState['user'];     // 如果token过期或验证失败，将抛出错误
+        let payload: AppState['user'];
+        payload = await jwt.verify(authorization, sign) as AppState['user'];     // 如果token过期或验证失败，将抛出错误
         if (payload) {
             ctx.state.user = {
                 user: payload.user,

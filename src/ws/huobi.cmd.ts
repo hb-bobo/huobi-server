@@ -1,14 +1,13 @@
 import config from 'config'
-import CryptoJS from 'crypto-js';
-import moment from "moment"
 import { auth, sign_sha } from 'ROOT/huobi/hbsdk';
+import { AppConfig } from 'ROOT/interface/App';
 import { Period } from "ROOT/interface/Huobi"
-import { AppConfig } from "typings/global.app"
+
 
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
 
-export const ws_sub = {
+export const WS_SUB = {
     /**
      * k线订阅
      * @param param0
@@ -40,7 +39,7 @@ export const ws_sub = {
         }
     }
 }
-export const ws_req = {
+export const WS_REQ = {
     /**
      * 请求 KLine 数据
      * @param param0

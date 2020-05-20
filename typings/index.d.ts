@@ -1,5 +1,4 @@
-import './global.d'
-import './global.app'
-interface StringMap<T> {
-    [x: string]: T;
-}
+
+
+declare module 'koa-onerror';
+

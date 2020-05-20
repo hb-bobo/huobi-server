@@ -1,8 +1,9 @@
 import config from 'config';
 import events from 'events';
 import { errLogger, outLogger } from "ROOT/common/logger";
+import { AppConfig } from 'ROOT/interface/App';
 import {createConnection} from "typeorm";
-const dbConfig = config.get<App.AppConfig['dbConfig']>('dbConfig');
+const dbConfig = config.get<AppConfig['dbConfig']>('dbConfig');
 
 const connectionConfig = {
     "name": "default",

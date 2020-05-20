@@ -2,9 +2,9 @@
 import config from 'config';
 import pako from 'pako';
 import { outLogger } from 'ROOT/common/logger';
+import { AppConfig } from 'ROOT/interface/App';
 import { SocketFrom } from 'ROOT/interface/ws';
-import { dbEvent } from 'ROOT/orm';
-import { AppConfig } from 'typings/global.app';
+
 import { createWS } from './createWS';
 import { EventTypes, WSEmitter } from './events';
 import { ws_auth } from './huobi.cmd';

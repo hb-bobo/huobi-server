@@ -14,6 +14,7 @@
     "build": "npm run gulp && ttsc && node scripts/deploy.js master",
     "prod": "cross-env NODE_ENV=production node dist/app.js",
     "pm2:prod": "pm2 start pm2.json --env production",
+    "lint:ts": "tslint -c tslint.json './src/**/*.ts'",
     "test": "jest --colors --onlyChanged"
   },
   "dependencies": {
@@ -39,6 +40,7 @@
     "module-alias": "^2.2.2",
     "moment": "^2.22.2",
     "mysql": "^2.18.1",
+    "node-config-ts": "^3.0.4",
     "nodemailer": "^4.7.0",
     "pako": "^1.0.11",
     "reflect-metadata": "^0.1.13",
