@@ -10,12 +10,11 @@ export default async (ctx: App.KoaContext, next: () => Promise<void>) => {
      * @param {object}
      */
     ctx.sendSuccess = function sendSuccess<T> ({data, message = 'success', ...otherData}: ResponseBody<T> = {} as ResponseBody<T>) {
-        ctx.body = {
+        ctx.body = Object.assign({
             code: 0,
             message,
             status: 'ok',
-            ...otherData,
-        }
+        }, otherData)
 
         if (data !== undefined) {
             ctx.body.data = data;

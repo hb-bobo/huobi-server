@@ -2,6 +2,7 @@
 import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.service';
 import * as WatchEntityService from 'ROOT/module/watch/watch.service';
 import { dbEvent } from "ROOT/orm";
+import { WSEmitter } from 'ROOT/ws/events';
 import { start as huobiWSStart} from 'ROOT/ws/huobi';
 import { ws_req, ws_sub} from 'ROOT/ws/huobi.cmd';
 /**
@@ -25,3 +26,9 @@ export async function start() {
 }
 
 dbEvent.on('connected', start);
+
+
+
+WSEmitter.on('huobi:ws:message', function (ev) {
+    console.log(ev);
+});
