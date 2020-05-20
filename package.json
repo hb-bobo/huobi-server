@@ -14,8 +14,12 @@
     "build": "npm run gulp && ttsc && node scripts/deploy.js master",
     "prod": "cross-env NODE_ENV=production node dist/app.js",
     "pm2:prod": "pm2 start pm2.json --env production",
-    "lint:ts": "tslint -c tslint.json './src/**/*.ts'",
+    "tslint": "tslint -c tslint.json './src/**/*.ts'",
     "test": "jest --colors --onlyChanged"
+  },
+  "_moduleAliases": {
+    "@root": ".",
+    "ROOT": "./src"
   },
   "dependencies": {
     "async-validator": "^3.2.4",
@@ -86,9 +90,5 @@
     "ttypescript": "^1.5.8",
     "typescript": "^3.6.4",
     "typescript-transform-paths": "^1.1.11"
-  },
-  "_moduleAliases": {
-    "@root": ".",
-    "ROOT": "./src"
   }
 }

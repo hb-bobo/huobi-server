@@ -11,12 +11,11 @@ export default async (ctx: AppContext, next: () => Promise<void>) => {
      * @param {object}
      */
     ctx.sendSuccess = function sendSuccess<T> ({data, message = 'success', ...otherData}: SuccessResponseBody<T> = {} as SuccessResponseBody<T>) {
-        ctx.body = {
+        ctx.body = Object.assign({
             code: ResponseCodeType.success,
             message,
             status: 'ok',
-            ...otherData,
-        }
+        }, otherData)
 
         if (data !== undefined) {
             ctx.body.data = data;
@@ -35,9 +34,11 @@ export default async (ctx: AppContext, next: () => Promise<void>) => {
         }
 
         if (errors) {
-            ctx.body.message = 'Invalid field';
-            ctx.body.errors = errors;
-            ctx.body.code = ResponseCodeType.formError;
+            Object.assign(ctx.body, {
+                code: ResponseCodeType.formError,
+                message: 'Invalid field',
+                errors,
+            });
         }
         if (message !== 'error') {
             outLogger.error(message);

@@ -27,14 +27,9 @@ export interface HuobiTrade {
 }
 
 export interface WSEvent{
-    [EventTypes.huobi_depth]: HuobiEventData<EventTypes.huobi_depth, HuobiDepth>;
-    [EventTypes.huobi_kline]: HuobiEventData<EventTypes.huobi_kline, HuobiKline>;
-    [EventTypes.huobi_trade]: HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
-    [EventTypes.huobi_open]: {
-        type: EventTypes.huobi_open,
-        from: SocketFrom.huobi,
-        ws_auth: (accessKey: string) => void;
-    };
+    'huobi:ws:message': HuobiEventData<EventTypes.huobi_depth, HuobiDepth>
+        | HuobiEventData<EventTypes.huobi_kline, HuobiKline>
+        | HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
 }
 class Eventss extends EventEmitter {
     public emit!: (event: keyof WSEvent, arg: WSEvent[keyof WSEvent]) => boolean;

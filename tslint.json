@@ -8,12 +8,13 @@
         "max-line-length": {
             "options": [180]
         },
-        "only-arrow-functions": false,
         "interface-name": false,
+        "only-arrow-functions": false,
         "object-literal-sort-keys": false,
         "no-implicit-dependencies": false,
         "no-object-literal-type-assertion": false,
         "no-submodule-imports": false,
+        "prefer-object-spread": false,
         "variable-name": false
     },
     "jsRules": {

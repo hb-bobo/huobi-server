@@ -7,5 +7,5 @@ export default class WatchEntity extends BaseEntity{
     public id!: number;
 
     @Column({type: 'varchar'})
-    public symbol: number = 0;
+    public symbol!: string ;
 }
