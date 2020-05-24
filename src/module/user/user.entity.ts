@@ -10,4 +10,7 @@ export default class UserEntity extends BaseEntity{
 
     @Column()
     public password!: string;
+
+    @Column()
+    public role!: number;
 }

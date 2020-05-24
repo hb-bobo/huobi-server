@@ -2,7 +2,7 @@
 import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.service';
 import * as WatchEntityService from 'ROOT/module/watch/watch.service';
 import { dbEvent } from "ROOT/orm";
-import { WSEmitter } from 'ROOT/ws/events';
+import { ws_event } from 'ROOT/ws/events';
 import { start as huobiWSStart } from 'ROOT/ws/huobi';
 import { WS_REQ, WS_SUB } from 'ROOT/ws/huobi.cmd';
 /**
@@ -23,13 +23,12 @@ export async function start() {
         HUOBI_WS.json(WS_SUB.marketDetail(SYMBOL));
         HUOBI_WS.json(WS_SUB.tradeDetail(SYMBOL));
     });
-
 }
 
 dbEvent.on('connected', start);
 
 
 
-WSEmitter.on('huobi:ws:message', function (ev) {
+ws_event.on('huobi:ws:message', function (ev) {
     // console.log(ev);
 });

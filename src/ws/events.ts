@@ -36,5 +36,5 @@ class Eventss extends EventEmitter {
     public on!: (event: keyof WSEvent, listener: (arg: WSEvent[keyof WSEvent]) => void) => this;
 }
 // 自定义事件
-export const WSEmitter = new Eventss();
+export const ws_event = new Eventss();
 

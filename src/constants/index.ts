@@ -7,3 +7,10 @@ export const DEVICE = {
         '11': '异常',
     }
 }
+/**
+ * role type
+ */
+export const AUTHORITY = {
+    'admin': 0 as 0,
+    'user': 1 as 1,
+}

@@ -2,7 +2,7 @@ import { errLogger } from "ROOT/common/logger";
 import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
 import { SaveOptions } from "typeorm";
 import { isNullOrUndefined, isNumber } from "util";
-import OrderModel from "./order.entity";
+import OrderModel from "./AutoOrder.entity";
 
 /**
  * 查询
