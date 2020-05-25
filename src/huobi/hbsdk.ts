@@ -1,12 +1,12 @@
 import config from 'config';
 import CryptoJS from 'crypto-js';
-import HmacSHA256 from 'crypto-js/hmac-sha256';
+// import HmacSHA256 from 'crypto-js/hmac-sha256';
 import JSONbig from 'json-bigint';
 import moment from 'moment';
 import { errLogger, outLogger } from 'ROOT/common/logger';
 import { AppConfig } from 'ROOT/interface/App.ts';
 import url from 'url';
-import { isNullOrUndefined } from 'util';
+
 import {form_post, get, post} from '../../lib/http/httpClient';
 
 const { api: BASE_URL} = config.get<AppConfig['huobi']>('huobi');
@@ -66,7 +66,7 @@ export function sign_sha(method: 'GET' | 'POST', curl: string,  secretKey: strin
 //     // console.log(p);
 //     return p;
 // }
-export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, data: Record<string, string> = {}) {
+export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, secretKey: string, data: Record<string, string> = {}) {
     const timestamp = moment.utc().format('YYYY-MM-DDTHH:mm:ss');
     const body = { 
         AccessKeyId: access_key,
@@ -76,7 +76,7 @@ export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, 
         ...data,
     }
     Object.assign(body,  {
-        Signature: sign_sha(method, curl, access_key, body),
+        Signature: sign_sha(method, curl, secretKey, body),
     });
     return body;
 }
@@ -123,6 +123,16 @@ function call_post(path: string, payload, body, tip?: string){
 }
 
 export const hbsdk = {
+    /** 获取账户信息 */
+    get_account(accessKey: string, secretKey: string) {
+        const path = `${BASE_URL}/v1/contract_account_info`;
+        return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+    },
+    /** 获取账户信息 */
+    get_balance(accessKey: string, secretKey: string, account_id_pro: string) {
+        const path = `${BASE_URL}/v1/account/accounts/${account_id_pro}/balance`;
+        return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+    },
     /** 获取合约信息 */
     contract_contract_info() {
         interface Data {
@@ -156,12 +166,12 @@ export const hbsdk = {
     /**
      * 获取合约用户账户信息
      */
-    contract_account_info(access_key: string, data: {symbol: string}) {
+    contract_account_info(accessKey: string, secretKey: string, data: {symbol: string}) {
 
         const path = `${BASE_URL}/api/v1/contract_account_info`;
         return call_post(
             path,
-            auth('POST', path, access_key, data),
+            auth('POST', path, accessKey, secretKey, data),
             data,
         );
     }
