@@ -12,9 +12,6 @@
     "paths": {                              
       "ROOT/*": ["src/*"]
     },
-    "plugins": [
-      { "transform": "typescript-transform-paths" }
-    ],
     "typeRoots": ["./node_modules/@types", "./typings"],             
     "allowSyntheticDefaultImports": true, 
     "esModuleInterop": true,    

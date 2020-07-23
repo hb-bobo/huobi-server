@@ -1,14 +1,15 @@
 
 import Router from  'koa-router'
 import { AppContext, AppState } from 'ROOT/interface/App';
-
-// @index: import ${variable} from ${relpath};
-import user from "./user";
+import checkToken from 'ROOT/middleware/checkToken';
+import * as UserController from 'ROOT/module/user/user.controller';
 // /index
 const apiPrefix = '/api';
+const router = new Router<AppState, AppContext>();
+export default router;
 
-export default (router: Router<AppState, AppContext>) => {
-  // @index: router.use(apiPrefix + '/${variable}', ${variable}.routes());
-  router.use(apiPrefix + '/user', user.routes());
-  // /index
-}
+// router.get(`${apiPrefix}/user/users`, checkToken, UserController.get);
+router.get(`${apiPrefix}/user/currentUser`, checkToken, UserController.userInfo);
+router.get(`${apiPrefix}/user/firstUser`, UserController.createFirstUser);
+router.post(`${apiPrefix}/user/create`, checkToken, UserController.createUser);
+router.post(`${apiPrefix}/login`, UserController.login);

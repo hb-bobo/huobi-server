@@ -11,6 +11,7 @@ import { WS_REQ, WS_SUB } from 'ROOT/ws/huobi.cmd';
 export async function start() {
 
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
+    console.log(account)
     if (!account) {
         return;
     }
@@ -30,5 +31,5 @@ dbEvent.on('connected', start);
 
 
 ws_event.on('huobi:ws:message', function (ev) {
-    // console.log(ev);
+    console.log(ev);
 });

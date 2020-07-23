@@ -1,11 +1,14 @@
 module.exports = {
+    host: 'localhost',
+    env: 'dev',
     dbConfig: {
-        "host"     : "localhost",
-        "user"     : "", // 114421
-        "password" : "", // h
-        "database" : "AD_TV",
-        "port": 27017 // 27000
+        host     : "localhost",
+        port     : 3306,
+        user     : "root",
+        password : "8590550a",
+        database : "huobi",
     },
+    huobi: require('./production').huobi,
     /* config/production.js 不能与此文件一样 */
     sign: 'a12',
 }

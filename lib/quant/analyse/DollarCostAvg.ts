@@ -98,10 +98,10 @@ export class DollarCostAvg {
     }
 }
 const dc = new DollarCostAvg({
-    maxs: [9865],
-    mins: [9566],
+    maxs: [11527],
+    mins: [8444],
     minVolume: 1,
-    balance: 300,
+    balance: 101,
 });
 console.log(dc.splitBill())
 // const price = 9500

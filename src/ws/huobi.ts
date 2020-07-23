@@ -6,7 +6,7 @@ import { AppConfig } from 'ROOT/interface/App';
 import { SocketFrom } from 'ROOT/interface/ws';
 
 import { createWS } from './createWS';
-import { EventTypes, WSEmitter } from './events';
+import { EventTypes, ws_event } from './events';
 import { ws_auth } from './huobi.cmd';
 import Sockette from './sockette';
 
@@ -80,7 +80,7 @@ function handle(data) {
     const channel = data.ch.split('.')[2];
     if (handleMap[channel]) {
         const {type, data: otherData } = handleMap[channel](data);
-        WSEmitter.emit('huobi:ws:message', {
+        ws_event.emit('huobi:ws:message', {
             type,
             from: SocketFrom.huobi,
             data: {

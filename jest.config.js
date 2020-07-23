@@ -12,7 +12,6 @@ module.exports = {
     moduleNameMapper: {
         "^ROOT/(.*)$": "<rootDir>/src/$1",
     },
-    setupFiles: ['<rootDir>/jest.setup.js'], // 运行测试前可执行的脚本（比如注册enzyme的兼容）
     transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.(js|mjs)$': '<rootDir>/node_modules/babel-jest',

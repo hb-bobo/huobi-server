@@ -1,4 +1,5 @@
-require('module-alias/register')
+require('module-alias/register');
+import "reflect-metadata";
 import config from 'config';
 import http from 'http';
 import Koa from 'koa';
@@ -11,15 +12,18 @@ import Router from 'koa-router';
 import session from 'koa-session';
 import serve from 'koa-static';
 import historyApiFallback from 'koa2-connect-history-api-fallback';
-import "reflect-metadata";
+
 import { outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
 import { socketIO } from 'ROOT/ws/socketIO';
+import { AppState, AppContext } from './interface/App';
+import './schedule';
+import './orm';
 // const debug = require('debug')('koa2:server')
 
 const app = new Koa()
-const router = new Router<App.CustomState, App.CustomContext>()
+const router = new Router<AppState, AppContext>()
 const port = process.env.PORT || config.get('port')
 
 const SESSION_CONFIG = {
@@ -35,7 +39,6 @@ const SESSION_CONFIG = {
 const keys = [config.get<string>('sign')]
 app.keys = keys
 
-routes(router)
 // error handler
 koaOnError(app)
 // middlewares
@@ -53,8 +56,8 @@ app.use(cors())
     maxage: 1000 * 60 * 60 * 24 * 2
   }))
   .use(send)
-  .use(router.routes())
-  .use(router.allowedMethods())
+  .use(routes.routes())
+  .use(routes.allowedMethods())
 
 
 app.on('error', function(err: Error, ctx: Koa.Context) {
