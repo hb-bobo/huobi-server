@@ -6,13 +6,10 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from 'koa-cors';
 import koaJSON from 'koa-json';
-// import koaLogger from 'koa-logger';
 import koaOnError from 'koa-onerror';
-import Router from 'koa-router';
 import session from 'koa-session';
 import serve from 'koa-static';
 import historyApiFallback from 'koa2-connect-history-api-fallback';
-
 import { outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
@@ -22,10 +19,9 @@ import './schedule';
 import './orm';
 // const debug = require('debug')('koa2:server')
 
-const app = new Koa()
-const router = new Router<AppState, AppContext>()
-const port = process.env.PORT || config.get('port')
-
+const app = new Koa();
+const port = process.env.PORT || config.get('port');
+const host = config.get('host');
 const SESSION_CONFIG = {
   key: 'koa:sess',
   maxAge: 24 * 60 * 60 * 1000 * 10,
@@ -36,11 +32,11 @@ const SESSION_CONFIG = {
   rolling: true,
   renew: true,
 };
-const keys = [config.get<string>('sign')]
-app.keys = keys
+const keys = [config.get<string>('sign')];
+app.keys = keys;
 
 // error handler
-koaOnError(app)
+koaOnError(app);
 // middlewares
 app.use(cors())
   .use(bodyParser({
@@ -65,11 +61,7 @@ app.on('error', function(err: Error, ctx: Koa.Context) {
     status: 'error',
     message: err.message,
   }
-})
-
-// app.listen(port, () => {
-//   outLogger.info(`Listening on http://localhost:${port}`)
-// })
+});
 
 const server = http.createServer(app.callback());
 socketIO.attach(server, {
@@ -79,5 +71,5 @@ socketIO.attach(server, {
 });
 
 server.listen(port, () => {
-  outLogger.info(`Listening on http://localhost:${port}`)
+  outLogger.info(`Listening on http://${host}:${port}`)
 });

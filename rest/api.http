@@ -1,0 +1,25 @@
+@localURL = http://localhost:3001/api
+@preURL = http://139.224.62.3:3001/api
+
+# @name 查看所有留言(admin) 
+GET  {{localURL}}/feedback
+?pageSize=3
+Authorization: test
+
+###
+# @name 联系我们/留言
+POST  {{localURL}}/feedback
+content-type: application/json
+
+{
+    "nickname": "qq",
+    "email": "qq@qq.com",
+    "message": "message"
+}
+
+
+###
+# @name 获取游客信息 
+POST  {{localURL}}/visitor
+content-type: application/json
+
