@@ -1,10 +1,10 @@
 import config from 'config';
 import jwt from 'jsonwebtoken';
-import { AppContext, AppState } from 'ROOT/interface/App';
+import { AppContext, AppState, AppConfig } from 'ROOT/interface/App';
 import { outLogger } from "../common/logger";
 
 const sign = config.get<string>('sign');
-
+const isDev = config.get<AppConfig['env']>('env') === 'dev';
 /**
  * 判断token是否可用
  */
@@ -12,6 +12,14 @@ export default async (ctx: AppContext, next: () => Promise<void> ) => {
     
     // 拿到token
     const authorization = ctx.get('Authorization') || ctx.session.token;
+    if (isDev && authorization === 'test') {
+        ctx.state.user = {
+            user: 'test',
+            id: 'ss',
+        }
+        await next();
+        return;
+    }
     if (!authorization) {
         ctx.sendError({ code: 401, message: 'No token detected in http headerAuthorization'});
         return;

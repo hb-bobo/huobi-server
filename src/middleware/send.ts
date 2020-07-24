@@ -10,7 +10,7 @@ export default async (ctx: AppContext, next: () => Promise<void>) => {
      * 成功反馈的数据格式
      * @param {object}
      */
-    ctx.sendSuccess = function sendSuccess<T> ({data, message = 'success', ...otherData}: SuccessResponseBody<T> = {} as SuccessResponseBody<T>) {
+    ctx.sendSuccess = function sendSuccess<T> ({data, message = 'success', ...otherData}: Partial<SuccessResponseBody<T>> = {} as Partial<SuccessResponseBody<T>>) {
         ctx.body = Object.assign({
             code: ResponseCodeType.success,
             message,
@@ -25,7 +25,7 @@ export default async (ctx: AppContext, next: () => Promise<void>) => {
      * 失败反馈的数据格式
      * @param {object}
      */
-    ctx.sendError = function sendError<T> ({code = ResponseCodeType.otherError, message = 'error', errors}: ErrorResponseBody<T> = {} as ErrorResponseBody<T>) {
+    ctx.sendError = function sendError<T> ({code = ResponseCodeType.otherError, message = 'error', errors}: Partial<ErrorResponseBody<T>> = {} as Partial<ErrorResponseBody<T>>) {
         ctx.body = {
             code,
             message,
