@@ -1,5 +1,6 @@
 
 import config from 'config';
+import schema from 'async-validator';
 import { AppContext } from 'ROOT/interface/App';
 import TradeAccountEntity from './TradeAccount.entity';
 import * as TradeAccountService from './TradeAccount.service';
@@ -33,20 +34,77 @@ export const get = async (ctx: AppContext) => {
  * 更新或者新建
  */
 export const updateOne = async (ctx: AppContext) => {
-    const data = ctx.request.body;
+    const {
+        id,
+        _id,
+        auto_trade,
+        exchange,
+        access_key,
+        secret_key,
+        uid,
+        account_id_pro,
+        trade_password,
+    } = ctx.request.body;
+    const ID = id || _id;
+    const DATA = {
+        auto_trade,
+        exchange,
+        access_key,
+        secret_key,
+        uid,
+        account_id_pro,
+        trade_password,
+    }
+    const validator = new schema({
+        id: {
+            type: "string",
+            required: true,
+        },
+        auto_trade: {
+            type: "string",
+            required: true,
+        },
+        exchange: {
+            type: "string",
+        },
+        access_key: {
+            type: "string",
+            required: true,
+        },
+        secret_key: {
+            type: "string",
+            required: true,
+        },
+        uid: {
+            type: "string",
+            required: true,
+        },
+        account_id_pro: {
+            type: "string",
+            required: true,
+        },
+        trade_password: {
+            type: "string",
+            required: true,
+        },
+    });
+    try {
+        await validator.validate(DATA);
+    } catch ({ errors, fields }) {
+        ctx.sendError({errors});
+        return;
+    }
     try {
         let res;
-        if (data.id || data._id) {
-            res = await TradeAccountService.updateOne({id: data.id || data._id}, data);
-        } else if (data.title) {
-            res = await TradeAccountService.create(data);
+        if (ID) {
+            res = await TradeAccountService.updateOne({id: ID}, DATA);
         } else {
-            ctx.sendError({message: '格式有误'});
-            return;
+            res = await TradeAccountService.create(DATA);
+            ctx.sendSuccess({
+                data: res
+            });
         }
-        ctx.sendSuccess({
-            data: res
-        });
+        
 
     } catch (error) {
         ctx.sendError({message: error});

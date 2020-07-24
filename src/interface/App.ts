@@ -8,20 +8,19 @@ export interface SessionData {
 export interface AppConfig{
     port: number;
     host: string;
-    isDev: boolean;
     publicPath: string;
     env: 'dev' | 'beta' | 'prod';
     dbConfig: {
         host     : string;
-        user     : string; //
-        password : string; //
+        user     : string;
+        password : string;
         database : string;
-        port: number // 27000
+        port: number;
     };
     sign: string;
     admin: {
         user: string;
-        password: string
+        password: string;
     };
     huobi: {
         ws_url_prex: string;
