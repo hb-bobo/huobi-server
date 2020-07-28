@@ -2,7 +2,7 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
 const PriceMaxColumnType = {type: 'float' as 'float'}
 @Entity()
-export default class Depth extends BaseEntity{
+export default class DepthEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
 

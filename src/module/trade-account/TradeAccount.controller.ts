@@ -34,6 +34,7 @@ export const get = async (ctx: AppContext) => {
  * 更新或者新建
  */
 export const updateOne = async (ctx: AppContext) => {
+    console.log(ctx.request.body)
     const {
         id,
         _id,
@@ -58,7 +59,6 @@ export const updateOne = async (ctx: AppContext) => {
     const validator = new schema({
         id: {
             type: "string",
-            required: true,
         },
         auto_trade: {
             type: "string",
@@ -98,6 +98,7 @@ export const updateOne = async (ctx: AppContext) => {
         let res;
         if (ID) {
             res = await TradeAccountService.updateOne({id: ID}, DATA);
+            ctx.sendSuccess();
         } else {
             res = await TradeAccountService.create(DATA);
             ctx.sendSuccess({

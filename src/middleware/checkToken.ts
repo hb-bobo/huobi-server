@@ -9,10 +9,10 @@ const isDev = config.get<AppConfig['env']>('env') === 'dev';
  * 判断token是否可用
  */
 export default async (ctx: AppContext, next: () => Promise<void> ) => {
-    
     // 拿到token
     const authorization = ctx.get('Authorization') || ctx.session.token;
     if (isDev && authorization === 'test') {
+        console.log('dev')
         ctx.state.user = {
             user: 'test',
             id: 'ss',

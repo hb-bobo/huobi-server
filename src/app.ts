@@ -14,7 +14,6 @@ import { outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
 import { socketIO } from 'ROOT/ws/socketIO';
-import { AppState, AppContext } from './interface/App';
 import './schedule';
 import './orm';
 // const debug = require('debug')('koa2:server')
@@ -39,18 +38,18 @@ app.keys = keys;
 koaOnError(app);
 // middlewares
 app.use(cors())
+  .use(logger)
+  .use(serve(config.get<string>('publicPath'), {
+    maxage: 1000 * 60 * 60 * 24 * 2
+  }))
+  .use(historyApiFallback({ whiteList: ['/api'] }))
   .use(bodyParser({
     onerror (err: Error, ctx: Koa.Context) {
-      ctx.throw('body parse error', 422);
+      ctx.throw(422, 'body parse error');
     }
   }))
   .use(session(SESSION_CONFIG, app))
   .use(koaJSON())
-  .use(logger)
-  .use(historyApiFallback({ whiteList: ['/api'] }))
-  .use(serve(config.get<string>('publicPath'), {
-    maxage: 1000 * 60 * 60 * 24 * 2
-  }))
   .use(send)
   .use(routes.routes())
   .use(routes.allowedMethods())

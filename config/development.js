@@ -4,8 +4,8 @@ module.exports = {
     dbConfig: {
         host     : "localhost",
         port     : 3306,
-        user     : "root",
-        password : "8590550a",
+        user     : "test",
+        password : "test123456",
         database : "huobi",
     },
     huobi: require('./production').huobi,

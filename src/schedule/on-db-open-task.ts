@@ -5,6 +5,7 @@ import { dbEvent } from "ROOT/orm";
 import { ws_event } from 'ROOT/ws/events';
 import { start as huobiWSStart } from 'ROOT/ws/huobi';
 import { WS_REQ, WS_SUB } from 'ROOT/ws/huobi.cmd';
+import { handle } from './huobi-handler';
 /**
  * 自动任务开始
  */
@@ -32,4 +33,5 @@ dbEvent.on('connected', start);
 
 ws_event.on('huobi:ws:message', function (ev) {
     console.log(ev);
+    // handle(ev.data)
 });

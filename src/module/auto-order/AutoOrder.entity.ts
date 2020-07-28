@@ -2,7 +2,7 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
 
 @Entity()
-export default class Order extends BaseEntity{
+export default class OrderEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
 

@@ -36,10 +36,10 @@ export interface AppState{
 }
 export interface CustomContext{
     session: SessionData;
-    sendSuccess({ data, message, ...otherData }?: Partial<SuccessResponseBody>): void;
-    sendSuccess<T>({ data, message, ...otherData }?: Partial<SuccessResponseBody<T>>): void;
-    sendError({ code, message }?: Partial<ErrorResponseBody>): void;
-    sendError<T>({ code, message }?: Partial<ErrorResponseBody<T>>): void;
+    sendSuccess(params?: Partial<SuccessResponseBody>): void;
+    sendSuccess<T>(params?: Partial<SuccessResponseBody<T>>): void;
+    sendError(params?: Partial<ErrorResponseBody>): void;
+    sendError<T>(params?: Partial<ErrorResponseBody<T>>): void;
 }
 export type AppContext = RouterContext<AppState, CustomContext> & BaseContext;
 

@@ -7,7 +7,7 @@ import { errLogger, outLogger } from 'ROOT/common/logger';
 import { AppConfig } from 'ROOT/interface/App.ts';
 import url from 'url';
 
-import {form_post, get, post} from '../../lib/http/httpClient';
+import {form_post, get, post} from 'ROOT/lib/http/httpClient';
 
 const { api: BASE_URL} = config.get<AppConfig['huobi']>('huobi');
 const DEFAULT_HEADERS = {
@@ -122,57 +122,70 @@ function call_post(path: string, payload, body, tip?: string){
         });
 }
 
-export const hbsdk = {
-    /** 获取账户信息 */
-    get_account(accessKey: string, secretKey: string) {
-        const path = `${BASE_URL}/v1/contract_account_info`;
-        return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
-    },
-    /** 获取账户信息 */
-    get_balance(accessKey: string, secretKey: string, account_id_pro: string) {
-        const path = `${BASE_URL}/v1/account/accounts/${account_id_pro}/balance`;
-        return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
-    },
-    /** 获取合约信息 */
-    contract_contract_info() {
-        interface Data {
-            "symbol": string,
-            "contract_code": string,
-            "contract_type": string,
-            "contract_size": number,
-            "price_tick": number,
-            "delivery_date": string,
-            "create_date": string,
-            "contract_status": number
+interface Options {
+    accessKey: string;
+    secretKey: string;
+    account_id_pro: string;
+}
+export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {} as Options) {
+    return function () {
+        return {
+            getSymbols: function() {
+                const path = `${BASE_URL}/v1/common/symbols`;
+                return call_get(`${path}?${auth('GET', path)}`);;
+            },
+            /** 获取账户信息 */
+            get_account(accessKey: string, secretKey: string) {
+                const path = `${BASE_URL}/v1/contract_account_info`;
+                return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+            },
+            /** 获取账户信息 */
+            get_balance(accessKey: string, secretKey: string, account_id_pro: string) {
+                const path = `${BASE_URL}/v1/account/accounts/${account_id_pro}/balance`;
+                return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+            },
+            /** 获取合约信息 */
+            contract_contract_info() {
+                interface Data {
+                    "symbol": string,
+                    "contract_code": string,
+                    "contract_type": string,
+                    "contract_size": number,
+                    "price_tick": number,
+                    "delivery_date": string,
+                    "create_date": string,
+                    "contract_status": number
+                }
+                return call_get<Data[]>('/api/v1/contract_contract_info');
+            },
+            /** 获取合约指数信息 */
+            contract_index(){
+                return call_get('/api/v1/contract_index');
+            },
+            /**
+             *  获取合约最高限价和最低限价
+             */
+            contract_price_limit(symbol: string) {
+                return call_get('/api/v1/contract_price_limit?symbol=BTC&contract_type=this_week');
+            },
+            /**
+             * 获取当前可用合约总持仓量
+             */
+            contract_open_interest() {
+                return call_get('/api/v1/contract_open_interest');
+            },
+            /**
+             * 获取合约用户账户信息
+             */
+            contract_account_info(accessKey: string, secretKey: string, data: {symbol: string}) {
+        
+                const path = `${BASE_URL}/api/v1/contract_account_info`;
+                return call_post(
+                    path,
+                    auth('POST', path, accessKey, secretKey, data),
+                    data,
+                );
+            }
         }
-        return call_get<Data[]>('/api/v1/contract_contract_info');
-    },
-    /** 获取合约指数信息 */
-    contract_index(){
-        return call_get('/api/v1/contract_index');
-    },
-    /**
-     *  获取合约最高限价和最低限价
-     */
-    contract_price_limit(symbol: string) {
-        return call_get('/api/v1/contract_price_limit?symbol=BTC&contract_type=this_week');
-    },
-    /**
-     * 获取当前可用合约总持仓量
-     */
-    contract_open_interest() {
-        return call_get('/api/v1/contract_open_interest');
-    },
-    /**
-     * 获取合约用户账户信息
-     */
-    contract_account_info(accessKey: string, secretKey: string, data: {symbol: string}) {
-
-        const path = `${BASE_URL}/api/v1/contract_account_info`;
-        return call_post(
-            path,
-            auth('POST', path, accessKey, secretKey, data),
-            data,
-        );
     }
 }

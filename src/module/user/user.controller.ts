@@ -101,9 +101,9 @@ export const createUser = async (ctx: AppContext) => {
  * @param {Function} next 
  */
 export const createFirstUser = async (ctx: AppContext) => {
-    const {userName, password} = ctx.query;
+    const {user, password} = ctx.query;
     try {
-        await userValidator.validate({userName, password});
+        await userValidator.validate({user, password});
     } catch ({errors}) {
         ctx.sendError({errors});
         return;
@@ -113,7 +113,7 @@ export const createFirstUser = async (ctx: AppContext) => {
         ctx.sendError({message: '写入失败'});
         return;
     }
-    const newUser = UserService.create(userName, password, AUTHORITY.admin);
+    const newUser = UserService.create(user, password, AUTHORITY.admin);
     if (newUser) {
         ctx.sendSuccess();
     }
