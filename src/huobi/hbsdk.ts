@@ -1,5 +1,7 @@
+
 import config from 'config';
 import CryptoJS from 'crypto-js';
+import { stringify } from 'querystring';
 // import HmacSHA256 from 'crypto-js/hmac-sha256';
 import JSONbig from 'json-bigint';
 import moment from 'moment';
@@ -105,7 +107,7 @@ function call_get<T>(path: string, tip?: string): Promise<T>{
         errLogger.error('GET', '-', path, '异常', ex, tip);
     });
 }
-function call_post(path: string, payload, body, tip?: string){
+function call_post<T>(path: string, payload, body, tip?: string): Promise<T>{
     const payloadPath = `${path}?${payload}`;
     return post(payloadPath, body, {
             timeout,
@@ -128,21 +130,32 @@ interface Options {
     account_id_pro: string;
 }
 export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {} as Options) {
+
     return function () {
+        function GET<T>(path: string, params: Record<string, any> = {} as Record<string, any>) {
+            return call_get<T>(`${path}?${stringify(params)}&${auth('GET', path, accessKey, secretKey)}`);;
+        }
+        function POST<T>(path: string, data) {
+            return call_post<T>(
+                path,
+                auth('POST', path, accessKey, secretKey, data),
+                data,
+            );
+        }
         return {
             getSymbols: function() {
                 const path = `${BASE_URL}/v1/common/symbols`;
-                return call_get(`${path}?${auth('GET', path)}`);;
+                return GET(`${path}`);;
             },
             /** 获取账户信息 */
-            get_account(accessKey: string, secretKey: string) {
+            get_account() {
                 const path = `${BASE_URL}/v1/contract_account_info`;
-                return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+                return GET(`${path}`);;
             },
             /** 获取账户信息 */
-            get_balance(accessKey: string, secretKey: string, account_id_pro: string) {
+            get_balance(account_id_pro: string) {
                 const path = `${BASE_URL}/v1/account/accounts/${account_id_pro}/balance`;
-                return call_get(`${path}?${auth('GET', path, accessKey, secretKey)}`);;
+                return GET(`${path}`);;
             },
             /** 获取合约信息 */
             contract_contract_info() {
@@ -156,23 +169,23 @@ export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {
                     "create_date": string,
                     "contract_status": number
                 }
-                return call_get<Data[]>('/api/v1/contract_contract_info');
+                return GET<Data[]>('/api/v1/contract_contract_info');
             },
             /** 获取合约指数信息 */
             contract_index(){
-                return call_get('/api/v1/contract_index');
+                return GET('/api/v1/contract_index');
             },
             /**
              *  获取合约最高限价和最低限价
              */
             contract_price_limit(symbol: string) {
-                return call_get('/api/v1/contract_price_limit?symbol=BTC&contract_type=this_week');
+                return GET('/api/v1/contract_price_limit?symbol=BTC&contract_type=this_week');
             },
             /**
              * 获取当前可用合约总持仓量
              */
             contract_open_interest() {
-                return call_get('/api/v1/contract_open_interest');
+                return GET('/api/v1/contract_open_interest');
             },
             /**
              * 获取合约用户账户信息
@@ -180,9 +193,8 @@ export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {
             contract_account_info(accessKey: string, secretKey: string, data: {symbol: string}) {
         
                 const path = `${BASE_URL}/api/v1/contract_account_info`;
-                return call_post(
+                return POST(
                     path,
-                    auth('POST', path, accessKey, secretKey, data),
                     data,
                 );
             }
