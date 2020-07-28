@@ -9,11 +9,11 @@ content-type: application/json
 {
     "auto_trade": 1,
     "exchange": "huobi",
-    "access_key": "62781c1b-47204092-bgbfh5tv3f-2b7a2",
-    "secret_key": "5dc0e091-e7bc6172-a91b318d-27c5b",
-    "uid": "24295246",
-    "account_id_pro": "1733649",
-    "trade_password": "114421",
+    "access_key": "a",
+    "secret_key": "a",
+    "uid": "a",
+    "account_id_pro": "a",
+    "trade_password": "a",
 }
 
 
