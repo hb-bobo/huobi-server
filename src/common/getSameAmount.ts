@@ -1,5 +1,6 @@
+import { getSymbolInfo } from "./getSymbolInfo";
 
-const huobiSymbols = require('../utils/huobiSymbols');
+
 
 let config = {
 	sortBy: 'sumMoneny',
@@ -24,11 +25,12 @@ const getSameAmount = function (data, {
 	type = '',
 	symbol = '',
 	sortBy = config.sortBy
+	prices = {},
 } = {}) {
 	// data = data.slice(0, 400)
-	let countTemp = {};
+	let countTemp: Record<number, {count: number, prices: number[]}> = {};
 	// 拿价格，量的小数位
-	let symbolInfo = huobiSymbols.getSymbolInfo(symbol);
+	let symbolInfo = getSymbolInfo(symbol);
 	let amountPrecision = symbolInfo['amount-precision'];
 	let pricePrecision = symbolInfo['price-precision'];
 	// 统计重复次数
@@ -36,15 +38,24 @@ const getSameAmount = function (data, {
 		let count = data[i][1];
 
 		if (countTemp[count] === undefined) {
-			countTemp[count] = {};
-			countTemp[count].count = 1;
-			countTemp[count].prices = [data[i][0]];
+			countTemp[count] = {
+				count: 1,
+				prices = [data[i][0]]
+			}
 			continue;
 		}
 		countTemp[count].count += 1;
 		countTemp[count].prices.push(data[i][0]);
 	}
-	let arr = [];
+	let arr: {
+		count: number;
+		amount: number;
+		sumCount: number
+		sumMoneny: string[];
+		sumDollar: string[];
+		price: string;
+		prices: string[];
+	}[] = [];
 	for (let key in countTemp) {
 		let prices = countTemp[key].prices;
 		let price = 0;
@@ -57,16 +68,16 @@ const getSameAmount = function (data, {
 		// 同数量出现 的次数
 		let count = countTemp[key].count;
 		// 总量 = 次数 * 单个挂单量
-		let sum = count * key;
+		let sum = count * Number(key);
 		// 总价
 		let sumPrice = sum * price;
 		let sumDollar = sumPrice;
-
+		
 		// 转换成美元价格
 		if (symbol.endsWith('btc')) {
-			sumDollar = sumPrice * appConfig.prices.btc;
+			sumDollar = sumPrice * prices.btc;
 		} else if (symbol.endsWith('eth')) {
-			sumDollar = sumPrice * appConfig.prices.eth;
+			sumDollar = sumPrice * prices.eth;
 		}
 		if ((count > 1 && sumDollar > config.minSumPrice) //机器人
 			|| (sumDollar > config.minPrice) // 大户
@@ -74,8 +85,8 @@ const getSameAmount = function (data, {
 			|| (sum % 10 === 0 && sumDollar > config.minSumPrice) // 10整数倍
 		) {
 			let data = {
-				'count': count,
-				'amount': Number(key).toFixed(amountPrecision), // 量
+				count: count,
+				amount: Number(key).toFixed(amountPrecision), // 量
 				sumCount: sum.toFixed(amountPrecision),
 				sumMoneny: sumPrice.toFixed(2),
 				sumDollar: sumDollar.toFixed(2),

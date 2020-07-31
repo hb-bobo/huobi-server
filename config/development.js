@@ -8,6 +8,11 @@ module.exports = {
         password : "test123456",
         database : "huobi",
     },
+    redis: {
+        host: "localhost",
+        port: 6379,
+        password : "123456",
+    },
     huobi: require('./production').huobi,
     /* config/production.js 不能与此文件一样 */
     sign: 'a12',

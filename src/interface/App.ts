@@ -17,6 +17,11 @@ export interface AppConfig{
         database : string;
         port: number;
     };
+    redis: {
+        host     : string;
+        port     : number;
+        password : string;
+    };
     sign: string;
     admin: {
         user: string;

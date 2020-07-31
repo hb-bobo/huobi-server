@@ -15,7 +15,7 @@ import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
 import { socketIO } from 'ROOT/ws/socketIO';
 import './schedule';
-import './orm';
+import './db/orm';
 // const debug = require('debug')('koa2:server')
 
 const app = new Koa();

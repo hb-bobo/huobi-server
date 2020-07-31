@@ -1,5 +1,6 @@
-const hbsdk = require('../../lib/sdk/hbsdk');
+// import { create_hbsdk } from "ROOT/huobi/hbsdk";
 
+// create_hbsdk
 // 有问题的symbols 或者不需要监控的symbols
 const errorSymbols = [ 
     'venusdt',

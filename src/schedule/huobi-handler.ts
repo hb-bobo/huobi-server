@@ -2,8 +2,10 @@ import throttle from 'lodash/throttle';
 import { SocketFrom } from "ROOT/interface/ws";
 import { EventTypes, ws_event } from '../ws/events';
 import getPriceIndex from 'ROOT/huobi/getPriceIndex';
+import symbolPrice from 'ROOT/huobi/price';
+import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
 
-interface Data {
+interface Event {
     type: EventTypes;
     from: SocketFrom.huobi;
     data: {
@@ -17,8 +19,9 @@ interface Data {
 const depthHandles = {};
 // 交易数据处理方法
 const tradeHandles = {};
-export function handle(data: Data) {
-    const symbol = data.data.symbol;
+export function handle(event: Event) {
+    const symbol = event.data.symbol;
+    const data = event.data;
     switch (data.type) {
         case EventTypes.huobi_depth:
             if(typeof depthHandles[symbol] !== 'function') {
@@ -34,11 +37,11 @@ export function handle(data: Data) {
             break;
         case EventTypes.huobi_kline:
             if (symbol === 'btcusdt') {
-                appConfig.prices.btc = data.kline.close
+                symbolPrice.set('btc', data.kline.close);
             } else if(symbol === 'etcusdt') {
-                appConfig.prices.eth = data.kline.close
+                symbolPrice.set('eth', data.kline.close);
             } else if(symbol === 'htusdt') {
-                appConfig.prices.ht = data.kline.close
+                symbolPrice.set('ht', data.kline.close);
             }
             // broadcast(WS_SERVER, {
             //     type: 'WS_HUOBI',
@@ -106,13 +109,13 @@ const handleDepth = function (data) {
 
 
          // 处理数据
-        let bidsList = utils.getSameAmount(originBids, {
+        let bidsList = getSameAmount(originBids, {
             type: 'bids',
             symbol: symbol,
         });
        
         
-        let asksList = utils.getSameAmount(originAsks, {
+        let asksList = getSameAmount(originAsks, {
             type: 'asks',
             symbol: symbol,
         });

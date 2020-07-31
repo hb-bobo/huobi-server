@@ -1,11 +1,13 @@
 
 import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.service';
 import * as WatchEntityService from 'ROOT/module/watch/watch.service';
-import { dbEvent } from "ROOT/orm";
+import { dbEvent } from "ROOT/db/orm";
 import { ws_event } from 'ROOT/ws/events';
 import { start as huobiWSStart } from 'ROOT/ws/huobi';
 import { WS_REQ, WS_SUB } from 'ROOT/ws/huobi.cmd';
-import { handle } from './huobi-handler';
+import { redis } from 'ROOT/db/redis';
+// import { handle } from './huobi-handler';
+
 /**
  * 自动任务开始
  */
