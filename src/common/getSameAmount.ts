@@ -13,7 +13,7 @@ let config = {
  * 
  * @param {Object} newConfig 
  */
-function setConfig(newConfig) {
+export function setConfig(newConfig) {
 	Object.assign(config, newConfig);
 }
 
@@ -21,11 +21,11 @@ function setConfig(newConfig) {
  * 合并相同的价格统计次数并排序
  * @param {Array<Array<number>>} data
  */
-const getSameAmount = function (data, {
+export const getSameAmount = function (data, {
 	type = '',
 	symbol = '',
 	sortBy = config.sortBy
-	prices = {},
+	priceInfo = {},
 } = {}) {
 	// data = data.slice(0, 400)
 	let countTemp: Record<number, {count: number, prices: number[]}> = {};
@@ -75,9 +75,9 @@ const getSameAmount = function (data, {
 		
 		// 转换成美元价格
 		if (symbol.endsWith('btc')) {
-			sumDollar = sumPrice * prices.btc;
+			sumDollar = sumPrice * priceInfo.btc;
 		} else if (symbol.endsWith('eth')) {
-			sumDollar = sumPrice * prices.eth;
+			sumDollar = sumPrice * priceInfo.eth;
 		}
 		if ((count > 1 && sumDollar > config.minSumPrice) //机器人
 			|| (sumDollar > config.minPrice) // 大户
@@ -98,13 +98,13 @@ const getSameAmount = function (data, {
 	}
 	if (type === 'asks' && sortBy === 'price') {
 		return arr.sort(function (a, b) {
-			return a[sortBy] - b[sortBy]
+			return Number(a[sortBy]) - Number(b[sortBy]);
 		});
 	}
 	return arr.sort(function (a, b) {
 		return b[sortBy] - a[sortBy]
 	});
 }
-getSameAmount.setConfig = setConfig;
-module.exports = getSameAmount;
+
+
 // export default getSameAmount;

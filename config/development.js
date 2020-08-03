@@ -14,6 +14,7 @@ module.exports = {
         password : "123456",
     },
     huobi: require('./production').huobi,
+    email: require('./production').email,
     /* config/production.js 不能与此文件一样 */
     sign: 'a12',
 }

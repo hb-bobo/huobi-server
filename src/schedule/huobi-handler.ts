@@ -4,6 +4,7 @@ import { EventTypes, ws_event } from '../ws/events';
 import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
+import { getSameAmount } from 'ROOT/common/getSameAmount';
 
 interface Event {
     type: EventTypes;
