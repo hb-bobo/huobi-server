@@ -15,7 +15,7 @@ let ws: Sockette;
 export function start (accessKey: string) {
     ws = createWS(huobi.ws_url_prex);
     ws.on('open', function () {
-        outLogger.info(`socket opened: ${huobi.ws_url_prex}`);
+        outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
         ws.json(ws_auth(accessKey));
     });
     ws.on('message', function (data) {
@@ -35,13 +35,13 @@ export function start (accessKey: string) {
         }
     });
     ws.on('close', function (e) {
-        outLogger.info(`socket closed: ${e}`);
+        outLogger.info(`huobi-ws closed:`, e);
     });
     ws.on('error', function (e) {
-        errLogger.info(`socket[${huobi.ws_url_prex}] error: ${e}`);
+        errLogger.info(`huobi-ws[${huobi.ws_url_prex}] error:`, e);
         setTimeout(() => {
             if (!ws.isOpen()) {
-                outLogger.info(`socket opened: ${huobi.ws_url_prex}`);
+                outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
                 start(accessKey);
             }
         }, 1000 * 60);

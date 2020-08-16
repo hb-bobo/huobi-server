@@ -1,4 +1,5 @@
 import { getSymbolInfo } from "./getSymbolInfo";
+import { toNumber } from "lodash";
 
 
 
@@ -24,8 +25,8 @@ export function setConfig(newConfig) {
 export const getSameAmount = function (data, {
 	type = '',
 	symbol = '',
-	sortBy = config.sortBy
-	priceInfo = {},
+	sortBy = config.sortBy,
+	priceInfo = {btc: 0, eth: 0},
 } = {}) {
 	// data = data.slice(0, 400)
 	let countTemp: Record<number, {count: number, prices: number[]}> = {};
@@ -40,7 +41,7 @@ export const getSameAmount = function (data, {
 		if (countTemp[count] === undefined) {
 			countTemp[count] = {
 				count: 1,
-				prices = [data[i][0]]
+				prices: [data[i][0]]
 			}
 			continue;
 		}
@@ -49,12 +50,12 @@ export const getSameAmount = function (data, {
 	}
 	let arr: {
 		count: number;
-		amount: number;
-		sumCount: number
-		sumMoneny: string[];
-		sumDollar: string[];
+		amount: string;
+		sumCount: string
+		sumMoneny: string;
+		sumDollar: number;
 		price: string;
-		prices: string[];
+		prices: number[];
 	}[] = [];
 	for (let key in countTemp) {
 		let prices = countTemp[key].prices;
@@ -89,7 +90,7 @@ export const getSameAmount = function (data, {
 				amount: Number(key).toFixed(amountPrecision), // 量
 				sumCount: sum.toFixed(amountPrecision),
 				sumMoneny: sumPrice.toFixed(2),
-				sumDollar: sumDollar.toFixed(2),
+				sumDollar: toNumber(sumDollar.toFixed(2)),
 				price: price.toFixed(pricePrecision),
 				prices: countTemp[key].prices,
 			}

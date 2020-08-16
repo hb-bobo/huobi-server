@@ -9,6 +9,8 @@ public/upload/images
 public/upload/temp
 # 私有配置
 config/production.js
+docker-compose.local.yml
+rest/api.local.http
 
 public/upload/images
 npm-debug.log

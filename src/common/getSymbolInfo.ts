@@ -1,4 +1,4 @@
-// import { create_hbsdk } from "ROOT/huobi/hbsdk";
+import { hbsdk_commom } from "ROOT/huobi/hbsdk";
 
 // create_hbsdk
 // 有问题的symbols 或者不需要监控的symbols
@@ -23,7 +23,7 @@ const errorSymbols = [
 ]
 ;
 // 缓存结果
-export let _symbols = [];
+export let _symbols: Record<string, any>[] = [];
 
 /**
  * @return { Promise<object[]>}
@@ -32,7 +32,7 @@ export const getSymbols = async function() {
     if (_symbols.length > 0) {
         return _symbols;
     }
-    _symbols = await hbsdk.getSymbols().then((data) => {
+    _symbols = await hbsdk_commom.getSymbols().then((data) => {
         return data.filter((item) => {
             if (errorSymbols.includes(item.symbol)) {
                 return false;

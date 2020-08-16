@@ -13,6 +13,7 @@
     "gulp": "gulp",
     "build": "npm run test && npm run gulp",
     "pm2:prod": "pm2 start pm2.json --env production",
+    "docker-compose:dev": "docker-compose -f docker-compose.local.yml up",
     "lint": "eslint ./src --ext .ts,.tsx --quiet",
     "test": "jest --colors --onlyChanged"
   },
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@types/config": "0.0.35",
+    "@types/ioredis": "^4.17.3",
     "@types/jest": "^25.2.1",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/koa": "^2.0.48",

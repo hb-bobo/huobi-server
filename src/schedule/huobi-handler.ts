@@ -5,7 +5,13 @@ import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
 import { getSameAmount } from 'ROOT/common/getSameAmount';
-
+import * as TradeService from 'ROOT/module/trade/trade.service';
+import * as DepthService from 'ROOT/module/depth/depth.service';
+import * as WatchService from 'ROOT/module/watch/watch.service';
+import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
+import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
+import { getRepeatCount } from 'ROOT/utils';
+import { toNumber } from 'lodash';
 interface Event {
     type: EventTypes;
     from: SocketFrom.huobi;
@@ -16,6 +22,11 @@ interface Event {
         [x:string]: any;
     },
 }
+
+let watchSymbols: string[] = [];
+WatchService.find().then(res => {
+    watchSymbols = res.map(item => item.symbol);
+})
 // 每一个币都存一个throttle包裹的handleDepth方法
 const depthHandles = {};
 // 交易数据处理方法
@@ -58,24 +69,15 @@ export function handle(event: Event) {
                     disTime: 5 * 60 * 1000,
                 });
                 tradeHandles[symbol].on('merge', function(symbol, data) {
-                    models.charts.trade.save({
+                    TradeService.create({
                         symbol: symbol,
                         sell: data.sell,
                         buy: data.buy,
                         time: data.time,
-                        exchange: data.exchange,
                     });
-                })
+                });
             }
             tradeHandles[symbol].merge(data.trade);
-            // utils.statisticalTradeData({
-            //     data,
-            //     tempTradeData: tempTradeData[data.symbol],
-            //     disTime: 5 * 60 * 1000,
-            //     callback: function(symbol, data) {
-                    
-            //     }
-            // });
             break;
         default:
     }
@@ -97,7 +99,7 @@ const status = {}
  */
 const handleDepth = function (data) {
     if (data.tick && data.symbol) {
-        const symbol = data.symbol;
+        const symbol: string = data.symbol;
         // 价格系数， 价格换算成usdt ，如果交易对是btc， 要*btc的usdt价格
         const _price = getPriceIndex(symbol);
 
@@ -120,18 +122,19 @@ const handleDepth = function (data) {
             type: 'asks',
             symbol: symbol,
         });
-        WS_SERVER.broadcast({
-            form: 'WS_HUOBI',
-            type: 'depth',
-            symbol: symbol,
+        ws_event.emit("server:ws:message", {
+            from: SocketFrom.server,
+            type: EventTypes.huobi_depth,
             data: {
+                symbol: symbol,
                 bidsList,
                 asksList,
                 aks1,
                 bids1,
                 tick: data.tick,
+                ch: data.ch,
             },
-            ch: data.ch,
+            
         });
         
         // [ 6584.05, 0.0004 ]
@@ -147,26 +150,25 @@ const handleDepth = function (data) {
 
         // 取当前时间
         let ts = Date.now();
-        let symbolInfo = utils.huobiSymbols.getSymbolInfo(symbol);
+        let symbolInfo = getSymbolInfo(symbol);
         let amountPrecision = symbolInfo['amount-precision'];
         let pricePrecision = symbolInfo['price-precision'];
 
         let currentPrice = (bids1[0] + aks1[0]) / 2;
         let insertData = {
             symbol: symbol,
-            sell_1: (aks1[1] * aks1[0] * _price).toFixed(pricePrecision),
-            sell_2: (aks2[1] * aks2[0] * _price).toFixed(pricePrecision),
-            buy_1: (bids1[1] * bids1[0] * _price).toFixed(pricePrecision),
-            buy_2: (bids2[1] * bids2[0] * _price).toFixed(pricePrecision),
-            price: (currentPrice).toString().length > pricePrecision ? currentPrice.toFixed(pricePrecision) : currentPrice,
+            sell_1: toNumber((aks1[1] * aks1[0] * _price).toFixed(pricePrecision)),
+            sell_2: toNumber((aks2[1] * aks2[0] * _price).toFixed(pricePrecision)),
+            buy_1: toNumber((bids1[1] * bids1[0] * _price).toFixed(pricePrecision)),
+            buy_2: toNumber((bids2[1] * bids2[0] * _price).toFixed(pricePrecision)),
+            price: (currentPrice).toString().length > pricePrecision ? Number(currentPrice.toFixed(pricePrecision)) : currentPrice,
             bids_max_1: bidsList[0].sumDollar,
             bids_max_2: bidsList[1].sumDollar,
             asks_max_1: asksList[0].sumDollar,
             asks_max_2: asksList[1].sumDollar,
             bids_max_price: [bidsList[0].price, bidsList[1].price].join(','),
             asks_max_price: [asksList[0].price, asksList[1].price].join(','),
-            time: new Date(ts),
-            exchange: exchange,
+            time: ts,
         }
         // 非监控的币，不写入数据库，直接返回给前端
         if (!watchSymbols.includes(symbol)) {
@@ -196,8 +198,8 @@ const handleDepth = function (data) {
         });
         let bidsHistoryStatus = buyMaxAM.historyStatus;
         let asksHistoryStatus = sellMaxAM.historyStatus;
-        let buyStatus = utils.getStatusNum(bidsHistoryStatus);
-        let sellStatus = utils.getStatusNum(asksHistoryStatus);
+        let buyStatus = getRepeatCount(bidsHistoryStatus);
+        let sellStatus = getRepeatCount(asksHistoryStatus);
         // 无状况
         if (
             bidsHistoryStatus.length > 2
@@ -212,8 +214,8 @@ const handleDepth = function (data) {
             bidsHistoryStatus.length === 1
             || bidsHistoryStatus[bidsHistoryStatus.length - 1].status !== '横盘'
             || asksHistoryStatus[asksHistoryStatus.length - 1].status !== '横盘'
-            || Number(insertData.buy_1) > (5 * appConfig.prices.btc)
-            || Number(insertData.sell_1) > (5 * appConfig.prices.btc)
+            || Number(insertData.buy_1) > (5 * symbolPrice.get('btc'))
+            || Number(insertData.sell_1) > (5 * symbolPrice.get('btc'))
         ) {
             write2(insertData);
         }
@@ -222,3 +224,13 @@ const handleDepth = function (data) {
         
     }
 };
+
+const write = throttle(function(insertData: Parameters<typeof DepthService.create>[0]) {
+    // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
+    DepthService.create(insertData);
+}, 1000 * 60 * 6, {trailing: false, leading: true});
+
+const write2 = throttle(function(insertData: Parameters<typeof DepthService.create>[0]) {
+    // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
+    DepthService.create(insertData);
+}, 1000 * 20, {trailing: false, leading: true});

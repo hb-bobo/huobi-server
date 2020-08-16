@@ -12,8 +12,8 @@ interface HuobiEventData<T extends string, D> extends SocketMessage{
     from: SocketFrom.huobi | SocketFrom.server,
     data: {
         symbol: string,
-        channel: string,
-        ch: string,
+        channel?: string,
+        ch?: string,
     } & D;
 }
 export interface HuobiDepth {
@@ -30,6 +30,13 @@ export interface WSEvent{
     'huobi:ws:message': HuobiEventData<EventTypes.huobi_depth, HuobiDepth>
         | HuobiEventData<EventTypes.huobi_kline, HuobiKline>
         | HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
+    'server:ws:message': HuobiEventData<EventTypes.huobi_depth, {
+        bidsList
+        asksList
+        aks1
+        bids1
+        tick
+    }>
 }
 class Eventss extends EventEmitter {
     public emit!: (event: keyof WSEvent, arg: WSEvent[keyof WSEvent]) => boolean;

@@ -34,7 +34,6 @@ export const get = async (ctx: AppContext) => {
  * 更新或者新建
  */
 export const updateOne = async (ctx: AppContext) => {
-    console.log(ctx.request.body)
     const {
         id,
         _id,
@@ -61,7 +60,7 @@ export const updateOne = async (ctx: AppContext) => {
             type: "string",
         },
         auto_trade: {
-            type: "string",
+            type: "boolean",
             required: true,
         },
         exchange: {
@@ -95,6 +94,7 @@ export const updateOne = async (ctx: AppContext) => {
         return;
     }
     try {
+        DATA.auto_trade = Number(DATA.auto_trade);
         let res;
         if (ID) {
             res = await TradeAccountService.updateOne({id: ID}, DATA);

@@ -4,6 +4,7 @@ import { AppContext, AppState } from 'ROOT/interface/App';
 import checkToken from 'ROOT/middleware/checkToken';
 import * as UserController from 'ROOT/module/user/user.controller';
 import * as TradeAccountController from 'ROOT/module/trade-account/TradeAccount.controller';
+import * as WatchController from 'ROOT/module/watch/watch.controller';
 import * as MailController from 'ROOT/module/email/config.controller';
 // /index
 const apiPrefix = '/api';
@@ -23,3 +24,6 @@ router.post(`${apiPrefix}/login`, UserController.login);
 
 router.get(`${apiPrefix}/send-email`, MailController.index);
 router.post(`${apiPrefix}/send-email`, MailController.create);
+
+router.get(`${apiPrefix}/watch-symbol`, checkToken, WatchController.get);
+router.post(`${apiPrefix}/watch-symbol`, checkToken, WatchController.updateOne);

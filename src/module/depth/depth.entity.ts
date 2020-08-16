@@ -10,13 +10,13 @@ export default class DepthEntity extends BaseEntity{
     public symbol!: string;
 
     @Column({type: 'float'})
-    public price!: string;
+    public price!: number;
 
     @Column()
     public time!: number;
 
     @Column({type: 'varchar', length: 10})
-    public exchange!: number;
+    public exchange!: string;
     
     @Column(PriceMaxColumnType)
     public bids_max_1!: number;
@@ -43,8 +43,8 @@ export default class DepthEntity extends BaseEntity{
     public buy_2!: number;
 
     @Column({type: 'varchar', length: 22})
-    public bids_max_price!: number;
+    public bids_max_price!: string;
 
     @Column({type: 'varchar', length: 22})
-    public asks_max_price!: number;
+    public asks_max_price!: string;
 }

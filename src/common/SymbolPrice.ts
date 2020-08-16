@@ -18,7 +18,7 @@ export default class SymbolPrice {
             this.prices[symbol] = value;
         }
     }
-    get(symbol: string) {
+    get(symbol: string): number {
         if (this.prices[symbol]) {
             return this.prices[symbol];
         }

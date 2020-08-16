@@ -45,6 +45,7 @@ app.use(cors())
   .use(historyApiFallback({ whiteList: ['/api'] }))
   .use(bodyParser({
     onerror (err: Error, ctx: Koa.Context) {
+      console.log(err)
       ctx.throw(422, 'body parse error');
     }
   }))

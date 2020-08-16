@@ -129,6 +129,13 @@ interface Options {
     secretKey: string;
     account_id_pro: string;
 }
+
+export const hbsdk_commom = {
+    getSymbols: function() {
+        const path = `${BASE_URL}/v1/common/symbols`;
+        return call_get<any[]>(`${path}`);;
+    },
+}
 export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {} as Options) {
 
     return function () {
@@ -143,10 +150,7 @@ export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {
             );
         }
         return {
-            getSymbols: function() {
-                const path = `${BASE_URL}/v1/common/symbols`;
-                return GET(`${path}`);;
-            },
+            
             /** 获取账户信息 */
             get_account() {
                 const path = `${BASE_URL}/v1/contract_account_info`;

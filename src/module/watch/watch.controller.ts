@@ -38,7 +38,7 @@ export const updateOne = async (ctx: AppContext) => {
         let res;
         if (data.id || data._id) {
             res = await WatchEntityService.updateOne({id: data.id || data._id}, data);
-        } else if (data.title) {
+        } else if (data.symbol) {
             res = await WatchEntityService.create(data);
         } else {
             ctx.sendError({message: '格式有误'});
