@@ -1,7 +1,7 @@
 @localURL = http://localhost:3001/api
 @preURL = http://139.224.62.3:3001/api
 @currentURL = http://localhost:3001/api
-
+###
 # @name 交易账户
 POST  {{currentURL}}/trade-account
 Authorization: test
@@ -14,9 +14,9 @@ content-type: application/json
     "secret_key": "a",
     "uid": "a",
     "account_id_pro": "a",
-    "trade_password": "a",
+    "trade_password": "a"
 }
-
+### 
 # @name 监控的币种
 POST  {{currentURL}}/watch-symbol
 Authorization: test

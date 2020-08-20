@@ -67,9 +67,10 @@ export const WS_REQ = {
  * 发送auth请求
  * @param ws
  */
-export function ws_auth(accessKey: string, data?: any) {
+export function ws_auth(accessKey: string, secretKey: string, data?: any) {
+    console.log(huobi.ws_url_prex, accessKey)
     return {
         op: 'auth',
-        ...auth('GET', huobi.ws_url_prex, accessKey, data)
+        ...auth('GET', huobi.ws_url_prex, accessKey, secretKey, data)
     }
 }

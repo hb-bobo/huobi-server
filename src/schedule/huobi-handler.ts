@@ -1,6 +1,6 @@
 import throttle from 'lodash/throttle';
 import { SocketFrom } from "ROOT/interface/ws";
-import { EventTypes, ws_event } from '../ws/events';
+import { EventTypes, ws_event } from '../huobi/ws/events';
 import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';

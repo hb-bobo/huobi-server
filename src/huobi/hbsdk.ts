@@ -49,31 +49,13 @@ export function sign_sha(method: 'GET' | 'POST', curl: string,  secretKey: strin
     // console.log(p);
     return Signature;
 }
-// export function sign_sha( method: "GET" | "POST", cpath: string, secretkey, data) {
-//     const pars: string[] = [];
-//     const baseurl = url.parse(cpath).host;
-//     const path = url.parse(cpath).path;
-//     for (const item in data) {
-//         if (!isNullOrUndefined(data[item]) && data[item] !== '') {
-//             pars.push(item + "=" + encodeURIComponent(data[item]));
-//         }
-//     }
-//     let p = pars.sort().join("&");
-//     const meta = [method, baseurl, path, p].join('\n');
-//     // console.log(meta);
-//     const hash = HmacSHA256(meta, secretkey);
-//     const Signature = encodeURIComponent(CryptoJS.enc.Base64.stringify(hash));
-//     // console.log(`Signature: ${Signature}`);
-//     p += `&Signature=${Signature}`;
-//     // console.log(p);
-//     return p;
-// }
+
 export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, secretKey: string, data: Record<string, string> = {}) {
     const timestamp = moment.utc().format('YYYY-MM-DDTHH:mm:ss');
     const body = { 
         AccessKeyId: access_key,
         SignatureMethod: "HmacSHA256",
-        SignatureVersion: "2",
+        SignatureVersion: "2.1",
         Timestamp: timestamp,
         ...data,
     }

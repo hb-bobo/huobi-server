@@ -1,6 +1,8 @@
 
 import config from 'config';
+import schema from 'async-validator';
 import { AppContext } from 'ROOT/interface/App';
+
 import OrderEntity from './AutoOrder.entity';
 import * as OrderService from './AutoOrder.service';
 
@@ -32,6 +34,39 @@ export default class AutoOrderController {
      */
     public static updateOne = async (ctx: AppContext) => {
         const data = ctx.request.body;
+        const validator = new schema({
+            symbol: {
+                type: "string",
+                required: true,
+            },
+            amount: {
+                type: "number",
+            },
+            money: {
+                type: "number",
+            },
+            buyCount: {
+                type: "number",
+            },
+            sellCount: {
+                type: "number",
+            },
+            // tradeType: {
+            //     type: "string",
+            // },
+            period: {
+                type: "number",
+            },
+            forceTrade: {
+                type: "boolean",
+            },
+        });
+        try {
+            await validator.validate(data);
+        } catch ({ errors, fields }) {
+            ctx.sendError({errors});
+            return;
+        }
         try {
             let res;
             if (data.id || data._id) {
