@@ -37,6 +37,7 @@ export const login = async (ctx: AppContext) => {
         await userValidator.validate({userName, password});
     } catch (error) {
         ctx.sendError({message: '用户名或密码为空'});
+        return;
     }
     const passwordHex = crypto.createHmac('md5', sign)
                    .update(password)
@@ -101,9 +102,9 @@ export const createUser = async (ctx: AppContext) => {
  * @param {Function} next 
  */
 export const createFirstUser = async (ctx: AppContext) => {
-    const {user, password} = ctx.query;
+    const {userName, password} = ctx.query;
     try {
-        await userValidator.validate({user, password});
+        await userValidator.validate({userName, password});
     } catch ({errors}) {
         ctx.sendError({errors});
         return;
@@ -113,7 +114,7 @@ export const createFirstUser = async (ctx: AppContext) => {
         ctx.sendError({message: '写入失败'});
         return;
     }
-    const newUser = UserService.create(user, password, AUTHORITY.admin);
+    const newUser = UserService.create(userName, password, AUTHORITY.admin);
     if (newUser) {
         ctx.sendSuccess();
     }

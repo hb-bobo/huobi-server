@@ -1,8 +1,9 @@
 export interface ListResult<T> {
     list: T[];
-    pagination: {
-        total: number;
-        pageSize: number;
-        current: number;
-    };
+    pagination: Pagination & {total: number;};
 }
+
+export interface Pagination {
+    pageSize: number;
+    current: number;
+};

@@ -2,26 +2,31 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
 
 @Entity()
-export default class OrderEntity extends BaseEntity{
+export default class AutoOrderEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
+    @Column({type: 'varchar', length: 10})
+    public user!: string;
 
     @Column({type: 'varchar', length: 10})
     public symbol!: string;
-    @Column({type: 'varchar', length: 18})
-    public sellAmountThreshold!: string;
-    @Column({type: 'varchar', length: 18})
-    public buyAmountThreshold!: string;
-    @Column({type: 'varchar', length: 18})
-    public buyStrengths!: string;
     @Column({type: 'varchar', length: 10})
-    public sellStrengths!: string;
-    @Column({type: 'varchar', length: 14})
-    public buyGain!: string;
-    @Column({type: 'varchar', length: 14})
-    public sellGain!: string;
+    public exchange!: string;
+    @Column({type: 'float'})
+    public amount!: string;
+    @Column({type: 'float'})
+    public money!: string;
+    @Column({type: 'float'})
+    public price!: string;
+
+    @Column({type: 'int'})
+    public sellCount!: string;
+    @Column({type: 'int'})
+    public buyCount!: string;
+    
+    @Column({type: 'int'})
+    public period!: string;
+
     @Column({type: 'tinyint'})
-    public isUp!: number;
-    @Column({type: 'tinyint'})
-    public isFall!: number;
+    public forceTrade!: number;
 }

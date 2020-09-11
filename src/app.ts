@@ -13,7 +13,7 @@ import historyApiFallback from 'koa2-connect-history-api-fallback';
 import { outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
-import { socketIO } from 'ROOT/ws/socketIO';
+// import { socketIO } from 'ROOT/ws/socketIO';
 import './schedule';
 import './db/orm';
 // const debug = require('debug')('koa2:server')
@@ -64,12 +64,12 @@ app.on('error', function(err: Error, ctx: Koa.Context) {
 });
 
 const server = http.createServer(app.callback());
-socketIO.attach(server, {
-    pingInterval: 10000,
-    pingTimeout: 5000,
-    cookie: false
-});
-
 server.listen(port, () => {
   outLogger.info(`Listening on http://${host}:${port}`)
 });
+// socketIO.attach(server, {
+//     pingInterval: 10000,
+//     pingTimeout: 5000,
+//     cookie: false
+// });
+

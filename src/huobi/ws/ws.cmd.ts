@@ -12,10 +12,20 @@ export const WS_SUB = {
      * k线订阅
      * @param param0
      */
-    kline (symbol: string, period: Period = '1min') {
+    kline (symbol: string, period: Period = '5min') {
         return {
             "sub": `market.${symbol}.kline.${period}`,
             "id": `sub_${symbol}_${period}`
+        }
+    },
+    /**
+     * 市场深度行情数据
+     * @param symbol 
+     */
+    depth(symbol: string, step = 'step0') {
+        return {
+            "sub": `market.${symbol}.depth.${step}`,
+            "id": `sub_${symbol}_${step}`
         }
     },
     /**
@@ -68,7 +78,6 @@ export const WS_REQ = {
  * @param ws
  */
 export function ws_auth(accessKey: string, secretKey: string, data?: any) {
-    console.log(huobi.ws_url_prex, accessKey)
     return {
         op: 'auth',
         ...auth('GET', huobi.ws_url_prex, accessKey, secretKey, data)

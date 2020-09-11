@@ -13,7 +13,17 @@ import Sockette from 'ROOT/lib/sockette/Sockette';
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
 let ws: Sockette;
+
+setInterval(function() {
+    console.log(ws.isOpen());
+}, 3000);
+/**
+ * 行情数据
+ * @param accessKey
+ * @param secretKey 
+ */
 export function start (accessKey: string, secretKey: string) {
+
     ws = createWS(huobi.ws_url_prex);
     ws.on('open', function () {
         outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
@@ -24,36 +34,33 @@ export function start (accessKey: string, secretKey: string) {
             to: 'string'
         });
         const msg = JSON.parse(text);
-
         if (msg.ping) {
             ws.json({
                 pong: msg.ping
             });
         } else if (msg.tick) {
-            // console.log(msg);
             handle(msg);
         } else {
             outLogger.info(text);
         }
     });
     ws.on('close', function (e) {
-        if (e.code === 1006) {
-            outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
-            setTimeout(() => {
-                if (!ws.isOpen()) {
-                    start(accessKey, secretKey);
-                }
-            }, 1000 * 60);
-        } else {
-            outLogger.info(`huobi-ws closed:`, e.reason);
-        }
+        outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
+        // ws.close(e.code);
+        // if (e.code === 1006) {
+        //     outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
+        //     start(accessKey, secretKey);
+        // } else {
+        //     outLogger.info(`huobi-ws closed:`, e.reason);
+        //     setTimeout(() => {
+        //         start(accessKey, secretKey);
+        //     }, 1000 * 60);
+        // }
     });
     ws.on('error', function (e) {
         errLogger.info(`huobi-ws[${huobi.ws_url_prex}] error:`, e.message);
         setTimeout(() => {
-            if (!ws.isOpen()) {
-                start(accessKey, secretKey);
-            }
+            start(accessKey, secretKey);
         }, 1000 * 60);
     })
     return ws;

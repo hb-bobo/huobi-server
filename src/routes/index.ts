@@ -15,11 +15,10 @@ export default router;
 router.get(`${apiPrefix}/user/currentUser`, checkToken, UserController.userInfo);
 router.get(`${apiPrefix}/user/firstUser`, UserController.createFirstUser);
 router.post(`${apiPrefix}/user/create`, checkToken, UserController.createUser);
-router.post(`${apiPrefix}/login`, UserController.login);
+router.post(`${apiPrefix}/login/account`, UserController.login);
 
 router.get(`${apiPrefix}/trade-account`, checkToken, TradeAccountController.get);
 router.post(`${apiPrefix}/trade-account`, checkToken, TradeAccountController.updateOne);
-router.post(`${apiPrefix}/login`, UserController.login);
 
 
 router.get(`${apiPrefix}/send-email`, MailController.index);

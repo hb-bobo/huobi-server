@@ -1,6 +1,6 @@
 import throttle from 'lodash/throttle';
 import { SocketFrom } from "ROOT/interface/ws";
-import { EventTypes, ws_event } from '../huobi/ws/events';
+import { EventTypes, ws_event } from 'ROOT/huobi/ws/events';
 import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
@@ -8,10 +8,12 @@ import { getSameAmount } from 'ROOT/common/getSameAmount';
 import * as TradeService from 'ROOT/module/trade/trade.service';
 import * as DepthService from 'ROOT/module/depth/depth.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
+import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
 import { getRepeatCount } from 'ROOT/utils';
 import { toNumber } from 'lodash';
+
 interface Event {
     type: EventTypes;
     from: SocketFrom.huobi;
@@ -24,17 +26,23 @@ interface Event {
 }
 
 let watchSymbols: string[] = [];
-WatchService.find().then(res => {
-    watchSymbols = res.map(item => item.symbol);
-})
+
 // 每一个币都存一个throttle包裹的handleDepth方法
 const depthHandles = {};
 // 交易数据处理方法
 const tradeHandles = {};
-export function handle(event: Event) {
+export async function handle(event: Event) {
     const symbol = event.data.symbol;
     const data = event.data;
-    switch (data.type) {
+
+    if (watchSymbols.length === 0) {
+        const WatchEntityList = await WatchService.find();
+        watchSymbols = WatchEntityList.map((WatchEntity) => {
+            return WatchEntity.symbol;
+        });
+
+    }
+    switch (event.type) {
         case EventTypes.huobi_depth:
             if(typeof depthHandles[symbol] !== 'function') {
                 depthHandles[symbol] = throttle(handleDepth, 5000, {trailing: false, leading: true});
@@ -60,6 +68,16 @@ export function handle(event: Event) {
             //     kline: data.tick,
             //     symbol: symbol,
             // });
+            delete data.kline.id;
+            ws_event.emit("server:ws:message", {
+                from: SocketFrom.server,
+                type: EventTypes.huobi_kline,
+                data: {
+                    symbol: symbol,
+                    ...data.kline,
+                    // ch: data.ch,
+                },
+            });
             break;
         case EventTypes.huobi_trade:
             if (tradeHandles[symbol] === undefined) {
@@ -69,11 +87,19 @@ export function handle(event: Event) {
                     disTime: 5 * 60 * 1000,
                 });
                 tradeHandles[symbol].on('merge', function(symbol, data) {
-                    TradeService.create({
+                    const _data = {
                         symbol: symbol,
                         sell: data.sell,
                         buy: data.buy,
                         time: data.time,
+                    }
+                    TradeService.create(_data);
+                    ws_event.emit("server:ws:message", {
+                        from: SocketFrom.server,
+                        type: EventTypes.huobi_trade,
+                        data: {
+                            ..._data,
+                        },
                     });
                 });
             }
@@ -97,8 +123,12 @@ const status = {}
 /**
  * 处理深度数据
  */
-const handleDepth = function (data) {
-    if (data.tick && data.symbol) {
+const handleDepth = function (data: {tick: any, symbol: string, ch}) {
+
+    if (!data.tick || !data.symbol) {
+        throw Error(`data.tick, data.symbol`);
+    }
+
         const symbol: string = data.symbol;
         // 价格系数， 价格换算成usdt ，如果交易对是btc， 要*btc的usdt价格
         const _price = getPriceIndex(symbol);
@@ -131,7 +161,6 @@ const handleDepth = function (data) {
                 asksList,
                 aks1,
                 bids1,
-                tick: data.tick,
                 ch: data.ch,
             },
             
@@ -222,7 +251,7 @@ const handleDepth = function (data) {
 
         // console.log(bidsHistoryStatus, asksHistoryStatus)
         
-    }
+
 };
 
 const write = throttle(function(insertData: Parameters<typeof DepthService.create>[0]) {

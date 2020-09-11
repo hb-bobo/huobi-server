@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { SocketFrom, SocketMessage } from 'ROOT/interface/ws';
+// import { socketIO } from 'ROOT/ws/socketIO';
 
 export enum EventTypes {
     huobi_kline = 'huobi:kline',
@@ -17,7 +18,7 @@ interface HuobiEventData<T extends string, D> extends SocketMessage{
     } & D;
 }
 export interface HuobiDepth {
-    tick: any,
+
 }
 export interface HuobiKline {
     kline: any,
@@ -27,21 +28,34 @@ export interface HuobiTrade {
 }
 
 export interface WSEvent{
+    // 收到huobi的ws数据
     'huobi:ws:message': HuobiEventData<EventTypes.huobi_depth, HuobiDepth>
         | HuobiEventData<EventTypes.huobi_kline, HuobiKline>
         | HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
+    // 当前服务端转发到客户端的数据
     'server:ws:message': HuobiEventData<EventTypes.huobi_depth, {
-        bidsList
-        asksList
-        aks1
-        bids1
-        tick
+        bidsList: any,
+        asksList: any,
+        aks1: any,
+        bids1: any,
+
+    }>
+    | HuobiEventData<EventTypes.huobi_trade, {
+
+    }>
+    | HuobiEventData<EventTypes.huobi_kline, {
+
     }>
 }
 class Eventss extends EventEmitter {
-    public emit!: (event: keyof WSEvent, arg: WSEvent[keyof WSEvent]) => boolean;
-    public on!: (event: keyof WSEvent, listener: (arg: WSEvent[keyof WSEvent]) => void) => this;
+    public emit!: <K extends keyof WSEvent>(event: K, arg: WSEvent[K]) => boolean;
+    public on!: <K extends keyof WSEvent>(event: K, listener: (arg: WSEvent[K]) => void) => this;
 }
 // 自定义事件
 export const ws_event = new Eventss();
 
+
+ws_event.on('server:ws:message', function (data) {
+    console.log('server:ws:message')
+    // socketIO.sockets.send(data);
+})

@@ -12,7 +12,16 @@ import Sockette from 'ROOT/lib/sockette/Sockette';
 const huobi = config.get<AppConfig['huobi']>('huobi');
 const ws_url = huobi.ws_url_prex + '/v2';
 let ws: Sockette;
+
+/**
+ * 账户订单数据
+ * @param accessKey
+ * @param secretKey 
+ */
 export function start (accessKey: string, secretKey: string) {
+    if (ws && !ws.isOpen()) {
+        return ws;
+    }
     ws = createWS(ws_url);
     ws.on('open', function () {
         outLogger.info(`huobi-ws-v2 opened: ${ws_url}`);
@@ -40,23 +49,21 @@ export function start (accessKey: string, secretKey: string) {
         }
     });
     ws.on('close', function (e) {
+        ws.close(e.code);
         if (e.code === 1006) {
             outLogger.info(`huobi-ws-v2 closed:`, 'connect ECONNREFUSED');
-            setTimeout(() => {
-                if (!ws.isOpen()) {
-                    start(accessKey, secretKey);
-                }
-            }, 1000 * 60);
+            start(accessKey, secretKey);
         } else {
             outLogger.info(`huobi-ws-v2 closed:`, e.reason);
         }
+        setTimeout(() => {
+            start(accessKey, secretKey);
+        }, 1000 * 60);
     });
     ws.on('error', function (e) {
         errLogger.info(`huobi-ws-v2[${ws_url}] error:`, e.message);
         setTimeout(() => {
-            if (!ws.isOpen()) {
-                start(accessKey, secretKey);
-            }
+            start(accessKey, secretKey);
         }, 1000 * 60);
     })
     return ws;

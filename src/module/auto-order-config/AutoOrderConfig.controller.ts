@@ -3,16 +3,16 @@ import config from 'config';
 import schema from 'async-validator';
 import { AppContext } from 'ROOT/interface/App';
 
-import OrderEntity from './AutoOrder.entity';
-import * as AutoOrderService from './AutoOrder.service';
+import AutoOrderConfigEntity from './AutoOrderConfig.entity';
+import * as AutoOrderConfigService from './AutoOrderConfig.service';
 
-export default class AutoOrderController {
+export default class AutoOrderConfigLogController {
     public static index = async (ctx: AppContext) => {
         const { id } = ctx.request.query;
         try {
-            let res: OrderEntity | OrderEntity[] | undefined;
+            let res: AutoOrderConfigEntity | AutoOrderConfigEntity[] | undefined;
             if (id) {
-                res = await AutoOrderService.findOne({id});
+                res = await AutoOrderConfigService.findOne({id});
                 if (!res) {
                     ctx.sendError({message: 'error'});
                     return;
@@ -21,7 +21,7 @@ export default class AutoOrderController {
                     data: res
                 });
             } else {
-                res = await AutoOrderService.find({});
+                res = await AutoOrderConfigService.find({});
                 ctx.sendSuccess({data: res});
             }
         } catch (error) {
@@ -70,9 +70,9 @@ export default class AutoOrderController {
         try {
             let res;
             if (data.id || data._id) {
-                res = await AutoOrderService.updateOne({id: data.id || data._id}, data);
+                res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
             } else if (data.title) {
-                res = await AutoOrderService.create(data);
+                res = await AutoOrderConfigService.create(data);
             } else {
                 ctx.sendError({message: '格式有误'});
                 return;
@@ -93,7 +93,7 @@ export default class AutoOrderController {
     public static  removeOne = async (ctx: AppContext) => {
         const data = ctx.request.body;
         try {
-            const res = await AutoOrderService.deleteOne({id: data._id});
+            const res = await AutoOrderConfigService.deleteOne({id: data._id});
             ctx.sendSuccess({
                 data: res
             });

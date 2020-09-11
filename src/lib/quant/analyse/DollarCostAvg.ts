@@ -24,7 +24,7 @@ interface Options {
 /**
  * 加权定投，以主观最高位，最低位(中长期)增长型定投
  */
-export class DollarCostAvg {
+export default class DollarCostAvg {
     /**
      * 你看涨的最大值
      * [1000, 2000]

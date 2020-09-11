@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import WebSocket from "ws";
-import { isOpen } from '../../ws/utils';
+import { isOpen } from './utils';
 
 export interface SocketteOptions {
     protocols?: string | string[];
@@ -12,7 +12,7 @@ interface EventMap {
     message: (ev: WebSocket.MessageEvent) => any;
     reconnect: (ev: WebSocket.OpenEvent | WebSocket.CloseEvent) => any;
     maximum: (ev: WebSocket.CloseEvent) => any;
-    close: (ev: WebSocket.CloseEvent & WebSocket.ErrorEvent) => any;
+    close: (ev: WebSocket.CloseEvent) => any;
     error: (ev: WebSocket.ErrorEvent) => any;
 }
 
@@ -39,7 +39,7 @@ export default class Sockette extends EventEmitter {
     /**
      * @override
      */
-    public emit = (event: keyof EventMap, arg: Parameters<EventMap[keyof EventMap]>[0]) => {
+    public emit = <T extends keyof EventMap>(event: T, arg: Parameters<EventMap[T]>[0]) => {
         return super.emit(event, arg);
     };
     /**
@@ -51,16 +51,17 @@ export default class Sockette extends EventEmitter {
     public open = () => {
         this.wss = new WebSocket(this.url, this.opts.protocols || []);
 
+
         this.wss.onmessage = (e) => {
             this.emit('message', e);
         };
-
         this.wss.onopen = (e) => {
             this.emit('open', e);
             this.num = 0;
         };
 
         this.wss.onclose = (e) => {
+            console.log('onclose')
             if (e.code === CLOSE_CODE || e.code === 1001 || e.code === 1005) {
                 this.reconnect(e);
             }
@@ -68,6 +69,7 @@ export default class Sockette extends EventEmitter {
         };
 
         this.wss.onerror = (e) => {
+            console.log('onerror');
             (e && e.type === 'ECONNREFUSED') ? this.reconnect(e) : this.emit('error', e);
         };
     };
@@ -84,8 +86,8 @@ export default class Sockette extends EventEmitter {
     };
 
     public json = (message: Record<string, any>) => {
+        console.log('json', message);
         if (!this.isOpen()) {
-            console.log(111)
             return;
         }
 
@@ -99,7 +101,7 @@ export default class Sockette extends EventEmitter {
         this.wss.send(message);
     };
 
-    public close = (code = CLOSE_CODE, data) => {
+    public close = (code = CLOSE_CODE, data?: any) => {
         if (!this.isOpen()) {
             return;
         }

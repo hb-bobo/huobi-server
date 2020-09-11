@@ -22,11 +22,13 @@ export default async (ctx: AppContext, next: () => Promise<void> ) => {
     }
     if (!authorization) {
         ctx.sendError({ code: 401, message: 'No token detected in http headerAuthorization'});
-        return;
+        
         // ctx.throw({
         //     code: 401,
         //     message: 'no token detected in http headerAuthorization',
         // });
+        // next();
+        return;
     }
 
     // const token = authorization.split(' ')[1];

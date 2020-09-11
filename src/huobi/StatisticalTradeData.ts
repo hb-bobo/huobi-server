@@ -88,13 +88,9 @@ export default class StatisticalTrade extends Emitter{
 
 /**
  * 合并一个时间点的买卖交易量
- * @param {Array<Object>} tradeData
- * @param {string} _time
- * @param {number} _priceIndex
- * @param {string} symbol
  * @return {Array<Object>}
  */
-function mergeTradeData(tradeData, _time, _priceIndex, symbol) {
+function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceIndex: number, symbol: string) {
     let _tempData = {
         symbol: symbol,
         buy: 0,
