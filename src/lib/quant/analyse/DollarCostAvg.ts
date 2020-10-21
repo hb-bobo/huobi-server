@@ -103,7 +103,7 @@ const dc = new DollarCostAvg({
     minVolume: 1,
     balance: 101,
 });
-console.log(dc.splitBill())
+
 // const price = 9500
 // const n = 10;
 // const max = 11000;

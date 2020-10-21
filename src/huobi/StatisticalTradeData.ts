@@ -1,5 +1,6 @@
 import Emitter from 'events';
 import isEmpty from 'lodash/isEmpty';
+import { errLogger } from 'ROOT/common/logger';
 import getPriceIndex from "./getPriceIndex";
 
 /**
@@ -99,7 +100,7 @@ function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceInd
         amount: 0,
     }
     if (!Array.isArray(tradeData)) {
-        console.error('tradeData must be a Array');
+        errLogger.error('tradeData must be a Array');
         return;
     }
     // 累加买卖交易量

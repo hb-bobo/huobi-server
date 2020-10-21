@@ -13,7 +13,6 @@ const agentOptions = {
 }
 
 export const get = function(url, options) {
-    // console.log(`${moment().format()} HttpGet: ${url}`)
     return new Promise((resolve, reject) => {
         options = options || {};
         const httpOptions = {
@@ -39,7 +38,7 @@ export const get = function(url, options) {
 }
 
 export const post = function(url, postdata, options) {
-    // console.log(`${moment().format()} HttpPost: ${url}`)
+
     return new Promise((resolve, reject) => {
         options = options || {};
         const httpOptions = {
@@ -66,7 +65,7 @@ export const post = function(url, postdata, options) {
 };
 
 export const form_post = function(url, postdata, options) {
-    // console.log(`${moment().format()} HttpFormPost: ${url}`)
+
     return new Promise((resolve, reject) => {
         options = options || {};
         const httpOptions = {

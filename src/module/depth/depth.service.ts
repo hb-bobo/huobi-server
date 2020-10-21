@@ -2,8 +2,9 @@ import { errLogger } from "ROOT/common/logger";
 import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
 import { SaveOptions } from "typeorm";
 import { isNullOrUndefined, isNumber } from "util";
-import DepthModel from "./depth.entity";
+import DepthModel, {DepthEntityData} from "./depth.entity";
 
+export { DepthEntityData } from "./depth.entity";
 /**
  * 查询
  * @param {object} query 
@@ -17,7 +18,7 @@ export const find = async function(query: object) {
  * 查询单个
  * @param {object} query 
  */
-export const findOne = async function(query: Partial<DepthModel>) {
+export const findOne = async function(query: DepthEntityData) {
     return DepthModel.findOne(query);
 }
 
@@ -26,7 +27,7 @@ export const findOne = async function(query: Partial<DepthModel>) {
  * @param {object} query 
  * @param { Document }
  */
-export const updateOne = async function(query: Partial<DepthModel>, newData: Partial<DepthModel>, options?: SaveOptions) {
+export const updateOne = async function(query: DepthEntityData, newData: DepthEntityData, options?: SaveOptions) {
     return DepthModel.update(query, newData, options);
 }
 
@@ -35,7 +36,7 @@ export const updateOne = async function(query: Partial<DepthModel>, newData: Par
  * @param {object} query 
  * @param { Document }
  */
-export const deleteOne = async function(query: Partial<DepthModel>) {
+export const deleteOne = async function(query: DepthEntityData) {
     const target = await findOne(query);
     if (!target) {
         return Promise.reject('删除出错');
@@ -53,7 +54,7 @@ export const deleteOne = async function(query: Partial<DepthModel>) {
  * @param {object} query 
  * @param { Document }
  */
-export const create = async function(data: Partial<DepthModel>) {
+export const create = async function(data: DepthEntityData) {
     const Doc = DepthModel.create(data)
     return Doc.save();
 }

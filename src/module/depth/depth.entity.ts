@@ -12,7 +12,7 @@ export default class DepthEntity extends BaseEntity{
     @Column({type: 'float'})
     public price!: number;
 
-    @Column()
+    @Column({type: 'bigint'})
     public time!: number;
 
     @Column({type: 'varchar', length: 10})
@@ -46,5 +46,6 @@ export default class DepthEntity extends BaseEntity{
     public bids_max_price!: string;
 
     @Column({type: 'varchar', length: 22})
-    public asks_max_price!: string;
+    public asks_max_price?: string;
 }
+export type DepthEntityData = Omit<DepthEntity, keyof typeof BaseEntity | 'reload' | 'id'>;

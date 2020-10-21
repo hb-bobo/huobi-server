@@ -10,7 +10,7 @@ import koaOnError from 'koa-onerror';
 import session from 'koa-session';
 import serve from 'koa-static';
 import historyApiFallback from 'koa2-connect-history-api-fallback';
-import { outLogger } from 'ROOT/common/logger';
+import { errLogger, outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
 // import { socketIO } from 'ROOT/ws/socketIO';
@@ -45,7 +45,7 @@ app.use(cors())
   .use(historyApiFallback({ whiteList: ['/api'] }))
   .use(bodyParser({
     onerror (err: Error, ctx: Koa.Context) {
-      console.log(err)
+      errLogger.error(err)
       ctx.throw(422, 'body parse error');
     }
   }))

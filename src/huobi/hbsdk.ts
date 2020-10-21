@@ -46,7 +46,7 @@ export function sign_sha(method: 'GET' | 'POST', curl: string,  secretKey: strin
     const hash = CryptoJS.HmacSHA256(meta, secretKey);
     // 按Base64 编码 字符串
     const Signature = CryptoJS.enc.Base64.stringify(hash);
-    // console.log(p);
+
     return Signature;
 }
 

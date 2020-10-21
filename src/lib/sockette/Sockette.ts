@@ -61,7 +61,6 @@ export default class Sockette extends EventEmitter {
         };
 
         this.wss.onclose = (e) => {
-            console.log('onclose')
             if (e.code === CLOSE_CODE || e.code === 1001 || e.code === 1005) {
                 this.reconnect(e);
             }
@@ -69,7 +68,6 @@ export default class Sockette extends EventEmitter {
         };
 
         this.wss.onerror = (e) => {
-            console.log('onerror');
             (e && e.type === 'ECONNREFUSED') ? this.reconnect(e) : this.emit('error', e);
         };
     };
@@ -86,7 +84,7 @@ export default class Sockette extends EventEmitter {
     };
 
     public json = (message: Record<string, any>) => {
-        console.log('json', message);
+
         if (!this.isOpen()) {
             return;
         }

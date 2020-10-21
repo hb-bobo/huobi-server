@@ -56,6 +56,6 @@ export const ws_event = new Eventss();
 
 
 ws_event.on('server:ws:message', function (data) {
-    console.log('server:ws:message')
+
     // socketIO.sockets.send(data);
 })

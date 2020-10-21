@@ -9,6 +9,7 @@ import { WS_REQ, WS_SUB } from 'ROOT/huobi/ws/ws.cmd';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { handle } from './huobi-handler';
 import { SocketFrom } from 'ROOT/interface/ws';
+import { outLogger } from 'ROOT/common/logger';
 
 dbEvent.on('connected', start);
 /**
@@ -17,12 +18,12 @@ dbEvent.on('connected', start);
 export async function start() {
 
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-
+    outLogger.log(`start: ${JSON.stringify(account)}`);
     if (!account) {
         return;
     }
     const WatchEntityList = await WatchService.find();
-    
+
     // redis.set(
     //     KEY_MAP['watch-symbol'],
     //     WatchEntityList.map((WatchEntity) => {
@@ -33,8 +34,10 @@ export async function start() {
     let HUOBI_WS: ReturnType<typeof huobiWSStart>;
 
     if (WatchEntityList.length > 0) {
+    
         HUOBI_WS = huobiWSStart(account.access_key, account.secret_key);
-        HUOBI_WS.on('open', function () {
+
+        function handleOpen() {
             WatchEntityList.forEach((WatchEntity) => {
                 const SYMBOL = WatchEntity.symbol.toLowerCase();
                 HUOBI_WS.json(WS_SUB.kline(SYMBOL, '1min'));
@@ -42,7 +45,10 @@ export async function start() {
                 HUOBI_WS.json(WS_SUB.depth(SYMBOL));
                 HUOBI_WS.json(WS_SUB.tradeDetail(SYMBOL));
             });
-        });
+        }
+        HUOBI_WS.on('open', handleOpen);
+        HUOBI_WS.on('error', start);
+        // HUOBI_WS.on('close', start);
     }
 }
 
