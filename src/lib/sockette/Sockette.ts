@@ -33,7 +33,7 @@ export default class Sockette extends EventEmitter {
         this.opts = Object.assign({}, defaultOptions, opts);
         this.num = 0;
         this.timer = 1;
-        this.max = opts.maxAttempts || Infinity;
+        this.max = opts.maxAttempts === undefined ? Infinity :  opts.maxAttempts;
         this.open();
     }
     /**

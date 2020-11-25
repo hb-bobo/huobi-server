@@ -10,4 +10,5 @@ const redisConfig = config.get<AppConfig["redis"]>("redis");
 export const redis = new Redis(redisConfig);
 export const KEY_MAP = {
     'watch-symbol': 'watch-symbol',
+    'ws-sub': 'ws-sub'
 }

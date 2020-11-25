@@ -37,17 +37,14 @@ export async function start() {
     
         HUOBI_WS = huobiWSStart(account.access_key, account.secret_key);
 
-        function handleOpen() {
-            WatchEntityList.forEach((WatchEntity) => {
-                const SYMBOL = WatchEntity.symbol.toLowerCase();
-                HUOBI_WS.json(WS_SUB.kline(SYMBOL, '1min'));
-                // HUOBI_WS.json(WS_SUB.marketDetail(SYMBOL));
-                HUOBI_WS.json(WS_SUB.depth(SYMBOL));
-                HUOBI_WS.json(WS_SUB.tradeDetail(SYMBOL));
-            });
-        }
-        HUOBI_WS.on('open', handleOpen);
-        HUOBI_WS.on('error', start);
+        WatchEntityList.forEach((WatchEntity) => {
+            const SYMBOL = WatchEntity.symbol.toLowerCase();
+            HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
+            // HUOBI_WS.sub(WS_SUB.marketDetail(SYMBOL));
+            HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
+            HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
+        });
+
         // HUOBI_WS.on('close', start);
     }
 }

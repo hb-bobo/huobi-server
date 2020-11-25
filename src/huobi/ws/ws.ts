@@ -8,11 +8,12 @@ import { SocketFrom } from 'ROOT/interface/ws';
 import { createWS } from 'ROOT/ws/createWS';
 import { EventTypes, ws_event } from './events';
 import { ws_auth, WS_SUB } from './ws.cmd';
-import Sockette from 'ROOT/lib/sockette/Sockette';
+
+
 
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
-let ws: Sockette;
+let ws: ReturnType<typeof createWS>;
 
 /**
  * 行情数据
@@ -25,7 +26,7 @@ export function start (accessKey: string, secretKey: string) {
     ws.on('open', function () {
         outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
     });
-    console.log(ws.eventNames())
+
     ws.on('message', function (data) {
         
         const text = pako.inflate(data.data, {
@@ -53,19 +54,12 @@ export function start (accessKey: string, secretKey: string) {
         ws.close(e.code);
         if (e.code === 1006) {
             outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
-            // start(accessKey, secretKey);
         } else {
             outLogger.info(`huobi-ws closed:`, e.reason);
-            // setTimeout(() => {
-            //     start(accessKey, secretKey);
-            // }, 1000 * 60);
         }
     });
     ws.on('error', function (e) {
         errLogger.info(`huobi-ws[${huobi.ws_url_prex}] error:`, e.message);
-        // setTimeout(() => {
-        //     start(accessKey, secretKey);
-        // }, 1000 * 60);
     })
     
     return ws;
