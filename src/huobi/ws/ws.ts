@@ -5,7 +5,7 @@ import { errLogger, outLogger } from 'ROOT/common/logger';
 import { AppConfig } from 'ROOT/interface/App';
 import { SocketFrom } from 'ROOT/interface/ws';
 
-import { createWS } from 'ROOT/ws/createWS';
+import { createHuobiWS } from 'ROOT/huobi/ws/createWS';
 import { EventTypes, ws_event } from './events';
 import { ws_auth, WS_SUB } from './ws.cmd';
 
@@ -13,22 +13,22 @@ import { ws_auth, WS_SUB } from './ws.cmd';
 
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
-let ws: ReturnType<typeof createWS>;
+let ws: ReturnType<typeof createHuobiWS>;
 
 /**
  * 行情数据
  * @param accessKey
- * @param secretKey 
+ * @param secretKey
  */
 export function start (accessKey: string, secretKey: string) {
     let timer;
-    ws = createWS(huobi.ws_url_prex);
+    ws = createHuobiWS(huobi.ws_url_prex);
     ws.on('open', function () {
         outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
     });
 
     ws.on('message', function (data) {
-        
+
         const text = pako.inflate(data.data, {
             to: 'string'
         });
@@ -51,17 +51,19 @@ export function start (accessKey: string, secretKey: string) {
     });
     ws.on('close', function (e) {
         outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
-        ws.close(e.code);
+        // ws.close(e.code);
         if (e.code === 1006) {
             outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
         } else {
             outLogger.info(`huobi-ws closed:`, e.reason);
         }
+        ws.reStart();
     });
     ws.on('error', function (e) {
+        ws.reStart();
         errLogger.info(`huobi-ws[${huobi.ws_url_prex}] error:`, e.message);
     })
-    
+
     return ws;
 }
 const handleMap: Record<string, (data: any) => {type: EventTypes, data: any}> = {

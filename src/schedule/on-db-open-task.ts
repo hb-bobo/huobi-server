@@ -7,7 +7,7 @@ import { start as huobiWSStart } from 'ROOT/huobi/ws/ws';
 import { start as huobiWSStartV2 } from 'ROOT/huobi/ws/ws.v2';
 import { WS_REQ, WS_SUB } from 'ROOT/huobi/ws/ws.cmd';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
-import { handle } from './huobi-handler';
+import { handle } from 'ROOT/huobi/huobi-handler';
 import { SocketFrom } from 'ROOT/interface/ws';
 import { outLogger } from 'ROOT/common/logger';
 
@@ -30,11 +30,11 @@ export async function start() {
     //         return WatchEntity.symbol;
     //     })
     // );
-    
+
     let HUOBI_WS: ReturnType<typeof huobiWSStart>;
 
     if (WatchEntityList.length > 0) {
-    
+
         HUOBI_WS = huobiWSStart(account.access_key, account.secret_key);
 
         WatchEntityList.forEach((WatchEntity) => {

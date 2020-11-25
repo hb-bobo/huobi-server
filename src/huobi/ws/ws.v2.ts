@@ -4,7 +4,7 @@ import { errLogger, outLogger } from 'ROOT/common/logger';
 import { AppConfig } from 'ROOT/interface/App';
 import { SocketFrom } from 'ROOT/interface/ws';
 
-import { createWS } from 'ROOT/ws/createWS';
+import { createHuobiWS } from 'ROOT/huobi/ws/createWS';
 import { EventTypes, ws_event } from './events';
 import { ws_auth, WS_SUB } from './ws.cmd';
 import Sockette from 'ROOT/lib/sockette/Sockette';
@@ -16,13 +16,13 @@ let ws: Sockette;
 /**
  * 账户订单数据
  * @param accessKey
- * @param secretKey 
+ * @param secretKey
  */
 export function start (accessKey: string, secretKey: string) {
     if (ws && !ws.isOpen()) {
         return ws;
     }
-    ws = createWS(ws_url);
+    ws = createHuobiWS(ws_url);
     ws.on('open', function () {
         outLogger.info(`huobi-ws-v2 opened: ${ws_url}`);
         ws.json(ws_auth(accessKey, secretKey));
