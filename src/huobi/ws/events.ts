@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { SocketFrom, SocketMessage } from 'ROOT/interface/ws';
-// import { socketIO } from 'ROOT/ws/socketIO';
+import { socketIO } from 'ROOT/ws/socketIO';
 
 export enum EventTypes {
     huobi_kline = 'huobi:kline',
@@ -57,5 +57,5 @@ export const ws_event = new Eventss();
 
 ws_event.on('server:ws:message', function (data) {
 
-    // socketIO.sockets.send(data);
+    socketIO.sockets.send(data);
 })
