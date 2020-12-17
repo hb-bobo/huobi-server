@@ -9,11 +9,11 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon --config nodemon.json",
     "start:prod": "cross-env NODE_ENV=production node dist/app.js",
-    "dev": "npm run start",
+    "dev": "npm run start:dev",
     "gulp": "gulp",
     "build": "npm run test && npm run gulp",
     "pm2:prod": "pm2 start pm2.json --env production",
-    "docker-compose:dev": "docker-compose -f docker-compose.local.yml up",
+    "docker-compose:dev": "docker-compose -f docker-compose.dev.yml up",
     "lint": "eslint ./src --ext .ts,.tsx --quiet",
     "test": "jest --colors --onlyChanged"
   },

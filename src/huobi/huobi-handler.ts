@@ -153,6 +153,7 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
         type: 'asks',
         symbol: symbol,
     });
+
     ws_event.emit("server:ws:message", {
         from: SocketFrom.server,
         type: EventTypes.huobi_depth,
@@ -257,13 +258,13 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
 
 };
-
+const minute = 1000 * 60
 const write = throttle(function (insertData: Parameters<typeof DepthService.create>[0]) {
     // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
     DepthService.create(insertData);
-}, 1000 * 60 * 6, { trailing: false, leading: true });
+}, minute * 8, { trailing: false, leading: true });
 
 const write2 = throttle(function (insertData: Parameters<typeof DepthService.create>[0]) {
     // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
     DepthService.create(insertData);
-}, 1000 * 20, { trailing: false, leading: true });
+}, minute * 1, { trailing: false, leading: true });

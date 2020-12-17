@@ -8,7 +8,7 @@ Authorization: test
 content-type: application/json
 
 {
-    "auto_trade": 1,
+    "auto_trade": true,
     "exchange": "huobi",
     "access_key": "a",
     "secret_key": "a",

@@ -36,7 +36,7 @@ export class HuobiSockette extends Sockette{
         } else {
             this.cache[dataStr] = [_id];
         }
-        console.log(data, this.cache)
+        console.log('sub', this.cache)
     }
     /**
      * 退阅行为会删除缓存
@@ -54,7 +54,7 @@ export class HuobiSockette extends Sockette{
                 subscribers.slice(index, 1);
             }
         }
-        console.log(data, this.cache)
+        console.log('upsub', this.cache)
     }
 
 }

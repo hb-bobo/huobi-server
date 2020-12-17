@@ -6,6 +6,7 @@ import * as UserController from 'ROOT/module/user/user.controller';
 import * as TradeAccountController from 'ROOT/module/trade-account/TradeAccount.controller';
 import * as WatchController from 'ROOT/module/watch/watch.controller';
 import * as MailController from 'ROOT/module/email/config.controller';
+import * as ConfigController from 'ROOT/module/config/config.controller';
 // /index
 const apiPrefix = '/api';
 const router = new Router<AppState, AppContext>();
@@ -26,3 +27,8 @@ router.post(`${apiPrefix}/send-email`, MailController.create);
 
 router.get(`${apiPrefix}/watch-symbol`, checkToken, WatchController.get);
 router.post(`${apiPrefix}/watch-symbol`, checkToken, WatchController.updateOne);
+
+
+
+router.get(`${apiPrefix}/config`, checkToken, ConfigController.index);
+router.post(`${apiPrefix}/config`, checkToken, ConfigController.create);
