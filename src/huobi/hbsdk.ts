@@ -6,7 +6,7 @@ import { stringify } from 'querystring';
 import JSONbig from 'json-bigint';
 import moment from 'moment';
 import { errLogger, outLogger } from 'ROOT/common/logger';
-import { AppConfig } from 'ROOT/interface/App.ts';
+import { AppConfig } from 'ROOT/interface/App';
 import url from 'url';
 
 import {form_post, get, post} from 'ROOT/lib/http/httpClient';

@@ -7,7 +7,12 @@ const {
 } = require('gulp');
 const merge = require('merge-stream');
 const prettier = require("prettier");
+const typescript = require("gulp-typescript");
+const alias = require("gulp-ts-alias");
+
 const pkg = require('./package.json');
+
+const tsProject = typescript.createProject('tsconfig.json');
 
 function exec(cmdStr) {
     console.log(`\n> ${cmdStr}`)
@@ -50,8 +55,9 @@ function copy(cb) {
     const config = src('config/*.js').pipe(dest('dist/config'));
     const public = src('public/admin/**/*').pipe(dest('dist/public/admin'));
     const files = src([
-        '.dockerfile',
-        '.dockerignore',
+        // '.dockerfile',
+        // '.dockerignore',
+        'docker-compose.dev.yml',
         '.gitignore',
         'pm2.json',
         'README.md'
@@ -62,9 +68,11 @@ function copy(cb) {
 
 function build(next) {
     const compiled = src(['./src/**/*.ts', './typings/*.ts'])
-    .pipe(alias({configuration: tsProject.config}))
-    .pipe(tsProject())
+        .pipe(alias({
+            configuration: tsProject.config
+        }))
+        .pipe(tsProject())
     return compiled.js
-    .pipe(dest('dist/src'))
+        .pipe(dest('dist/src'))
 }
 exports.default = series(clear, build, copy, replace)

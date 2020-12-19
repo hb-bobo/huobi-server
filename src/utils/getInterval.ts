@@ -6,7 +6,8 @@ import dayjs from 'dayjs';
  * @return {Date[]}
  */
 export function getInterval(timeDesription: string) {
-    const time = timeDesription.match(/\d+/) || 24;
+    const metchResult = timeDesription.match(/\d+/);
+    const time: number = typeof metchResult === 'number' ? metchResult [0] : 24;
     let factor = 60 * 60 * 1000;
     if(timeDesription.includes('h')) {
         factor = 60 * 60 * 1000;

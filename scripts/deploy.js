@@ -1,17 +1,28 @@
-const ghpages = require('gh-pages');
 
+const ghpages = require('gh-pages');
+const path = require('path');
 const pkg = require('../package.json');
 
 const repo = pkg.repository.url;
-let branch = process.argv[2] || 'beta';
-let cm = process.argv[3] || 'chore: Auto push after build';
-let fetchFileName = process.argv[4] || 'dist';
-ghpages.publish(fetchFileName, {
+
+const branch = process.argv[2]
+const commit = process.argv[3] || 'chore: Auto push after build';
+const localPath = process.argv[4] || path.resolve(__dirname, '../dist');
+const branchPath = '';
+
+const SSH_URL = repo.replace('https://github.com/', 'git@github.com:')
+
+ghpages.publish(localPath, {
     branch,
-    dest: `${fetchFileName}/`,
-    repo,
-    message: cm,
+    dest: branchPath,
+    repo: SSH_URL,
+    message: commit,
+    // silent: GH_TOKEN ? true : false,      
     dotfiles: true,    
 }, (err) => {
-    console.info(`success publish ${fetchFileName} to ${branch} branch`, err);
+    if (err) {
+        console.error(err);
+        return;
+    }
+    console.info(`success publish ${localPath} to ${repo.replace('.git', '')}/tree/${branch}/${branchPath}`);
 });
