@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "name": "plothis-server",
+      "script": "./app.js",
+      "cwd": "./",
+      "watch": ["app", "lib", "app.js"],
+      "env": { "NODE_ENV": "development" },
+      "env_production": { "NODE_ENV": "production" },
+      "error_file": "./logs/err/app-err.log",
+      "out_file": "./logs/out/app-out.log",
+      "log_date_format": "YYYY-MM-DD HH:mm ss"
+    }
+  ]
+}
