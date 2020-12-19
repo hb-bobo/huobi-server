@@ -13,7 +13,7 @@ import { ws_auth, WS_SUB } from './ws.cmd';
 
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
-let ws: ReturnType<typeof createHuobiWS>;
+export let ws: ReturnType<typeof createHuobiWS>;
 
 /**
  * 行情数据
@@ -57,7 +57,7 @@ export function start (accessKey: string, secretKey: string) {
         } else {
             outLogger.info(`huobi-ws closed:`, e.reason);
         }
-        ws.reStart();
+        // ws.reStart();
     });
     ws.on('error', function (e) {
         ws.reStart();
@@ -95,6 +95,7 @@ const handleMap: Record<string, (data: any) => {type: EventTypes, data: any}> = 
 /* 处理返回的数据 */
 function handle(data) {
     const [type, symbol, channel] = data.ch.split('.');
+
     if (handleMap[channel]) {
         const {type, data: otherData } = handleMap[channel](data);
         ws_event.emit('huobi:ws:message', {

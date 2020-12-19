@@ -19,6 +19,16 @@ export class HuobiSockette extends Sockette{
             })
         })
     }
+    checkCache() {
+        for (const key in this.cache) {
+            if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
+                const subscribers = this.cache[key];
+                if (subscribers.length === 0) {
+                    delete this.cache[key];
+                }
+            }
+        }
+    }
     /**
      * 订阅行为会缓存起来
      * @param data
@@ -26,7 +36,7 @@ export class HuobiSockette extends Sockette{
     async sub(data: {sub: string, id: string}, id?: string) {
         this.json(data);
         const _id = id ? id : 'system';
-        const dataStr = JSON.stringify(data);
+        const dataStr = data.sub;
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             // 订阅
@@ -36,7 +46,6 @@ export class HuobiSockette extends Sockette{
         } else {
             this.cache[dataStr] = [_id];
         }
-        console.log('sub', this.cache)
     }
     /**
      * 退阅行为会删除缓存
@@ -45,7 +54,7 @@ export class HuobiSockette extends Sockette{
     async upsub(data: {unsub: string, id: string}, id?: string) {
         this.json(data);
         const _id = id ? id : 'system';
-        const dataStr = JSON.stringify(data);
+        const dataStr = data.unsub;
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             const index = subscribers.findIndex((subscriberId) => subscriberId === _id);
@@ -54,9 +63,30 @@ export class HuobiSockette extends Sockette{
                 subscribers.slice(index, 1);
             }
         }
-        console.log('upsub', this.cache)
     }
-
+    /**
+     * 退阅行为会删除缓存
+     * @param data
+     */
+    async unSubFormClinet(data, id: string) {
+        if (data.sub) {
+            data.unsub = data.sub
+            delete data.sub
+            this.json(data);
+        }
+        const _id = id ? id : 'system';
+        for (const key in this.cache) {
+            if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
+                const subscribers = this.cache[key];
+                const index = subscribers.findIndex((subscriberId) => subscriberId === _id);
+                // 订阅
+                if (index > -1) {
+                    subscribers.slice(index, 1);
+                }
+            }
+        }
+        this.checkCache();
+    }
 }
 /**
  * 与火币服务器的ws(原生ws)

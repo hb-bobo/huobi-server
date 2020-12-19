@@ -1,7 +1,7 @@
 import { errLogger, outLogger } from "ROOT/common/logger";
 
 import { SaveOptions } from "typeorm";
-import { isNullOrUndefined, isNumber } from "util";
+import isNil from "lodash/isNil";
 import TradeAccountEntity from "./TradeAccount.entity";
 
 /**
@@ -41,7 +41,7 @@ export const deleteOne = async function(query: Partial<TradeAccountEntity>) {
         return Promise.reject('删除出错');
     }
     const deleted = await TradeAccountEntity.remove(target);
-    if (isNullOrUndefined(deleted)) {
+    if (isNil(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
     }

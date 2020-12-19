@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 interface Item {
     status: '横盘' | '跌' | '涨',
@@ -101,7 +101,7 @@ export default class AbnormalMonitor {
                 status: '横盘',
                 strength: 0,
                 ts,
-                timeUTC: moment(ts).format("YYYY/MM/DD H:mm:ss"),
+                timeUTC: dayjs(ts).format("YYYY/MM/DD H:mm:ss"),
                 value: data.value,
             });
              // 根据时间差算出下一个时间的节点，默认为5min后
@@ -127,7 +127,7 @@ export default class AbnormalMonitor {
                 // 强度
                 strength: Number((disValue / Number(this._preTrade.value) * 100).toFixed(3)) - 0,
                 ts,
-                timeUTC: moment(ts).format("YYYY/MM/DD H:mm:ss"),
+                timeUTC: dayjs(ts).format("YYYY/MM/DD H:mm:ss"),
                 value: data.value,
             });
              // 根据时间差算出下一个时间的节点，默认为5min后

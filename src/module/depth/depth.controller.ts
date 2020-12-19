@@ -1,29 +1,43 @@
 
 import config from 'config';
 import { AppContext } from 'ROOT/interface/App';
-import DepthEntity from './depth.entity';
+import schema from 'async-validator';
 import * as DepthService from './depth.service';
 
 /**
  * 查询单个或者多个
  */
 export const get = async (ctx: AppContext) => {
-    const { id } = ctx.request.query;
-    try {
-        let res: DepthEntity | DepthEntity[] | undefined;
-        if (id) {
-            res = await DepthService.findOne({id});
-            if (!res) {
-                ctx.sendError({message: 'error'});
-                return;
-            }
-            ctx.sendSuccess({
-                data: res
-            });
-        } else {
-            res = await DepthService.find({});
-            ctx.sendSuccess({data: res});
+    const { start, end, symbol } = ctx.request.query;
+
+    const validator = new schema({
+        start: {
+            type: "string",
+            required: true,
+        },
+        end: {
+            type: "string",
+            required: true,
+        },
+        symbol: {
+            type: "string",
+            required: true,
         }
+    });
+    try {
+        await validator.validate({ start, end, symbol });
+    } catch ({ errors, fields }) {
+        ctx.sendError({errors});
+        return;
+    }
+    try {
+        let res = await DepthService.find({
+            start: new Date(start),
+            end: new Date(end), 
+            symbol: (symbol as string).toLowerCase()}
+        );
+
+        ctx.sendSuccess({data: res});
     } catch (error) {
         ctx.sendError({message: error});
     }
@@ -32,18 +46,10 @@ export const get = async (ctx: AppContext) => {
 /**
  * 更新或者新建
  */
-export const updateOne = async (ctx: AppContext) => {
+export const create = async (ctx: AppContext) => {
     const data = ctx.request.body;
     try {
-        let res;
-        if (data.id || data._id) {
-            res = await DepthService.updateOne({id: data.id || data._id}, data);
-        } else if (data.title) {
-            res = await DepthService.create(data);
-        } else {
-            ctx.sendError({message: '格式有误'});
-            return;
-        }
+        let res = await DepthService.create(data);
         ctx.sendSuccess({
             data: res
         });
@@ -53,19 +59,4 @@ export const updateOne = async (ctx: AppContext) => {
     }
 }
 
-
-/**
- * 删除单个
- */
-export const removeOne = async (ctx: AppContext) => {
-    const data = ctx.request.body;
-    try {
-        const res = await DepthService.deleteOne({id: data._id});
-        ctx.sendSuccess({
-            data: res
-        });
-    } catch (error) {
-        ctx.sendError({message: error});
-    }
-}
 

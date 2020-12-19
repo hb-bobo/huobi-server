@@ -1,26 +1,30 @@
 import Emitter from 'events';
 import isEmpty from 'lodash/isEmpty';
+import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import { errLogger } from 'ROOT/common/logger';
+import { keepDecimalFixed } from 'ROOT/utils';
 import getPriceIndex from "./getPriceIndex";
+import symbolPrice from './price';
 
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
  */
 export default class StatisticalTrade extends Emitter{
     symbol: string;
-    exchange: string;
+    exchange: number;
     disTime: number;
     _mergeData: {
         buy: number;
         sell: number;
-        exchange: string;
+        exchange: number;
         _time?: number;
-        time: Date;
+        time: number;
         amount: number;
+        usdtPrice: number;
     } = {} as any;
     constructor({
         symbol,
-        exchange = 'huobi',
+        exchange = 1,
         disTime = 5 * 60 * 1000
     }) {
         super();
@@ -50,17 +54,19 @@ export default class StatisticalTrade extends Emitter{
             }
             return;
         }
+
         // 上一个时间(位数归了0，比实际时间早)
         const preTime = this._mergeData._time as number;
         // 当前时间 > 上一个时间
         if ((ts - preTime)  > this.disTime) {
             // 开始一个新数据前把上次合并好的数据整理并emit；
-            let time = new Date(Number(this._mergeData._time));
+            let time = Number(this._mergeData._time);
             if (this._mergeData) {
-                this._mergeData.buy = Number(this._mergeData.buy.toFixed(2));
-                this._mergeData.sell = Number(this._mergeData.sell.toFixed(2));
-                // this._mergeData.amount = this._tempData.amount;
                 this._mergeData.exchange = this.exchange;
+                this._mergeData.buy = keepDecimalFixed(this._mergeData.buy, 2);
+                this._mergeData.sell = keepDecimalFixed(this._mergeData.sell, 2);
+                // this._mergeData.amount = this._tempData.amount;
+                this._mergeData.usdtPrice = tradeData.price
                 delete this._mergeData._time;
                 this.emit('merge', symbol, this._mergeData);
                 // mysqlModel.insert('HUOBI_TRADE', tempTradeData);
@@ -98,6 +104,7 @@ function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceInd
         sell: 0,
         _time: _time,
         amount: 0,
+        usdtPrice: 0,
     }
     if (!Array.isArray(tradeData)) {
         errLogger.error('tradeData must be a Array');
@@ -105,10 +112,11 @@ function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceInd
     }
     // 累加买卖交易量
     tradeData.forEach(item => {
-        const amountMoney = item.amount * item.price * _priceIndex;
+        // const amountMoney = item.amount; // * item.price * _priceIndex;
         const direction = item.direction;
-        _tempData[direction] = Number((amountMoney + _tempData[direction]).toFixed(2));
+        _tempData[direction] = keepDecimalFixed(item.amount + _tempData[direction], 2);
         _tempData.amount += item.amount;
+        _tempData.usdtPrice = item.price;
     });
     return _tempData;
 }

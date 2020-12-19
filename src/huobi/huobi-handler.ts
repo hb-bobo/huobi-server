@@ -11,7 +11,7 @@ import * as WatchService from 'ROOT/module/watch/watch.service';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
-import { getRepeatCount } from 'ROOT/utils';
+import { getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
 import { toNumber } from 'lodash';
 
 interface Event {
@@ -24,7 +24,7 @@ interface Event {
         [x: string]: any;
     },
 }
-
+const minute = 1000 * 60
 let watchSymbols: string[] = [];
 
 // 每一个币都存一个throttle包裹的handleDepth方法
@@ -84,16 +84,19 @@ export async function handle(event: Event) {
             if (tradeHandles[symbol] === undefined) {
                 tradeHandles[symbol] = new StatisticalTrade({
                     symbol: symbol,
-                    exchange: 'huobi',
-                    disTime: 5 * 60 * 1000,
+                    exchange: 1,
+                    disTime:  minute * 5,
                 });
                 tradeHandles[symbol].on('merge', function (symbol, data) {
+
                     const _data = {
                         symbol: symbol,
-                        sell: data.sell,
-                        buy: data.buy,
-                        time: data.time,
+                        sell: data.sell || 0,
+                        buy: data.buy || 0,
+                        time: data.time ? new Date(data.time) : new Date(),
+                        usdtPrice: data.usdtPrice,
                     }
+       
                     TradeService.create(_data);
                     ws_event.emit("server:ws:message", {
                         from: SocketFrom.server,
@@ -105,6 +108,7 @@ export async function handle(event: Event) {
                 });
             }
             tradeHandles[symbol].merge(data.trade);
+
             break;
         default:
     }
@@ -180,29 +184,30 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
 
     // 取当前时间
-    let ts = Date.now();
+    let datetime = new Date();
     let symbolInfo = getSymbolInfo(symbol);
     let amountPrecision = symbolInfo['amount-precision'];
     let pricePrecision = symbolInfo['price-precision'];
-
+    
     let currentPrice = (bids1[0] + aks1[0]) / 2;
     let insertData = {
         symbol: symbol,
-        exchange: 'huobi',
-        sell_1: toNumber((aks1[1] * aks1[0] * _price).toFixed(pricePrecision)),
-        sell_2: toNumber((aks2[1] * aks2[0] * _price).toFixed(pricePrecision)),
-        buy_1: toNumber((bids1[1] * bids1[0] * _price).toFixed(pricePrecision)),
-        buy_2: toNumber((bids2[1] * bids2[0] * _price).toFixed(pricePrecision)),
-        price: (currentPrice).toString().length > pricePrecision ? Number(currentPrice.toFixed(pricePrecision)) : currentPrice,
-        bids_max_1: bidsList[0].sumDollar,
-        bids_max_2: bidsList[1].sumDollar,
-        asks_max_1: asksList[0].sumDollar,
-        asks_max_2: asksList[1].sumDollar,
+        exchange: 1,
+        sell_1: keepDecimalFixed((aks1[1]), amountPrecision),
+        sell_2: keepDecimalFixed((aks2[1]), amountPrecision),
+        buy_1: keepDecimalFixed((bids1[1]), amountPrecision),
+        buy_2: keepDecimalFixed((bids2[1]), amountPrecision),
+        usdtPrice: 0,
+        price: (currentPrice).toString().length > pricePrecision ? keepDecimalFixed(currentPrice, pricePrecision) : currentPrice,
+        bids_max_1: bidsList[0].amount,
+        bids_max_2: bidsList[1].amount,
+        asks_max_1: asksList[0].amount,
+        asks_max_2: asksList[1].amount,
         bids_max_price: [bidsList[0].price, bidsList[1].price].join(','),
         asks_max_price: [asksList[0].price, asksList[1].price].join(','),
-        time: ts,
+        time: datetime,
     }
-
+    insertData.usdtPrice = keepDecimalFixed(insertData.price * getPriceIndex(symbol), pricePrecision)
     // 非监控的币，不写入数据库，直接返回给前端
     if (!watchSymbols.includes(symbol.toUpperCase())) {
         return;
@@ -221,12 +226,12 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
     buyMaxAM.speed({
         value: Number(bidsList[0].sumDollar),
-        ts,
+        ts: datetime.getTime(),
         symbol: symbol,
     });
     sellMaxAM.speed({
         value: Number(asksList[0].sumDollar),
-        ts,
+        ts: datetime.getTime(),
         symbol: symbol,
     });
     let bidsHistoryStatus = buyMaxAM.historyStatus;
@@ -258,13 +263,27 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
 
 };
-const minute = 1000 * 60
+
 const write = throttle(function (insertData: Parameters<typeof DepthService.create>[0]) {
-    // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
+
     DepthService.create(insertData);
-}, minute * 8, { trailing: false, leading: true });
+    ws_event.emit("server:ws:message", {
+        from: SocketFrom.server,
+        type: EventTypes.huobi_depth_chart,
+        data: {
+            ...insertData,
+        },
+    });
+}, minute * 10, { trailing: false, leading: true });
 
 const write2 = throttle(function (insertData: Parameters<typeof DepthService.create>[0]) {
-    // mysqlModel.insert('HUOBI_PRESSURE_ZONE', insertData);
+
     DepthService.create(insertData);
-}, minute * 1, { trailing: false, leading: true });
+    ws_event.emit("server:ws:message", {
+        from: SocketFrom.server,
+        type: EventTypes.huobi_depth_chart,
+        data: {
+            ...insertData,
+        },
+    });
+}, minute * 3, { trailing: false, leading: true });

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 /**
  * 获取一段时间
@@ -12,8 +12,8 @@ export function getInterval(timeDesription: string) {
         factor = 60 * 60 * 1000;
     }
     return [
-        moment(Date.now() - (time * factor)).format("YYYY/MM/DD H:mm:ss"),
-        moment().format("YYYY/MM/DD H:mm:ss")
+        dayjs(Date.now() - (time * factor)).format("YYYY/MM/DD H:mm:ss"),
+        dayjs().format("YYYY/MM/DD H:mm:ss")
     ]
 }
 

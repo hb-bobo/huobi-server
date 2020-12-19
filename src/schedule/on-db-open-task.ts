@@ -12,6 +12,7 @@ import { SocketFrom } from 'ROOT/interface/ws';
 import { outLogger } from 'ROOT/common/logger';
 
 dbEvent.on('connected', start);
+export let HUOBI_WS: ReturnType<typeof huobiWSStart>;
 /**
  * 自动任务开始
  */
@@ -31,7 +32,6 @@ export async function start() {
     //     })
     // );
 
-    let HUOBI_WS: ReturnType<typeof huobiWSStart>;
 
     if (WatchEntityList.length > 0) {
 

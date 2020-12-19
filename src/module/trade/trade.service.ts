@@ -1,59 +1,54 @@
+import dayjs from 'dayjs';
+import { getRepository, getConnection, EntityManager  } from "typeorm";
+import isNil from "lodash/isNil";
 import { errLogger } from "ROOT/common/logger";
-import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
-import { SaveOptions } from "typeorm";
-import { isNullOrUndefined, isNumber } from "util";
-import DepthModel from "./trade.entity";
+import { entitysMap, tableNameFactory, TradeDTO, createEntitySchema } from './trade.entity'
 
 /**
  * 查询
  * @param {object} query 
  */
-export const find = async function(query: object) {
-    const res = await DepthModel.find({})
+export const find = async function({start, end, symbol}) {
+    const tableNames = tableNameFactory.queryWidthIntervalTime(start, end)
+
+    let query = tableNames.map((name) => {
+        return `
+        SELECT * FROM ${name}
+        WHERE time BETWEEN '${dayjs(start).format('YYYY/MM/DD H:mm:ss')}' AND '${dayjs(end).format('YYYY/MM/DD H:mm:ss')}'
+        AND symbol='${symbol}'
+        `
+    })
+    const res = await getConnection()
+    .query(query.join('UNION ALL\n'))
+    
+    // let res: TradeDTO[] = []
+    // const res = await getConnection()
+    //     .getRepository<TradeDTO>(tableNames[0])
+    //     .createQueryBuilder('trade')        
+    //     .addFrom(tableNames[1], tableNames[1]).getMany()
+    // for (let i = 0; i < tableNames.length; i++) {
+    //     const tableName = tableNames[i];
+    //     if (entitysMap[tableName] === undefined) {
+    //         createEntitySchema(tableName);
+    //     }
+    //     const list = await getManager()
+    //     .getRepository<TradeDTO>(entitysMap[tableName])
+    //     .createQueryBuilder('trade')        
+    //     .from
+    //     .where('trade.time BETWEEN :start AND :end', {start, end})
+    //     .andWhere('trade.symbol = :symbol', {symbol})
+    //     .getMany();
+    //     res = res.concat(list)
+    // }
     return res;
 }
 
-/**
- * 查询单个
- * @param {object} query 
- */
-export const findOne = async function(query: Partial<DepthModel>) {
-    return DepthModel.findOne(query);
-}
-
-/**
- * 更新单个
- * @param {object} query 
- * @param { Document }
- */
-export const updateOne = async function(query: Partial<DepthModel>, newData: Partial<DepthModel>, options?: SaveOptions) {
-    return DepthModel.update(query, newData, options);
-}
-
-/**
- * 删除单个
- * @param {object} query 
- * @param { Document }
- */
-export const deleteOne = async function(query: Partial<DepthModel>) {
-    const target = await findOne(query);
-    if (!target) {
-        return Promise.reject('删除出错');
-    }
-    const deleted = await DepthModel.remove(target);
-    if (isNullOrUndefined(deleted)) {
-        errLogger.info(query)
-        return Promise.reject('删除出错');
-    }
-    return;
-}
 
 /**
  * 新增
- * @param {object} query 
- * @param { Document }
  */
-export const create = async function(data: Partial<DepthModel>) {
-    const Doc = DepthModel.create(data)
-    return Doc.save();
+export const create = async function(data: TradeDTO) {
+
+    const repository = await getRepository(entitysMap[tableNameFactory.getTableName()])
+    return repository.save(data);
 }

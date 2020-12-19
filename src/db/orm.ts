@@ -31,6 +31,7 @@ export const dbEvent = new events.EventEmitter();
  */
 createConnection(connectionConfig)
     .then(() => {
+        
         dbEvent.emit("connected");
         outLogger.info(
             `MySQL: database ${dbConfig.database} connected`

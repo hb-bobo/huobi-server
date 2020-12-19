@@ -1,5 +1,6 @@
 import { getSymbolInfo } from "./getSymbolInfo";
 import { toNumber } from "lodash";
+import { keepDecimalFixed } from "ROOT/utils";
 
 
 
@@ -50,11 +51,11 @@ export const getSameAmount = function (data, {
 	}
 	let arr: {
 		count: number;
-		amount: string;
-		sumCount: string
-		sumMoneny: string;
+		amount: number;
+		sumCount: number
+		sumMoneny: number;
 		sumDollar: number;
-		price: string;
+		price: number;
 		prices: number[];
 	}[] = [];
 	for (let key in countTemp) {
@@ -87,11 +88,11 @@ export const getSameAmount = function (data, {
 		) {
 			let data = {
 				count: count,
-				amount: Number(key).toFixed(amountPrecision), // 量
-				sumCount: sum.toFixed(amountPrecision),
-				sumMoneny: sumPrice.toFixed(2),
-				sumDollar: toNumber(sumDollar.toFixed(2)),
-				price: price.toFixed(pricePrecision),
+				amount: keepDecimalFixed(key, amountPrecision), // 量
+				sumCount: keepDecimalFixed(sum, amountPrecision),
+				sumMoneny: keepDecimalFixed(sumPrice, 2),
+				sumDollar: keepDecimalFixed(sumDollar, 2),
+				price: keepDecimalFixed(price, pricePrecision),
 				prices: countTemp[key].prices,
 			}
 			arr.push(data);

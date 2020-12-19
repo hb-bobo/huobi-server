@@ -1,3 +1,4 @@
+import symbolPrice from "./price";
 
 export const prices = {
     btc: 5200,
@@ -14,9 +15,9 @@ export default function getPriceIndex (symbol: string) {
     // btc eth交易对转美元
     let _temp = {
         usdt: 1,
-        btc: prices.btc,
-        eth: prices.eth,
-        ht: prices.ht,
+        btc: symbolPrice.get('btc'),
+        eth: symbolPrice.get('eth'),
+        ht: symbolPrice.get('ht'),
         husd: 1,
     }
     let _price: number = 0;

@@ -50,7 +50,7 @@ app.use(cors())
     }
   }))
   .use(session(SESSION_CONFIG, app))
-  .use(koaJSON())
+  // .use(koaJSON())
   .use(send)
   .use(routes.routes())
   .use(routes.allowedMethods())
