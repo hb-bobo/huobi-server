@@ -1,0 +1,31 @@
+version: "3"
+services:
+  nodejs:
+    image: node:12.16.1
+    container_name: huobi-server
+    working_dir: /usr/local/src/huobi-server
+    volumes:
+      - ./:/usr/local/src/huobi-server
+    ports:
+      - "3003:3003"
+    command: ["/bin/sh", "-c", "ls && npm install && npm run start:prod"]
+  # mysql:
+  #   container_name: mysql-huobi
+  #   image: mysql:5.7
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   volumes:
+  #     - ./private/mysql:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
+  #   restart: always
+  #   # networks:
+  #   #   - huobi-net
+  #   environment:
+  #     MYSQL_USER: test
+  #     MYSQL_PASSWORD: test123456
+  #     MYSQL_ROOT_PASSWORD: test123456
+  #     MYSQL_DATABASE: huobi
+   
+# networks:
+#   huobi-net:
+#     driver: bridge
