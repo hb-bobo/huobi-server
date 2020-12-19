@@ -1,10 +1,10 @@
 {
   "apps": [
     {
-      "name": "plothis-server",
-      "script": "./app.js",
+      "name": "huobi-server",
+      "script": "./src/app.js",
       "cwd": "./",
-      "watch": ["app", "lib", "app.js"],
+      "watch": ["config", "src"],
       "env": { "NODE_ENV": "development" },
       "env_production": { "NODE_ENV": "production" },
       "error_file": "./logs/err/app-err.log",
