@@ -14,7 +14,7 @@
     "build": "npm run test && npm run gulp",
     "pm2:prod": "pm2 start pm2.json --env production",
     "deploy:beta": "cross-env NODE_ENV=beta npm run build && node scripts/deploy.js deploy-beta",
-    "deploy:prod": "cross-env NODE_ENV=beta npm run build && node scripts/deploy.js deploy-master",
+    "deploy:prod": "cross-env NODE_ENV=production npm run build && node scripts/deploy.js deploy-master",
     "docker-compose:dev": "docker-compose -f docker-compose.dev.yml up",
     "docker-compose:prod": "docker-compose -f docker-compose.yml up",
     "lint": "eslint ./src --ext .ts,.tsx --quiet",

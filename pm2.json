@@ -1,13 +1,12 @@
 {
     "apps": [
         {
-            "name": "plothis-server",
-            "script": "./dist/app.js",
+            "name": "huobi-server",
+            "script": "./dist/src/app.js",
             "cwd": "./",
             "watch": [
-                "dist/app",
-                "dist/lib",
-                "dist/app.js"
+                "dist/config",
+                "dist/src"
             ],
             "env": {
                 "NODE_ENV": "development"
