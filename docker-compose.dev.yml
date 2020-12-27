@@ -6,6 +6,7 @@ services:
     working_dir: /usr/local/src/huobi-server
     volumes:
       - ./:/usr/local/src/huobi-server
+      - ./logs:/usr/local/src/huobi-server/logs
     ports:
       - "3003:3003"
     command: ["/bin/sh", "-c", "ls && npm install && npm run start:prod"]
