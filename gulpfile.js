@@ -28,14 +28,14 @@ function exec(cmdStr) {
     });
 }
 
-function clear(cb) {
+function clear(next) {
     exec('rm -rf dist')
         .then(() => {
-            cb()
+            next()
         })
 }
 
-function replace(cb) {
+function replace(next) {
     // body omitted
 
     delete pkg.devDependencies;
@@ -48,10 +48,10 @@ function replace(cb) {
     fs.writeFileSync(path.resolve('./dist/pm2.json'), prettier.format(pm2, {
         parser: 'json'
     }));
-    cb();
+    next();
 }
 
-function copy(cb) {
+function copy(next) {
     const config = src('config/*.js').pipe(dest('dist/config'));
     const public = src('public/admin/**/*').pipe(dest('dist/public/admin'));
     const files = src([

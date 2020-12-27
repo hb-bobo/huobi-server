@@ -1,6 +1,6 @@
 @localURL = http://localhost:3001/api
-@preURL = http://114.67.103.78:3001/api
-@currentURL = http://localhost:3001/api
+@preURL = http://114.67.103.78:3003/api
+@currentURL = http://114.67.103.78:3003/api
 ###
 # @name 交易账户
 POST  {{currentURL}}/trade-account
