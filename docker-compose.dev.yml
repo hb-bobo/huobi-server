@@ -1,14 +1,15 @@
 version: "3"
 services:
-  # nodejs:
-  #   image: node:12.16.1
-  #   container_name: huobi-server
-  #   working_dir: /usr/local/src/huobi-server
-  #   volumes:
-  #     - ./:/usr/local/src/huobi-server
-  #   ports:
-  #     - "3003:3003"
-  #   command: ["/bin/sh", "-c", "ls && npm install && npm install pm2 -g && npm run start:prod"]
+  nodejs:
+    image: node:12.16.1
+    container_name: huobi-server
+    working_dir: /usr/local/src/huobi-server
+    volumes:
+      - ./:/usr/local/src/huobi-server
+      - ./logs:/usr/local/src/huobi-server/logs
+    ports:
+      - "3003:3003"
+    command: ["/bin/sh", "-c", "ls && npm install && npm run start:prod"]
   # mysql:
   #   container_name: mysql-huobi
   #   image: mysql:5.7
