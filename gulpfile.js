@@ -57,7 +57,7 @@ function copy(next) {
     const files = src([
         // '.dockerfile',
         // '.dockerignore',
-        'docker-compose.dev.yml',
+        'docker-compose.yml',
         '.gitignore',
         'pm2.json',
         'README.md'
