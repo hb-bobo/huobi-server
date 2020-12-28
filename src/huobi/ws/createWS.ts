@@ -34,16 +34,18 @@ export class HuobiSockette extends Sockette{
      * @param data
      */
     async sub(data: {sub: string, id: string}, id?: string) {
-        this.json(data);
+ 
         const _id = id ? id : 'system';
         const dataStr = data.sub;
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             // 订阅
             if (!subscribers.includes(_id)) {
-                subscribers.push(_id)
+                subscribers.push(_id);
             }
         } else {
+            // 没有才发送消息
+            this.json(data);
             this.cache[dataStr] = [_id];
         }
     }
@@ -51,16 +53,22 @@ export class HuobiSockette extends Sockette{
      * 退阅行为会删除缓存
      * @param data
      */
-    async upsub(data: {unsub: string, id: string}, id?: string) {
-        this.json(data);
+    async upsub(data: {sub?: string, unsub?: string, id: string}, id?: string) {
+        if (data.unsub === undefined) {
+            data.unsub = data.sub;
+        }
         const _id = id ? id : 'system';
-        const dataStr = data.unsub;
+        const dataStr: string = (data.unsub) as string;
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             const index = subscribers.findIndex((subscriberId) => subscriberId === _id);
             // 订阅
             if (index > -1) {
                 subscribers.slice(index, 1);
+                this.checkCache();
+            } else {
+                // 没有才发送消息
+                this.json(data);
             }
         }
     }

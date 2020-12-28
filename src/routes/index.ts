@@ -29,7 +29,7 @@ router.post(`${apiPrefix}/send-email`, MailController.create);
 
 router.get(`${apiPrefix}/watch-symbol`, checkToken, WatchController.get);
 router.post(`${apiPrefix}/watch-symbol`, checkToken, WatchController.updateOne);
-
+router.delete(`${apiPrefix}/watch-symbol`, checkToken, WatchController.removeOne);
 
 
 router.get(`${apiPrefix}/config`, checkToken, ConfigController.index);
