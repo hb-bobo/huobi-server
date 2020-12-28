@@ -38,7 +38,6 @@ class HuobiSockette extends Sockette_1.default {
      * @param data
      */
     async sub(data, id) {
-        this.json(data);
         const _id = id ? id : 'system';
         const dataStr = data.sub;
         if (this.cache[dataStr]) {
@@ -49,6 +48,8 @@ class HuobiSockette extends Sockette_1.default {
             }
         }
         else {
+            // 没有才发送消息
+            this.json(data);
             this.cache[dataStr] = [_id];
         }
     }
@@ -57,15 +58,22 @@ class HuobiSockette extends Sockette_1.default {
      * @param data
      */
     async upsub(data, id) {
-        this.json(data);
+        if (data.unsub === undefined) {
+            data.unsub = data.sub;
+        }
         const _id = id ? id : 'system';
-        const dataStr = data.unsub;
+        const dataStr = (data.unsub);
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             const index = subscribers.findIndex((subscriberId) => subscriberId === _id);
             // 订阅
             if (index > -1) {
                 subscribers.slice(index, 1);
+                this.checkCache();
+            }
+            else {
+                // 没有才发送消息
+                this.json(data);
             }
         }
     }

@@ -45,7 +45,7 @@ exports.deleteOne = async function (query) {
         logger_1.errLogger.info(query);
         return Promise.reject('删除出错');
     }
-    return;
+    return deleted;
 };
 /**
  * 新增
