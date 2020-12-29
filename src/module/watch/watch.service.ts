@@ -1,7 +1,7 @@
+import { isNil } from "lodash";
 import { errLogger, outLogger } from "ROOT/common/logger";
 
 import { SaveOptions } from "typeorm";
-import { isNullOrUndefined, isNumber } from "util";
 import WatchEntity from "./watch.entity";
 
 /**
@@ -41,7 +41,7 @@ export const deleteOne = async function(query: Partial<WatchEntity>) {
         return Promise.reject('删除出错');
     }
     const deleted = await WatchEntity.remove(target);
-    if (isNullOrUndefined(deleted)) {
+    if (isNil(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
     }

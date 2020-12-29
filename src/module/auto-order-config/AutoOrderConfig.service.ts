@@ -1,7 +1,7 @@
+import { isNil } from "lodash";
 import { errLogger } from "ROOT/common/logger";
 import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
 import { SaveOptions } from "typeorm";
-import { isNullOrUndefined, isNumber } from "util";
 import AutoOrderConfigEntity from "./AutoOrderConfig.entity";
 
 /**
@@ -41,7 +41,7 @@ export const deleteOne = async function(query: Partial<AutoOrderConfigEntity>) {
         return Promise.reject('删除出错');
     }
     const deleted = await AutoOrderConfigEntity.remove(target);
-    if (isNullOrUndefined(deleted)) {
+    if (isNil(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
     }

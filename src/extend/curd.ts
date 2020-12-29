@@ -1,8 +1,8 @@
 import {BaseEntity, getRepository, SaveOptions } from "typeorm";
 import pagination from "ROOT/common/pagination";
 import { Pagination } from "ROOT/interface/List";
-import { isNullOrUndefined } from "util";
 import { errLogger } from "ROOT/common/logger";
+import { isNil } from "lodash";
 
 export class CrudService<T extends typeof BaseEntity> {
     _Entity!: T;
@@ -62,7 +62,7 @@ export class CrudService<T extends typeof BaseEntity> {
             return Promise.reject('删除出错');
         }
         const deleted = await this._Entity.remove(target);
-        if (isNullOrUndefined(deleted)) {
+        if (isNil(deleted)) {
             errLogger.info(query)
             return Promise.reject('删除出错');
         }

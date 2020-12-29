@@ -25,17 +25,16 @@ interface Config {
     "ts":        1494495766000
 } */
 
-
+const M = 1000 * 60;
 /**
  * 根据字符串转成毫秒
  * @param {string} timeDes
  * @return {number}
  */
 const toMillisecond = function (timeDes): number {
-    const s = 1000 * 60;
     const temp = {
-        '5min': 5 * s,
-        '1min': s,
+        '5min': 5 * M,
+        '1min': M,
     }
     return temp[timeDes];
 }

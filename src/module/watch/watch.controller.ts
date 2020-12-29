@@ -2,7 +2,7 @@
 import config from 'config';
 import { WS_SUB } from 'ROOT/huobi/ws/ws.cmd';
 import { AppContext } from 'ROOT/interface/App';
-import { HUOBI_WS } from 'ROOT/schedule/on-db-open-task';
+import { ws as HUOBI_WS } from 'ROOT/huobi/ws/ws';
 import WatchEntity from './watch.entity';
 import * as WatchEntityService from './watch.service';
 

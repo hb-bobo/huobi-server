@@ -1,11 +1,11 @@
 
 
 import config from 'config';
+import { isNil } from 'lodash';
 import { errLogger } from "ROOT/common/logger";
 import pagination from "ROOT/common/pagination";
 import { Pagination } from "ROOT/interface/List";
 import { getRepository, SaveOptions } from "typeorm";
-import { isNullOrUndefined } from "util";
 import ConfigEntity from './config.entity';
 
 /**
@@ -62,7 +62,7 @@ export const deleteOne = async function(query: Partial<ConfigEntity>) {
         return Promise.reject('删除出错');
     }
     const deleted = await ConfigEntity.remove(target);
-    if (isNullOrUndefined(deleted)) {
+    if (isNil(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
     }

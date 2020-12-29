@@ -10,6 +10,7 @@ import { AppConfig } from 'ROOT/interface/App';
 import url from 'url';
 
 import {form_post, get, post} from 'ROOT/lib/http/httpClient';
+import { Period } from 'ROOT/interface/Huobi';
 
 const { api: BASE_URL} = config.get<AppConfig['huobi']>('huobi');
 const DEFAULT_HEADERS = {
@@ -73,7 +74,10 @@ export function auth(method: 'GET' | 'POST', curl: string,  access_key: string, 
 //     };
 // }
 
-function call_get<T>(path: string, tip?: string): Promise<T>{
+function call_get<T>(path: string, queryObject?: Record<string, any>): Promise<T>{
+    if (queryObject) {
+        path = path + '?' + new url.URLSearchParams(queryObject).toString()
+    }
     return get(path, {
         timeout,
         headers: DEFAULT_HEADERS
@@ -83,10 +87,10 @@ function call_get<T>(path: string, tip?: string): Promise<T>{
             return json.data || json;
             // outLogger.info(outputStr);
         } else {
-            errLogger.error('调用错误', tip, "-", path, "-", json.data);
+            errLogger.error('调用错误', "-", path, "-", json.data);
         }
     }).catch(ex => {
-        errLogger.error('GET', '-', path, '异常', ex, tip);
+        errLogger.error('GET', '-', path, '异常', ex);
     });
 }
 function call_post<T>(path: string, payload, body, tip?: string): Promise<T>{
@@ -113,9 +117,17 @@ interface Options {
 }
 
 export const hbsdk_commom = {
-    getSymbols: function() {
+    getSymbols() {
         const path = `${BASE_URL}/v1/common/symbols`;
         return call_get<any[]>(`${path}`);;
+    },
+    getMarketHistoryKline(params: {
+        symbol: string;
+        period: Period;
+        size?: number
+    }) {
+        const path = `${BASE_URL}/market/history/kline`;
+        return call_get<any[]>(`${path}`, params);;
     },
 }
 export function create_hbsdk({accessKey, secretKey, account_id_pro}: Options = {} as Options) {
