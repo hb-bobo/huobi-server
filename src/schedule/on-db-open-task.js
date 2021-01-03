@@ -35,7 +35,7 @@ orm_1.dbEvent.on('connected', start);
  */
 async function start() {
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-    logger_1.outLogger.info(`start: ${JSON.stringify(account)}`);
+    logger_1.outLogger.info(`start: ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
