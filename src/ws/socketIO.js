@@ -48,6 +48,7 @@ events_1.ws_event.on("server:ws:message", function (data) {
                 return;
             }
             const ids = ws_1.ws.cache[key];
+            logger_1.outLogger.info(ids, sockets);
             ids.forEach((id) => {
                 if (!sockets[id]) {
                     return;
