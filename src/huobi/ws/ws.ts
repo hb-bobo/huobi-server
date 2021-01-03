@@ -66,6 +66,8 @@ export function start (accessKey: string, secretKey: string) {
 
     return ws;
 }
+
+
 const handleMap: Record<string, (data: any) => {type: EventTypes, data: any}> = {
     depth(data) {
         return {

@@ -34,7 +34,7 @@ export class HuobiSockette extends Sockette{
      * @param data
      */
     async sub(data: {sub: string, id: string}, id?: string) {
- 
+
         const _id = id ? id : 'system';
         const dataStr = data.sub;
         if (this.cache[dataStr]) {
@@ -82,7 +82,7 @@ export class HuobiSockette extends Sockette{
             delete data.sub
             this.json(data);
         }
-        const _id = id ? id : 'system';
+        const _id = id;
         for (const key in this.cache) {
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];

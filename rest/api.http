@@ -1,6 +1,6 @@
-@localURL = http://localhost:3001/api
+@localURL = http://localhost:3003/api
 @preURL = http://114.67.103.78:3003/api
-@currentURL = http://114.67.103.78:3003/api
+@currentURL = http://localhost:3003/api
 ###
 # @name 交易账户
 POST  {{currentURL}}/trade-account
@@ -16,7 +16,7 @@ content-type: application/json
     "account_id_pro": "a",
     "trade_password": "a"
 }
-### 
+###
 # @name 监控的币种
 POST  {{currentURL}}/watch-symbol
 Authorization: test
@@ -27,7 +27,7 @@ content-type: application/json
 }
 
 
-### 
+###
 # @name 查询交易所交易记录
 GET   {{currentURL}}/trade?symbol=BTCUSDT&start=2020-12-19%2015%3A57%3A00:00&end=2020-12-19%2015%3A59%3A00
 Authorization: test

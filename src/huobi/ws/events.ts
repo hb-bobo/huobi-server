@@ -70,6 +70,3 @@ class Eventss extends EventEmitter {
 // 自定义事件
 export const ws_event = new Eventss();
 
-ws_event.on("server:ws:message", function(data) {
-    socketIO.sockets.send(data);
-});
