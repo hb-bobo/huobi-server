@@ -42,7 +42,7 @@ function start(accessKey, secretKey) {
             handle(msg);
         }
         else {
-            logger_1.outLogger.info(`huobi-ws: else ${text}`);
+            logger_1.outLogger.info(`huobi-ws on message: ${text}`);
         }
     });
     exports.ws.on('close', function (e) {

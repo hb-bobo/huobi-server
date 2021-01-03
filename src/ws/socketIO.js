@@ -21,6 +21,7 @@ exports.socketIO.on('connection', function (socket) {
     let unSub = () => { };
     sockets[socket.id] = socket;
     socket.on('sub', function ({ symbol }) {
+        logger_1.outLogger.info('socketIO: onsub ', symbol);
         symbol = symbol.toLowerCase();
         ws_1.ws.sub(ws_cmd_1.WS_SUB.kline(symbol, '1min'), socket.id);
         ws_1.ws.sub(ws_cmd_1.WS_SUB.depth(symbol), socket.id);
@@ -48,7 +49,7 @@ events_1.ws_event.on("server:ws:message", function (data) {
                 return;
             }
             const ids = ws_1.ws.cache[key];
-            logger_1.outLogger.info(ids, sockets);
+            // outLogger.info(ids, Object.keys(sockets))
             ids.forEach((id) => {
                 if (!sockets[id]) {
                     return;

@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createHuobiWS = exports.HuobiSockette = void 0;
+const logger_1 = require("../../common/logger");
 const Sockette_1 = __importDefault(require("../../lib/sockette/Sockette"));
 const defaultOptions = {
     timeout: 1000 * 30,
@@ -28,6 +29,7 @@ class HuobiSockette extends Sockette_1.default {
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];
                 if (subscribers.length === 0) {
+                    logger_1.outLogger.info('checkCache', { unsub: key, id: key });
                     this.json({ unsub: key, id: key });
                     delete this.cache[key];
                 }
