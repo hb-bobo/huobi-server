@@ -6,6 +6,7 @@ import {
     EntitySchema
 } from "typeorm";
 import { SplitTableWithYear } from "ROOT/common/SplitTableWithYear";
+import { outLogger } from "ROOT/common/logger";
 
 export const tableNameFactory = new SplitTableWithYear("depth_entity");
 
@@ -42,6 +43,7 @@ export const entitysMap: Record<string, EntitySchema<DepthDTO>> = {};
 
 export function createEntitySchema(name?: string) {
     name = name === undefined ? tableNameFactory.getTableName() : name;
+    outLogger.info(name, entitysMap);
     if (entitysMap[name]) {
         return;
     }
@@ -142,7 +144,7 @@ export default class DepthEntity extends BaseEntity{
 
     @Column({type: 'int'})
     public exchange!: number;
-    
+
     @Column(PriceMaxColumnType)
     public bids_max_1!: number;
 

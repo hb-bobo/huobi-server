@@ -43,4 +43,3 @@ if (basePath) {
 export const outLogger = log4js.getLogger('out');
 export const errLogger = log4js.getLogger('error');
 
-

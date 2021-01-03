@@ -1,5 +1,6 @@
 import { EntitySchema, EntityManager, getConnection} from "typeorm";
 import { SplitTableWithYear } from "ROOT/common/SplitTableWithYear";
+import { outLogger } from "ROOT/common/logger";
 
 export const tableNameFactory = new SplitTableWithYear('trade_entity')
 export interface TradeDTO {
@@ -14,9 +15,12 @@ export const entitysMap: Record<string, EntitySchema<TradeDTO>> = {}
 export function createEntitySchema(name?: string) {
     name = name === undefined ? tableNameFactory.getTableName() : name;
 
+    outLogger.info(name, entitysMap);
+
     if (entitysMap[name]) {
-        return
+        return;
     }
+
     entitysMap[name] = new EntitySchema({
         name: name,
         columns: {
@@ -45,7 +49,7 @@ export function createEntitySchema(name?: string) {
             }
         }
     });
-    return entitysMap[name]
+    return entitysMap[name];
 }
 createEntitySchema()
 
