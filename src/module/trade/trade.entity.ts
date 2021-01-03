@@ -14,9 +14,6 @@ export const entitysMap: Record<string, EntitySchema<TradeDTO>> = {}
 
 export function createEntitySchema(name?: string) {
     name = name === undefined ? tableNameFactory.getTableName() : name;
-
-    outLogger.info(name, entitysMap);
-
     if (entitysMap[name]) {
         return;
     }
