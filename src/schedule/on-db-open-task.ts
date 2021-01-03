@@ -10,6 +10,7 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { handle } from 'ROOT/huobi/huobi-handler';
 import { SocketFrom } from 'ROOT/interface/ws';
 import { outLogger } from 'ROOT/common/logger';
+import { omit } from 'lodash';
 
 dbEvent.on('connected', start);
 
@@ -19,7 +20,7 @@ dbEvent.on('connected', start);
 export async function start() {
 
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-    outLogger.info(`start: ${JSON.stringify(account)}`);
+    outLogger.info(`start: ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
