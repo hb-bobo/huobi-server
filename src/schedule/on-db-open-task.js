@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.start = exports.HUOBI_WS = void 0;
+exports.start = void 0;
 const TradeAccountService = __importStar(require("../module/trade-account/TradeAccount.service"));
 const WatchService = __importStar(require("../module/watch/watch.service"));
 const orm_1 = require("../db/orm");
@@ -35,7 +35,7 @@ orm_1.dbEvent.on('connected', start);
  */
 async function start() {
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-    logger_1.outLogger.log(`start: ${JSON.stringify(account)}`);
+    logger_1.outLogger.info(`start: ${JSON.stringify(account)}`);
     if (!account) {
         return;
     }
@@ -47,14 +47,14 @@ async function start() {
     //     })
     // );
     if (WatchEntityList.length > 0) {
-        exports.HUOBI_WS = ws_1.start(account.access_key, account.secret_key);
-        exports.HUOBI_WS.on('open', () => {
+        const ws = ws_1.start(account.access_key, account.secret_key);
+        ws.on('open', () => {
             WatchEntityList.forEach((WatchEntity) => {
                 const SYMBOL = WatchEntity.symbol.toLowerCase();
-                exports.HUOBI_WS.sub(ws_cmd_1.WS_SUB.kline(SYMBOL, '1min'));
+                ws.sub(ws_cmd_1.WS_SUB.kline(SYMBOL, '1min'));
                 // HUOBI_WS.sub(WS_SUB.marketDetail(SYMBOL));
-                exports.HUOBI_WS.sub(ws_cmd_1.WS_SUB.depth(SYMBOL));
-                exports.HUOBI_WS.sub(ws_cmd_1.WS_SUB.tradeDetail(SYMBOL));
+                ws.sub(ws_cmd_1.WS_SUB.depth(SYMBOL));
+                ws.sub(ws_cmd_1.WS_SUB.tradeDetail(SYMBOL));
             });
         });
         // HUOBI_WS.on('close', start);

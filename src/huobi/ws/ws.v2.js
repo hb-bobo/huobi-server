@@ -45,7 +45,7 @@ function start(accessKey, secretKey) {
             handle(msg);
         }
         else {
-            logger_1.outLogger.info(msg);
+            logger_1.outLogger.info(`huobi-ws-v2: else ${msg}`);
         }
     });
     ws.on('close', function (e) {

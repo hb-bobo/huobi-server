@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CrudService = void 0;
 const typeorm_1 = require("typeorm");
 const pagination_1 = __importDefault(require("../common/pagination"));
-const util_1 = require("util");
 const logger_1 = require("../common/logger");
+const lodash_1 = require("lodash");
 class CrudService {
     constructor(Entity) {
         /**
@@ -61,7 +61,7 @@ class CrudService {
                 return Promise.reject('删除出错');
             }
             const deleted = await this._Entity.remove(target);
-            if (util_1.isNullOrUndefined(deleted)) {
+            if (lodash_1.isNil(deleted)) {
                 logger_1.errLogger.info(query);
                 return Promise.reject('删除出错');
             }

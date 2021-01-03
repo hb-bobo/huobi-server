@@ -3,10 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEntitySchema = exports.entitysMap = exports.tableNameFactory = void 0;
 const typeorm_1 = require("typeorm");
 const SplitTableWithYear_1 = require("../../common/SplitTableWithYear");
+const logger_1 = require("../../common/logger");
 exports.tableNameFactory = new SplitTableWithYear_1.SplitTableWithYear("depth_entity");
 exports.entitysMap = {};
 function createEntitySchema(name) {
     name = name === undefined ? exports.tableNameFactory.getTableName() : name;
+    logger_1.outLogger.info(name, exports.entitysMap);
     if (exports.entitysMap[name]) {
         return;
     }
@@ -94,7 +96,7 @@ export default class DepthEntity extends BaseEntity{
 
     @Column({type: 'int'})
     public exchange!: number;
-    
+
     @Column(PriceMaxColumnType)
     public bids_max_1!: number;
 

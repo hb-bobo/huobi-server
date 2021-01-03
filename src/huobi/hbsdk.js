@@ -71,7 +71,10 @@ exports.auth = auth;
 //         Timestamp: moment.utc().format('YYYY-MM-DDTHH:mm:ss'),
 //     };
 // }
-function call_get(path, tip) {
+function call_get(path, queryObject) {
+    if (queryObject) {
+        path = path + '?' + new url_1.default.URLSearchParams(queryObject).toString();
+    }
     return httpClient_1.get(path, {
         timeout,
         headers: DEFAULT_HEADERS
@@ -82,10 +85,10 @@ function call_get(path, tip) {
             // outLogger.info(outputStr);
         }
         else {
-            logger_1.errLogger.error('调用错误', tip, "-", path, "-", json.data);
+            logger_1.errLogger.error('调用错误', "-", path, "-", json.data);
         }
     }).catch(ex => {
-        logger_1.errLogger.error('GET', '-', path, '异常', ex, tip);
+        logger_1.errLogger.error('GET', '-', path, '异常', ex);
     });
 }
 function call_post(path, payload, body, tip) {
@@ -106,9 +109,14 @@ function call_post(path, payload, body, tip) {
     });
 }
 exports.hbsdk_commom = {
-    getSymbols: function () {
+    getSymbols() {
         const path = `${BASE_URL}/v1/common/symbols`;
         return call_get(`${path}`);
+        ;
+    },
+    getMarketHistoryKline(params) {
+        const path = `${BASE_URL}/market/history/kline`;
+        return call_get(`${path}`, params);
         ;
     },
 };

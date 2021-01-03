@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = exports.deleteOne = exports.updateOne = exports.findOne = exports.find = void 0;
+const lodash_1 = require("lodash");
 const logger_1 = require("../../common/logger");
 const pagination_1 = __importDefault(require("../../common/pagination"));
 const typeorm_1 = require("typeorm");
-const util_1 = require("util");
 const config_entity_1 = __importDefault(require("./config.entity"));
 /**
  * 查询
@@ -59,7 +59,7 @@ exports.deleteOne = async function (query) {
         return Promise.reject('删除出错');
     }
     const deleted = await config_entity_1.default.remove(target);
-    if (util_1.isNullOrUndefined(deleted)) {
+    if (lodash_1.isNil(deleted)) {
         logger_1.errLogger.info(query);
         return Promise.reject('删除出错');
     }
