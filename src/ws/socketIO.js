@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketIO = void 0;
 const socket_io_1 = __importDefault(require("socket.io"));
 const logger_1 = require("../common/logger");
+const events_1 = require("../huobi/ws/events");
 const ws_1 = require("../huobi/ws/ws");
 const ws_cmd_1 = require("../huobi/ws/ws.cmd");
 /**
@@ -15,9 +16,12 @@ exports.socketIO = socket_io_1.default({
     path: '/socket.io',
     serveClient: false,
 });
+const sockets = {};
 exports.socketIO.on('connection', function (socket) {
     let unSub = () => { };
+    sockets[socket.id] = socket;
     socket.on('sub', function ({ symbol }) {
+        symbol = symbol.toLowerCase();
         ws_1.ws.sub(ws_cmd_1.WS_SUB.kline(symbol, '1min'), socket.id);
         ws_1.ws.sub(ws_cmd_1.WS_SUB.depth(symbol), socket.id);
         ws_1.ws.sub(ws_cmd_1.WS_SUB.tradeDetail(symbol), socket.id);
@@ -29,6 +33,7 @@ exports.socketIO.on('connection', function (socket) {
     });
     socket.on("disconnect", (reason) => {
         unSub();
+        delete sockets[socket.id];
     });
     // 发送单个
     // socket.send( 'sss')
@@ -36,4 +41,20 @@ exports.socketIO.on('connection', function (socket) {
     // socketIO.sockets.emit('event', 'xxx')
     logger_1.outLogger.info(`socket connected: ${socket.id}`);
 });
-// socketIO.on('')
+events_1.ws_event.on("server:ws:message", function (data) {
+    if (data.data && data.data.symbol) {
+        for (const key in ws_1.ws.cache) {
+            if (!Object.prototype.hasOwnProperty.call(ws_1.ws.cache, key)) {
+                return;
+            }
+            const ids = ws_1.ws.cache[key];
+            ids.forEach((id) => {
+                if (!sockets[id]) {
+                    return;
+                }
+                sockets[id].send(data);
+            });
+        }
+    }
+    // socketIO.sockets.send(data);
+});

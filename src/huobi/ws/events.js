@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ws_event = exports.EventTypes = void 0;
 const events_1 = require("events");
-const socketIO_1 = require("../../ws/socketIO");
 var EventTypes;
 (function (EventTypes) {
     EventTypes["huobi_kline"] = "huobi:kline";
@@ -15,6 +14,3 @@ class Eventss extends events_1.EventEmitter {
 }
 // 自定义事件
 exports.ws_event = new Eventss();
-exports.ws_event.on("server:ws:message", function (data) {
-    socketIO_1.socketIO.sockets.send(data);
-});

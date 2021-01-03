@@ -87,7 +87,7 @@ class HuobiSockette extends Sockette_1.default {
             delete data.sub;
             this.json(data);
         }
-        const _id = id ? id : 'system';
+        const _id = id;
         for (const key in this.cache) {
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];
