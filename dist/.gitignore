@@ -1,0 +1,29 @@
+.DS_Store
+/node_modules
+/logs
+/dist
+/db
+private
+public/upload/files
+public/upload/images
+public/upload/temp
+# 私有配置
+config/production.js
+docker-compose.local.yml
+rest/api.local.http
+
+public/upload/images
+npm-debug.log
+yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.npm

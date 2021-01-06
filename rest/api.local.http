@@ -1,0 +1,19 @@
+@localURL = http://localhost:3001/api
+@preURL = http://114.67.103.78:3003/api
+
+# @name 交易账户
+POST  {{localURL}}/trade-account
+Authorization: test
+content-type: application/json
+
+{
+    "auto_trade": true,
+    "exchange":"huobi",
+    "access_key":"mk0lklo0de-d3f1384a-bf3cece5-4893b",
+    "secret_key":"51d4217b-f867e9e3-2bf86f96-fe4ba",
+    "uid":"24295246",
+    "account_id_pro":"1733649",
+    "trade_password":"hb114421"
+}
+
+
