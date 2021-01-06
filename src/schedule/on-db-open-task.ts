@@ -35,7 +35,7 @@ export async function start() {
 
     if (WatchEntityList.length > 0) {
 
-        HUOBI_WS = huobiWSStart(account.access_key, account.secret_key);
+        huobiWSStart(account.access_key, account.secret_key);
         HUOBI_WS.on('open', () => {
             WatchEntityList.forEach((WatchEntity) => {
                 const SYMBOL = WatchEntity.symbol.toLowerCase();
