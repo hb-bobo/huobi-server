@@ -4,7 +4,7 @@
  * @param {Array<number & string>} arr
  * @return { object }
  */
-const getRepeatCount = function (arr: Array<number & string>) {
+export const getRepeatCount = function (arr: Array<number & string>) {
     const res = {} as any;
     arr.forEach(item => {
         if (res[item] === undefined) {
@@ -15,4 +15,3 @@ const getRepeatCount = function (arr: Array<number & string>) {
     });
     return res;
 }
-export default getRepeatCount;

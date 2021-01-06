@@ -1,6 +1,7 @@
 import log4js from "log4js";
 import path from "path";
-import { os } from "ROOT/utils";
+import { mkdir } from "ROOT/utils";
+
 
 const basePath = path.resolve(__dirname, "../../logs");
 const errorPath = path.resolve(basePath, "err");
@@ -35,12 +36,11 @@ log4js.configure({
 });
 // 创建log的根目录'logs'
 if (basePath) {
-  os.mkdir(basePath);
-  // 根据不同的logType创建不同的文件目录
-  os.mkdir(errorPath);
-  os.mkdir(outPath);
+    mkdir(basePath);
+    // 根据不同的logType创建不同的文件目录
+    mkdir(errorPath);
+    mkdir(outPath);
 }
 export const outLogger = log4js.getLogger('out');
 export const errLogger = log4js.getLogger('error');
-
 

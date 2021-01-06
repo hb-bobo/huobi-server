@@ -10,15 +10,15 @@ const commit = process.argv[3] || 'chore: Auto push after build';
 const localPath = process.argv[4] || path.resolve(__dirname, '../dist');
 const branchPath = '';
 
-const SSH_URL = repo.replace('https://github.com/', 'git@github.com:')
+// const SSH_URL = repo.replace('https://github.com/', 'git@github.com:')
 
 ghpages.publish(localPath, {
     branch,
     dest: branchPath,
-    repo: SSH_URL,
+    repo: repo,
     message: commit,
-    // silent: GH_TOKEN ? true : false,      
-    dotfiles: true,    
+    // silent: GH_TOKEN ? true : false,
+    dotfiles: true,
 }, (err) => {
     if (err) {
         console.error(err);

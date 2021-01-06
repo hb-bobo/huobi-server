@@ -13,15 +13,15 @@ export const prices = {
  */
 export default function getPriceIndex (symbol: string) {
     // btc eth交易对转美元
-    let _temp = {
+    const _temp = {
         usdt: 1,
         btc: symbolPrice.get('btc'),
         eth: symbolPrice.get('eth'),
         ht: symbolPrice.get('ht'),
         husd: 1,
     }
-    let _price: number = 0;
-    for (let key in _temp) {
+    let _price = 0;
+    for (const key in _temp) {
         if (symbol.endsWith(key)) {
             _price = _temp[key];
             break;

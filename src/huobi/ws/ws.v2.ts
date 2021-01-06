@@ -45,7 +45,7 @@ export function start (accessKey: string, secretKey: string) {
         } else if (msg.data) {
             handle(msg);
         } else {
-            outLogger.info(msg);
+            outLogger.info(`huobi-ws-v2: else ${msg}`);
         }
     });
     ws.on('close', function (e) {

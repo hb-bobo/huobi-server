@@ -1,35 +1,18 @@
-
-import fs from 'fs';
-
+import child_process from 'child_process';
 /**
- * 创建文件夹
- * @param {Path} p 
- * @param {boolean} automkdir 
- * @return {Promise<any>}
+ * cmd
+ * @param {string} cmdStr
+ * @returns {Promise<string>}
  */
-export function mkdir(p: string) {
+export function cmd(cmdStr: string) {
     return new Promise(function (resolve, reject) {
-        fs.exists(p, function (exists) {
-            if (exists) {
-                resolve();
+        const exec = child_process.exec;
+        exec(cmdStr, function (err: Error | null, stdout: string, srderr: string) {
+            if (err) {
+                reject(srderr);
                 return;
             }
-            fs.mkdir(p, function (err) {
-                if (err) {
-                    reject(err);
-                    throw err;
-                }
-                resolve();
-            });
+            resolve(stdout);
         });
-    })
-}
-
-/**
- * 获取文件后缀
- * @param name 
- */
-export function getFileExt(name: string) {
-    const ext = name.split('.');
-    return ext[ext.length - 1];
+    });
 }

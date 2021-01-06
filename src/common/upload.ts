@@ -3,15 +3,15 @@ import { Files } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import request from 'request-promise';
-import { os } from 'ROOT/utils';
+import { mkdir } from 'ROOT/utils/fs';
 import validator from 'validator';
 
 const publicPath = config.get<string>('publicPath');
-os.mkdir(path.join(publicPath, '/upload/'));
+mkdir(path.join(publicPath, '/upload/'));
 // utils.mkdir(path.join(publicPath, '/upload/images/network'));
 /**
  * 通过远程文件上传到本地服务器
- * @param {string} url 
+ * @param {string} url
  * @param {string} writePath 写入本地的路径(完整路径xxx/xxx.png)
  * @param {{headers: object}} requestOption
  * @return {Promise<string>}
@@ -43,21 +43,21 @@ export const uploadFromNetWork = (url: string, writePath: string, requestOption:
 // // 图片上传目录绝对路径
 // const imgUploadPath = path.join(publicPath, relativePath);
 
-os.mkdir(path.join(publicPath, '/upload/files/'));
+mkdir(path.join(publicPath, '/upload/files/'));
 
 /**
  * 上传文件
- * @param {Files} files 
+ * @param {Files} files
  * @param {string} host
- * @param {string} relativePath 
+ * @param {string} relativePath
  */
 
 export const uploadFiles = async (files: Files, host: string, relativePath: string) => {
     // 上传目录绝对路径
     const uploadPath = path.join(publicPath, relativePath);
     // 没有上传的路径则创建
-    await os.mkdir(uploadPath);
-    const data: object = {};
+    await mkdir(uploadPath);
+    const data: Record<string, any> = {};
     const keys =  Object.keys(files);
     try {
         for(const name of keys) {
@@ -69,14 +69,14 @@ export const uploadFiles = async (files: Files, host: string, relativePath: stri
             const fileFullName = `${fileName}_${file.hash}${fileExtension}`;
             // 文件写入地址
             const filePath = path.join(uploadPath, `/`) + fileFullName;
-            
+
             // 创建可读流
             const reader = fs.createReadStream(file.path);
             // 创建可写流
             const upStream = fs.createWriteStream(filePath);
             // 可读流通过管道写入可写流
             reader.pipe(upStream);
-            
+
             // 删除临时文件
             fs.unlink(file.path, function (error) {
                 if(error){

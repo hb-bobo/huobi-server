@@ -39,7 +39,7 @@ export default class DollarCostAvg {
     /**
      * 当前价格
      */
-    public currentPrice: number = 0;
+    public currentPrice = 0;
     constructor(option: Options) {
         this.option = option;
         this.init();
@@ -94,7 +94,7 @@ export default class DollarCostAvg {
         return {
             buyList,
             sellList,
-        } 
+        }
     }
 }
 const dc = new DollarCostAvg({

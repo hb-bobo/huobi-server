@@ -8,7 +8,7 @@ const dbConfig = config.get<AppConfig["dbConfig"]>("dbConfig");
 
 const connectionConfig: ConnectionOptions = {
     name: "default",
-    type: "mysql" as "mysql",
+    type: "mysql" as const,
     host: dbConfig.host,
     username: dbConfig.user,
     password: dbConfig.password,
@@ -26,12 +26,13 @@ export const dbEvent = new events.EventEmitter();
 
 
 
-/**
- * 启动TypeORM
- */
-createConnection(connectionConfig)
+function start () {
+    /**
+     * 启动TypeORM
+     */
+    createConnection(connectionConfig)
     .then(() => {
-        
+
         dbEvent.emit("connected");
         outLogger.info(
             `MySQL: database ${dbConfig.database} connected`
@@ -39,4 +40,10 @@ createConnection(connectionConfig)
     })
     .catch(error => {
         errLogger.error(`MySQL: ${String(error)}`);
+        setTimeout(() => {
+            start();
+        }, 1000 * 60);
     });
+}
+
+start();

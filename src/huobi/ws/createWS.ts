@@ -24,6 +24,8 @@ export class HuobiSockette extends Sockette{
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];
                 if (subscribers.length === 0) {
+                    outLogger.info('checkCache', {unsub: key, id: key})
+                    this.json({unsub: key, id: key})
                     delete this.cache[key];
                 }
             }
@@ -34,7 +36,7 @@ export class HuobiSockette extends Sockette{
      * @param data
      */
     async sub(data: {sub: string, id: string}, id?: string) {
- 
+
         const _id = id ? id : 'system';
         const dataStr = data.sub;
         if (this.cache[dataStr]) {
@@ -80,9 +82,9 @@ export class HuobiSockette extends Sockette{
         if (data.sub) {
             data.unsub = data.sub
             delete data.sub
-            this.json(data);
+            // this.json(data);
         }
-        const _id = id ? id : 'system';
+        const _id = id;
         for (const key in this.cache) {
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];

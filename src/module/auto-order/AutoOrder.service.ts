@@ -6,16 +6,16 @@ import AutoOrderEntity from "./AutoOrder.entity";
 
 /**
  * 查询
- * @param {object} query 
+ * @param {object} query
  */
-export const find = async function(query: object) {
+export const find = async function(query: Record<string, any>) {
     const res = await AutoOrderEntity.find({})
     return res;
 }
 
 /**
  * 查询单个
- * @param {object} query 
+ * @param {object} query
  */
 export const findOne = async function(query: Partial<AutoOrderEntity>) {
     return AutoOrderEntity.findOne(query);
@@ -23,7 +23,7 @@ export const findOne = async function(query: Partial<AutoOrderEntity>) {
 
 /**
  * 更新单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const updateOne = async function(query: Partial<AutoOrderEntity>, newData: Partial<AutoOrderEntity>, options?: SaveOptions) {
@@ -32,7 +32,7 @@ export const updateOne = async function(query: Partial<AutoOrderEntity>, newData
 
 /**
  * 删除单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const deleteOne = async function(query: Partial<AutoOrderEntity>) {
@@ -50,7 +50,7 @@ export const deleteOne = async function(query: Partial<AutoOrderEntity>) {
 
 /**
  * 新增
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const create = async function(data: Partial<AutoOrderEntity>) {

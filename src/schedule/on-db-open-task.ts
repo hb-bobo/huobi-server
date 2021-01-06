@@ -10,6 +10,7 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { handle } from 'ROOT/huobi/huobi-handler';
 import { SocketFrom } from 'ROOT/interface/ws';
 import { outLogger } from 'ROOT/common/logger';
+import { omit } from 'lodash';
 
 dbEvent.on('connected', start);
 
@@ -19,7 +20,7 @@ dbEvent.on('connected', start);
 export async function start() {
 
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-    outLogger.log(`start: ${JSON.stringify(account)}`);
+    outLogger.info(`start: ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
@@ -35,14 +36,14 @@ export async function start() {
 
     if (WatchEntityList.length > 0) {
 
-        huobiWSStart(account.access_key, account.secret_key);
-        HUOBI_WS.on('open', () => {
+        const ws = huobiWSStart(account.access_key, account.secret_key);
+        ws.on('open', () => {
             WatchEntityList.forEach((WatchEntity) => {
                 const SYMBOL = WatchEntity.symbol.toLowerCase();
-                HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
+                ws.sub(WS_SUB.kline(SYMBOL, '1min'));
                 // HUOBI_WS.sub(WS_SUB.marketDetail(SYMBOL));
-                HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
-                HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
+                ws.sub(WS_SUB.depth(SYMBOL));
+                ws.sub(WS_SUB.tradeDetail(SYMBOL));
             });
         })
 

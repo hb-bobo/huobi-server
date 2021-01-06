@@ -6,16 +6,16 @@ import TradeAccountEntity from "./TradeAccount.entity";
 
 /**
  * 查询
- * @param {object} query 
+ * @param {object} query
  */
-export const find = async function(query: object) {
+export const find = async function(query: Record<string, any>) {
     const res = await TradeAccountEntity.find({})
     return res;
 }
 
 /**
  * 查询单个
- * @param {object} query 
+ * @param {object} query
  */
 export const findOne = async function(query: Partial<TradeAccountEntity>) {
     return TradeAccountEntity.findOne(query);
@@ -23,7 +23,7 @@ export const findOne = async function(query: Partial<TradeAccountEntity>) {
 
 /**
  * 更新单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const updateOne = async function(query: Partial<TradeAccountEntity>, newData: Partial<TradeAccountEntity>, options?: SaveOptions) {
@@ -32,7 +32,7 @@ export const updateOne = async function(query: Partial<TradeAccountEntity>, newD
 
 /**
  * 删除单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const deleteOne = async function(query: Partial<TradeAccountEntity>) {
@@ -50,7 +50,7 @@ export const deleteOne = async function(query: Partial<TradeAccountEntity>) {
 
 /**
  * 新增
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const create = async function(data: Partial<TradeAccountEntity>) {

@@ -54,8 +54,8 @@ export interface WSEvent {
                   [x: string]: any;
               }
           >
-        | HuobiEventData<EventTypes.huobi_trade, {}>
-        | HuobiEventData<EventTypes.huobi_kline, {}>;
+        | HuobiEventData<EventTypes.huobi_trade, Record<string, any>>
+        | HuobiEventData<EventTypes.huobi_kline, Record<string, any>>;
 }
 class Eventss extends EventEmitter {
     public emit!: <K extends keyof WSEvent>(
@@ -70,6 +70,3 @@ class Eventss extends EventEmitter {
 // 自定义事件
 export const ws_event = new Eventss();
 
-ws_event.on("server:ws:message", function(data) {
-    socketIO.sockets.send(data);
-});

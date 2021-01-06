@@ -25,12 +25,12 @@ export default class MA {
 
     /**
      * ws的数据/ 单个数据
-     * @param value 
-     * @param index 
+     * @param value
+     * @param index
      */
     public push(value: number) {
         // 数据量还不够${this.count}个
-        if (this.result.length < this.count) {
+        if (this.result.length < this.count - 1) {
             this.result.push('-');
             this._datas.push(value);
             return;
@@ -44,12 +44,12 @@ export default class MA {
         this.result.push(sum / this._datas.length);
 
         // 只缓存最新的${this.count}个数据，多了就删除
-        if (this._datas.length > this.count) {
+        if (this._datas.length >= this.count) {
             this._datas.shift();
         }
 
         this.checkMax();
-        
+
     }
     public last() {
         return this.result[this.result.length - 1];
@@ -58,5 +58,5 @@ export default class MA {
         if (this.result.length > (this.option.max as number)) {
             this.result.shift();
         }
-    }   
+    }
 }
