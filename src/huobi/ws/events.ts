@@ -54,8 +54,8 @@ export interface WSEvent {
                   [x: string]: any;
               }
           >
-        | HuobiEventData<EventTypes.huobi_trade, {}>
-        | HuobiEventData<EventTypes.huobi_kline, {}>;
+        | HuobiEventData<EventTypes.huobi_trade, Record<string, any>>
+        | HuobiEventData<EventTypes.huobi_kline, Record<string, any>>;
 }
 class Eventss extends EventEmitter {
     public emit!: <K extends keyof WSEvent>(

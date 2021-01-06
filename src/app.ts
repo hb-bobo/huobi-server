@@ -64,6 +64,7 @@ app.on('error', function(err: Error, ctx: Koa.Context) {
 });
 
 const server = http.createServer(app.callback());
+
 server.listen(port, () => {
   outLogger.info(`Listening on http://${host}:${port}`)
 });

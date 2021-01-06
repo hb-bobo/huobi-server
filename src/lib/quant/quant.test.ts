@@ -1,17 +1,20 @@
-import url from 'url';
-import { hbsdk_commom } from "ROOT/huobi/hbsdk";
-import { writeFileSync } from 'fs';
+import { readFile } from 'fs';
 import { join } from 'path';
-import dayjs from 'dayjs';
+import config from 'config';
+import { Quant } from ".";
+import { promisify } from 'util';
 
-const symbol = 'btcusdt';
-const period = '5min';
+const readFilePromisify = promisify(readFile);
+const publicPath = config.get<string>('publicPath');
 
-hbsdk_commom
-.getMarketHistoryKline({symbol: symbol, size: 200, period: period})
-.then((data) => {
-    writeFileSync(
-        join(__dirname, `data/${symbol}-${period}-${dayjs().format("YYYY-MM-DD")}.json`),
-        JSON.stringify(data)
-    )
-})
+const filePath = join(publicPath, '/download/history-data/btcusdt-5min-2021-01-06.json');
+
+async function run () {
+    const data = await readFilePromisify(filePath, {encoding: 'utf-8'})
+
+    const quant = new Quant()
+    quant.analysis(JSON.parse(data))
+    console.log(quant.result)
+}
+
+run();

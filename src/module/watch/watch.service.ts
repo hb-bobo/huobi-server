@@ -6,16 +6,16 @@ import WatchEntity from "./watch.entity";
 
 /**
  * 查询
- * @param {object} query 
+ * @param {object} query
  */
-export const find = async function(query: object = {}) {
+export const find = async function(query: Record<string, any> = {}) {
     const res = await WatchEntity.find(query)
     return res;
 }
 
 /**
  * 查询单个
- * @param {object} query 
+ * @param {object} query
  */
 export const findOne = async function(query: Partial<WatchEntity>) {
     return WatchEntity.findOne(query);
@@ -23,7 +23,7 @@ export const findOne = async function(query: Partial<WatchEntity>) {
 
 /**
  * 更新单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const updateOne = async function(query: Partial<WatchEntity>, newData: Partial<WatchEntity>, options?: SaveOptions) {
@@ -32,7 +32,7 @@ export const updateOne = async function(query: Partial<WatchEntity>, newData: Pa
 
 /**
  * 删除单个
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const deleteOne = async function(query: Partial<WatchEntity>) {
@@ -50,7 +50,7 @@ export const deleteOne = async function(query: Partial<WatchEntity>) {
 
 /**
  * 新增
- * @param {object} query 
+ * @param {object} query
  * @param { Document }
  */
 export const create = async function(data: Partial<WatchEntity>) {

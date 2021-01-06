@@ -8,7 +8,7 @@ const dbConfig = config.get<AppConfig["dbConfig"]>("dbConfig");
 
 const connectionConfig: ConnectionOptions = {
     name: "default",
-    type: "mysql" as "mysql",
+    type: "mysql" as const,
     host: dbConfig.host,
     username: dbConfig.user,
     password: dbConfig.password,

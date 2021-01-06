@@ -16,11 +16,11 @@ export interface MailOption{
 //     html: '<b>Hello world?</b>' // html body
 // };
 /**
- * 
- * @param {object} emailConfig 
- * @param {object} mailOptions 
+ *
+ * @param emailConfig
+ * @param mailOptions
  */
-function sentMail(emailConfig: object, mailOptions: MailOption) {
+function sentMail(emailConfig: any, mailOptions: MailOption) {
     return new Promise(function (resolve, reject) {
         if (!mailOptions.from || !mailOptions.to) {
             throw Error('mailOptions invalid:' + JSON.stringify(mailOptions));
@@ -33,10 +33,10 @@ function sentMail(emailConfig: object, mailOptions: MailOption) {
             }
             // create reusable transporter object using the default SMTP transport
             const transporter = nodemailer.createTransport(emailConfig || config.get('email'));
-        
+
             // setup email data with unicode symbols
             // send mail with defined transport object
-            transporter.sendMail(mailOptions, (error: Error | null, info: object) => {
+            transporter.sendMail(mailOptions, (error: Error | null, info: any) => {
                 if (error) {
                     reject(error);
                     throw error;

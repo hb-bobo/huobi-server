@@ -6,4 +6,4 @@ export interface ListResult<T> {
 export interface Pagination {
     pageSize: number;
     current: number;
-};
+}

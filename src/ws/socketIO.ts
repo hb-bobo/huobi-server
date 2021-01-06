@@ -13,7 +13,7 @@ export const socketIO = socket({
 });
 const sockets: Record<string, socket.Socket> = {}
 socketIO.on('connection', function (socket) {
-    let unSub = () => {}
+    let unSub: () => void;
     sockets[socket.id] = socket;
     socket.on('sub', function ({symbol}) {
         outLogger.info('socketIO: onsub ', symbol)
@@ -28,7 +28,7 @@ socketIO.on('connection', function (socket) {
         }
     })
     socket.on("disconnect", (reason) => {
-        unSub();
+        unSub && unSub();
         delete sockets[socket.id];
     });
     // 发送单个

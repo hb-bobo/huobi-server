@@ -7,7 +7,7 @@ export default class TradeAccountEntity extends BaseEntity{
     public id!: number;
 
     @Column({type: 'tinyint'})
-    public auto_trade: number = 0;
+    public auto_trade = 0;
     @Column({type: 'varchar', length: 10})
     public exchange!: string;
     @Column({type: 'varchar', length: 64})

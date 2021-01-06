@@ -11,6 +11,6 @@ export const DEVICE = {
  * role type
  */
 export const AUTHORITY = {
-    'admin': 0 as 0,
-    'user': 1 as 1,
+    'admin': 0 as const,
+    'user': 1 as const,
 }

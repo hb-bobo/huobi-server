@@ -9,6 +9,7 @@ import * as DepthController from 'ROOT/module/depth/Depth.controller';
 import * as WatchController from 'ROOT/module/watch/watch.controller';
 import * as MailController from 'ROOT/module/email/config.controller';
 import * as ConfigController from 'ROOT/module/config/config.controller';
+import * as TrainController from 'ROOT/module/train/train.controller';
 // /index
 const apiPrefix = '/api';
 const router = new Router<AppState, AppContext>();
@@ -39,3 +40,5 @@ router.post(`${apiPrefix}/config`, checkToken, ConfigController.create);
 router.get(`${apiPrefix}/trade`, checkToken, TradeController.get);
 
 router.get(`${apiPrefix}/depth`, checkToken, DepthController.get);
+
+router.post(`${apiPrefix}/train/download`, checkToken, TrainController.download);

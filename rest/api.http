@@ -33,3 +33,14 @@ GET   {{currentURL}}/trade?symbol=BTCUSDT&start=2020-12-19%2015%3A57%3A00:00&end
 Authorization: test
 
 
+###
+# @name 下载测试数据
+POST   {{currentURL}}/train/download?a=1
+Authorization: test
+content-type: application/json
+
+{
+    "symbol": "ethusdt",
+    "period": "5min",
+    "size": 2000
+}
