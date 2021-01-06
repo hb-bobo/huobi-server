@@ -16,7 +16,7 @@ interface DataItem {
  * 量化
  */
 export default class Quant {
-    result: any[] = [];
+    result: Record<string, any>[] = [];
     private MA5 = new MA(5)
     private MA10 = new MA(10)
     private MA30 = new MA(30)
@@ -42,15 +42,15 @@ export default class Quant {
         this.MA30.push(data.close)
         this.MA60.push(data.close)
         const newData = omit(data, 'id');
-
-        this.result.push({
+        const row: Record<string, any> = {
             ...newData,
-            MA5: autoToFixed(this.MA5.last()) ,
-            MA10: autoToFixed(this.MA10.last()),
-            MA30: autoToFixed(this.MA30.last()),
-            MA60: autoToFixed(this.MA60.last()),
-            amountMA20: autoToFixed(this.amountMA20.last()),
+            MA5: autoToFixed(this.MA5.last()) || null,
+            MA10: autoToFixed(this.MA10.last()) || null,
+            MA30: autoToFixed(this.MA30.last()) || null,
+            MA60: autoToFixed(this.MA60.last()) || null,
+            amountMA20: autoToFixed(this.amountMA20.last()) || null,
             // MA5/
-        })
+        }
+        this.result.push(row)
     }
 }
