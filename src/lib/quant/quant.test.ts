@@ -4,7 +4,7 @@ import xlsx from 'xlsx';
 import config from 'config';
 import { Quant } from ".";
 import { promisify } from 'util';
-import { DollarCostAvg } from './analyse';
+import { DollarCostAvg, Analyser } from './analyse';
 import dayjs from 'dayjs';
 import Backtest from './Backtest';
 import { forEach } from 'lodash';
@@ -17,10 +17,10 @@ const filePath = join(publicPath, '/download/history-data/btcusdt-5min-2021-01-0
 async function download() {
     const data = await readFilePromisify(filePath, { encoding: 'utf-8' })
 
-    const quant = new Quant()
-    quant.analysis(JSON.parse(data))
+    const analyser = new Analyser()
+    analyser.analysis(JSON.parse(data))
 
-    const sheet = xlsx.utils.json_to_sheet(quant.result);
+    const sheet = xlsx.utils.json_to_sheet(analyser.result);
     const workbook = { //定义操作文档
         SheetNames: ['nodejs-sheetname'], //定义表明
         Sheets: {
@@ -47,9 +47,16 @@ async function tran() {
         quoteCurrencyBalance: 300,
         baseCurrencyBalance: 0,
     })
-    const quant = new Quant()
+    const analyser = new Quant({
+        symbol: 'btcusdt',
+        quoteCurrencyBalance: 300,
+        baseCurrencyBalance: 0,
+        maxs: [history[history.length - 1].close * 1.04],
+        mins: [history[history.length - 1].close * 0.96],
+        minVolume: 0.00001,
+    })
 
-    quant.use(function(row) {
+    analyser.use(function(row) {
 
         const tradingAdvice = dc.trade(row.close);
         if (tradingAdvice) {
@@ -63,8 +70,8 @@ async function tran() {
         }
     })
 
-    quant.analysis(history);
-    quant.analysis(history);
+    analyser.analysis(history);
+    analyser.analysis(history);
     console.log(
         `
         quoteCurrencyBalance: ${bt.quoteCurrencyBalance}
@@ -83,7 +90,7 @@ async function tran2() {
     const result: any[] = []
     for (let oversoldRatio = 0.01; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
         for (let overboughtRatio = -0.01; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
-            const quant = new Quant()
+            const analyser = new Analyser()
 
             const bt = new Backtest({
                 symbol: 'btcusdt',
@@ -93,18 +100,18 @@ async function tran2() {
                 baseCurrencyBalance: 0,
             })
 
-            quant.use(function (row) {
+            analyser.use(function (row) {
                 if (!row.MA5 || !row.MA60) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio && row.MA5 > row.MA60) {
                     bt.sell(row.close);
                 }
-                if (row["close/MA60"] < -overboughtRatio && row.MA5 < row.MA60) {
+                if (row["close/MA60"] < overboughtRatio && row.MA5 < row.MA60) {
                     bt.buy(row.close);
                 }
             });
-            quant.analysis(history);
+            analyser.analysis(history);
             result.push({
                 oversoldRatio: oversoldRatio,
                 overboughtRatio: overboughtRatio,
@@ -122,4 +129,4 @@ async function tran2() {
 
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-// tran2();
+tran2();
