@@ -1,20 +1,22 @@
 {
   "compilerOptions": {
-    "target": "esnext",                          
+    "target": "esnext",
     "module": "commonjs",
-    "lib":["es2018"],                
-    "outDir": "./dist",                      
-    "rootDir": "./",                       
-    "strict": true,                       
-    "noImplicitAny": false,                 
-    "moduleResolution": "node",          
-    "baseUrl": "./",                      
-    "paths": {                              
+    "lib":["es2018"],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": false,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
       "ROOT/*": ["src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./typings"],             
-    "allowSyntheticDefaultImports": true, 
-    "esModuleInterop": true,    
+    "typeRoots": ["./node_modules/@types", "./typings"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

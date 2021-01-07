@@ -12,7 +12,7 @@ interface Options {
      */
     mins: number[];
     /**
-     * 余额或者可用保证金
+     * 余额(对币的价格/当前价格)或者可用保证金
      */
     balance: number;
     /**
@@ -20,7 +20,17 @@ interface Options {
      */
     minVolume: number;
 }
-
+/**
+ * 交易清单
+ */
+interface TradeItem {
+    price: number;
+    volume: number;
+    /**
+     * 是否失效
+     */
+    invalid?: boolean;
+}
 /**
  * 加权定投，以主观最高位，最低位(中长期)增长型定投
  */
@@ -37,9 +47,21 @@ export default class DollarCostAvg {
     public mins: Options['mins'] = [];
     public option: Options;
     /**
+     * 买单列表
+     */
+    public buyList: TradeItem[];
+    /**
+     * 卖单列表
+     */
+    public sellList: TradeItem[];
+    /**
      * 当前价格
      */
     public currentPrice = 0;
+    /**
+     * 加权定投，以主观最高位，最低位(中长期)增长型定投
+     * @param option
+     */
     constructor(option: Options) {
         this.option = option;
         this.init();
@@ -48,6 +70,7 @@ export default class DollarCostAvg {
         this.maxs = this.option.maxs;
         this.mins = this.option.mins;
     }
+
     /**
      * 将单子分割
      */
@@ -91,18 +114,55 @@ export default class DollarCostAvg {
         }
         mapPrice(buyList, 'buy');
         mapPrice(sellList, 'sell');
+        this.buyList = buyList;
+        this.sellList = sellList;
         return {
             buyList,
             sellList,
         }
     }
+
+    public trade(close: number, action?: 'buy' | 'sell') {
+        if (this.buyList === undefined || this.sellList === undefined) {
+            this.splitBill();
+        }
+        for (let i = 0; i < this.buyList.length; i++) {
+            const element = this.buyList[i];
+
+            if (close < element.price && !element.invalid) {
+
+                if (this.buyList[i - 1] && close < this.buyList[i - 1].price) {
+                    continue;
+                }
+                element.invalid = true;
+                return {
+                    ...element,
+                    action: 'buy'
+                };
+            }
+        }
+
+        for (let i = 0; i < this.sellList.length; i++) {
+            const element = this.sellList[i];
+            if (close > element.price && !element.invalid) {
+
+                if (this.sellList[i - 1] && close > this.sellList[i - 1].price) {
+                    continue;
+                }
+                element.invalid = true;
+                return {
+                    ...element,
+                    action: 'sell'
+                };
+            }
+        }
+    }
+    updateConfig(config: Partial<Options>) {
+        Object.assign(this.option, config)
+        this.init();
+        this.splitBill();
+    }
 }
-const dc = new DollarCostAvg({
-    maxs: [11527],
-    mins: [8444],
-    minVolume: 1,
-    balance: 101,
-});
 
 // const price = 9500
 // const n = 10;
