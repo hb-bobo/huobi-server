@@ -46,17 +46,17 @@ async function tran() {
         symbol: 'btcusdt',
         quoteCurrencyBalance: 300,
         baseCurrencyBalance: 0,
-    })
-    const analyser = new Quant({
+    });
+    const quant = new Quant({
         symbol: 'btcusdt',
         quoteCurrencyBalance: 300,
         baseCurrencyBalance: 0,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
         minVolume: 0.00001,
-    })
+    });
 
-    analyser.use(function(row) {
+    quant.use(function(row) {
 
         const tradingAdvice = dc.trade(row.close);
         if (tradingAdvice) {
@@ -70,8 +70,8 @@ async function tran() {
         }
     })
 
-    analyser.analysis(history);
-    analyser.analysis(history);
+    quant.analysis(history);
+    quant.analysis(history);
     console.log(
         `
         quoteCurrencyBalance: ${bt.quoteCurrencyBalance}
@@ -90,17 +90,24 @@ async function tran2() {
     const result: any[] = []
     for (let oversoldRatio = 0.01; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
         for (let overboughtRatio = -0.01; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
-            const analyser = new Analyser()
 
+            const quant = new Quant({
+                symbol: 'btcusdt',
+                quoteCurrencyBalance: 300,
+                baseCurrencyBalance: 0,
+                maxs: [history[history.length - 1].close * 1.04],
+                mins: [history[history.length - 1].close * 0.96],
+                minVolume: 0.00001,
+            });
             const bt = new Backtest({
                 symbol: 'btcusdt',
                 buyAmount: 0.001,
                 sellAmount: 0.001,
-                quoteCurrencyBalance: 300,
+                quoteCurrencyBalance: quant.,
                 baseCurrencyBalance: 0,
             })
 
-            analyser.use(function (row) {
+            quant.use(function (row) {
                 if (!row.MA5 || !row.MA60) {
                     return;
                 }
@@ -111,7 +118,7 @@ async function tran2() {
                     bt.buy(row.close);
                 }
             });
-            analyser.analysis(history);
+            quant.analysis(history);
             result.push({
                 oversoldRatio: oversoldRatio,
                 overboughtRatio: overboughtRatio,
