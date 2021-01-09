@@ -1,14 +1,15 @@
 
-import { writeFileSync } from 'fs';
+import { writeFile } from 'fs';
 import { join } from 'path';
+import { promisify } from 'util'
 import dayjs from 'dayjs';
 import schema from 'async-validator';
 import config from 'config';
 import { AppContext } from 'ROOT/interface/App';
 import { hbsdk_commom } from 'ROOT/huobi/hbsdk';
 import { mkdir } from 'ROOT/utils';
-import { Quant } from 'ROOT/lib/quant';
 
+const writeFilePromisify = promisify(writeFile);
 
 const publicPath = config.get<string>('publicPath');
 
@@ -48,9 +49,13 @@ export const download = async (ctx: AppContext) => {
     try {
 
         const data = await hbsdk_commom
-            .getMarketHistoryKline({ symbol: body.symbol, size: body.size, period: body.period });
+            .getMarketHistoryKline( body.symbol, body.period, body.size);
         const fileName = `${body.symbol}-${body.period}-${dayjs().format("YYYY-MM-DD")}.json`
-        writeFileSync(join(downloadPath, fileName), JSON.stringify(data))
+        if (data === undefined) {
+            ctx.sendError({ message: '数据拉取失败' });
+            return;
+        }
+        await writeFilePromisify(join(downloadPath, fileName), JSON.stringify(data))
         ctx.sendSuccess({
             data: {
                 url: `${ctx.URL.origin}/download/history-data/${fileName}`
@@ -84,9 +89,13 @@ export const Backtest = async (ctx: AppContext) => {
     try {
         // new Quant()
         const data = await hbsdk_commom
-            .getMarketHistoryKline({ symbol: body.symbol, size: body.size, period: body.period });
+            .getMarketHistoryKline( body.symbol, body.period, body.size);
         const fileName = `${body.symbol}-${body.period}-${dayjs().format("YYYY-MM-DD")}.json`
-        writeFileSync(join(downloadPath, fileName), JSON.stringify(data))
+        if (data === undefined) {
+            ctx.sendError({ message: '数据拉取失败' });
+            return;
+        }
+        await writeFilePromisify(join(downloadPath, fileName), JSON.stringify(data))
         ctx.sendSuccess({
             data: {
                 url: `${ctx.URL.origin}/download/history-data/${fileName}`

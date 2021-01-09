@@ -5,7 +5,7 @@ import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
 import { getSameAmount } from 'ROOT/common/getSameAmount';
-import * as TradeService from 'ROOT/module/trade/trade.service';
+import * as TradeHistoryService from 'ROOT/module/trade-history/TradeHistory.service';
 import * as DepthService from 'ROOT/module/depth/depth.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
@@ -97,7 +97,7 @@ export async function handle(event: Event) {
                         usdtPrice: data.usdtPrice,
                     }
        
-                    TradeService.create(_data);
+                    TradeHistoryService.create(_data);
                     ws_event.emit("server:ws:message", {
                         from: SocketFrom.server,
                         type: EventTypes.huobi_trade,
@@ -116,7 +116,7 @@ export async function handle(event: Event) {
 
 
 /* ----------------------------------------------------------------------------- */
-let disTime = 1000 * 10;
+const disTime = 1000 * 10;
 // 状态异常监控(缓存多个币)
 const status = {}
 // const buyMaxAM = new AbnormalMonitor({config: {disTime: disTime, recordMaxLen: 6}});
@@ -140,20 +140,20 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
     const originBids = data.tick.bids;
     const originAsks = data.tick.asks;
-    let bids1 = originBids[0];
-    let bids2 = originBids[1];
-    let aks1 = originAsks[0];
-    let aks2 = originAsks[1];
+    const bids1 = originBids[0];
+    const bids2 = originBids[1];
+    const aks1 = originAsks[0];
+    const aks2 = originAsks[1];
 
 
     // 处理数据
-    let bidsList = getSameAmount(originBids, {
+    const bidsList = getSameAmount(originBids, {
         type: 'bids',
         symbol: symbol,
     });
 
 
-    let asksList = getSameAmount(originAsks, {
+    const asksList = getSameAmount(originAsks, {
         type: 'asks',
         symbol: symbol,
     });
@@ -184,13 +184,13 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
 
 
     // 取当前时间
-    let datetime = new Date();
-    let symbolInfo = getSymbolInfo(symbol);
-    let amountPrecision = symbolInfo['amount-precision'];
-    let pricePrecision = symbolInfo['price-precision'];
+    const datetime = new Date();
+    const symbolInfo = getSymbolInfo(symbol);
+    const amountPrecision = symbolInfo['amount-precision'];
+    const pricePrecision = symbolInfo['price-precision'];
     
-    let currentPrice = (bids1[0] + aks1[0]) / 2;
-    let insertData = {
+    const currentPrice = (bids1[0] + aks1[0]) / 2;
+    const insertData = {
         symbol: symbol,
         exchange: 1,
         sell_1: keepDecimalFixed((aks1[1]), amountPrecision),
@@ -234,10 +234,10 @@ const handleDepth = function (data: { tick: any, symbol: string, ch }) {
         ts: datetime.getTime(),
         symbol: symbol,
     });
-    let bidsHistoryStatus = buyMaxAM.historyStatus;
-    let asksHistoryStatus = sellMaxAM.historyStatus;
-    let buyStatus = getRepeatCount(bidsHistoryStatus);
-    let sellStatus = getRepeatCount(asksHistoryStatus);
+    const bidsHistoryStatus = buyMaxAM.historyStatus;
+    const asksHistoryStatus = sellMaxAM.historyStatus;
+    const buyStatus = getRepeatCount(bidsHistoryStatus);
+    const sellStatus = getRepeatCount(asksHistoryStatus);
    
     // 无状况
     if (

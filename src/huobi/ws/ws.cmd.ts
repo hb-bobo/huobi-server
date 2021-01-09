@@ -1,11 +1,8 @@
 import config from 'config'
-import { auth, sign_sha } from 'ROOT/huobi/hbsdk';
-import { AppConfig } from 'ROOT/interface/App';
-import { Period } from "ROOT/interface/Huobi"
+import { auth, signatureSHA } from 'ROOT/huobi/hbsdk';
+import { Period } from '../interface'
 
 
-
-const huobi = config.get<AppConfig['huobi']>('huobi');
 
 export const WS_SUB = {
     /**
@@ -50,6 +47,12 @@ export const WS_SUB = {
     }
 }
 export const WS_REQ = {
+    auth(accessKey: string, secretKey: string, WS_URL: string) {
+        return {
+            op: 'auth',
+            ...auth('GET', WS_URL, accessKey, secretKey)
+        }
+    },
     /**
      * 请求 KLine 数据
      * @param param0
@@ -72,14 +75,3 @@ export const WS_REQ = {
     }
 }
 
-
-/**
- * 发送auth请求
- * @param ws
- */
-export function ws_auth(accessKey: string, secretKey: string, data?: any) {
-    return {
-        op: 'auth',
-        ...auth('GET', huobi.ws_url_prex, accessKey, secretKey, data)
-    }
-}

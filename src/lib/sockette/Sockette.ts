@@ -84,16 +84,17 @@ export default class Sockette extends EventEmitter {
     };
 
     public json = (message: Record<string, any>) => {
-
-        if (!this.isOpen()) {
-            return;
-        }
-
         this.wss.send(JSON.stringify(message));
     };
 
     public send = (message: any) => {
         if (!this.isOpen()) {
+            this.emit('error', {
+                error: 'error',
+                message: 'ws is not opening',
+                type: 'error',
+                target: this.wss,
+            })
             return;
         }
         this.wss.send(message);

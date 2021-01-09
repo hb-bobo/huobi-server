@@ -1,4 +1,7 @@
-const { getSymbolInfo } = require('./huobiSymbols');
+import { autoToFixed } from "ROOT/utils";
+
+
+
 /**
  *  amount:"141940.65"
     count:1
@@ -22,23 +25,19 @@ function getTop(arr, len = 3) {
  * 
  * 根据买卖压力推荐价格
  */
-const getTracePrice = function ({
-    symbol,
+export const getTracePrice = function ({
     bidsList,
     asksList,
-    buyCount,
-    sellCount,
 }) {
     /* 交易数据 */
     const prices = {
-        sell: [],
-        buy: [],
+        sell: [] as number[],
+        buy: [] as number[],
     }; 
 
-    let newBidsList = getTop(bidsList);
-    let newAsksList = getTop(asksList);
-    const symbolInfo = getSymbolInfo(symbol);
-    const pricePrecision = symbolInfo['price-precision'];
+    const newBidsList = getTop(bidsList);
+    const newAsksList = getTop(asksList);
+
     // 重复则取第一个作为备用
     newBidsList.forEach(item => {
         prices.buy.push(Number(item.price));
@@ -65,16 +64,11 @@ const getTracePrice = function ({
     }
     // 添加备用单
     prices.buy.push(
-        Number(toFixed(Math.min(...prices.buy) *  (1 - 0.008), pricePrecision))
+        Number(autoToFixed(Math.min(...prices.buy) *  (1 - 0.008)))
     );
     prices.sell.push(
-        Number(toFixed(Math.max(...prices.sell) *  (1 + 0.008), pricePrecision))
+        Number(autoToFixed(Math.max(...prices.sell) *  (1 + 0.008)))
     );
     return prices;
 }
 
-module.exports = getTracePrice;
-
-function toFixed(value, pricePrecision) {
-    return Number(value).toFixed(pricePrecision);
-}

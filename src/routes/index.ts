@@ -4,7 +4,7 @@ import { AppContext, AppState } from 'ROOT/interface/App';
 import checkToken from 'ROOT/middleware/checkToken';
 import * as UserController from 'ROOT/module/user/user.controller';
 import * as TradeAccountController from 'ROOT/module/trade-account/TradeAccount.controller';
-import * as TradeController from 'ROOT/module/trade/Trade.controller';
+import * as TradeHistoryController from 'ROOT/module/trade-history/TradeHistory.controller';
 import * as DepthController from 'ROOT/module/depth/Depth.controller';
 import * as WatchController from 'ROOT/module/watch/watch.controller';
 import * as MailController from 'ROOT/module/email/config.controller';
@@ -37,7 +37,7 @@ router.get(`${apiPrefix}/config`, checkToken, ConfigController.index);
 router.post(`${apiPrefix}/config`, checkToken, ConfigController.create);
 
 
-router.get(`${apiPrefix}/trade`, checkToken, TradeController.get);
+router.get(`${apiPrefix}/trade-history`, checkToken, TradeHistoryController.get);
 
 router.get(`${apiPrefix}/depth`, checkToken, DepthController.get);
 

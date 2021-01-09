@@ -18,6 +18,8 @@ interface HuobiEventData<T extends string, D> extends SocketMessage {
         ch?: string;
     } & D;
 }
+
+
 export interface HuobiDepth {}
 export interface HuobiKline {
     kline: any;
@@ -29,6 +31,11 @@ export interface HuobiTrade {
 export interface WSEvent {
     // 收到huobi的ws数据
     "huobi:ws:message":
+        | HuobiEventData<EventTypes.huobi_depth, HuobiDepth>
+        | HuobiEventData<EventTypes.huobi_kline, HuobiKline>
+        | HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;
+    // 收到huobi的ws_v2资产和订单数据
+    "huobi:ws_v2:message":
         | HuobiEventData<EventTypes.huobi_depth, HuobiDepth>
         | HuobiEventData<EventTypes.huobi_kline, HuobiKline>
         | HuobiEventData<EventTypes.huobi_trade, HuobiTrade>;

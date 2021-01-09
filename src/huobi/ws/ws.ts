@@ -7,7 +7,7 @@ import { SocketFrom } from 'ROOT/interface/ws';
 
 import { createHuobiWS } from 'ROOT/huobi/ws/createWS';
 import { EventTypes, ws_event } from './events';
-import { ws_auth, WS_SUB } from './ws.cmd';
+import {  WS_REQ } from './ws.cmd';
 
 
 
@@ -20,25 +20,24 @@ export let ws: ReturnType<typeof createHuobiWS>;
  * @param accessKey
  * @param secretKey
  */
-export function start (accessKey: string, secretKey: string) {
-    let timer;
-    ws = createHuobiWS(huobi.ws_url_prex);
+export function start () {
+    if (ws && ws.isOpen()) {
+        return ws;
+    }
+    const ws_url = huobi.ws_url_prex;
+    ws = createHuobiWS(ws_url);
     ws.on('open', function () {
-        outLogger.info(`huobi-ws opened: ${huobi.ws_url_prex}`);
+
+        outLogger.info(`huobi-ws opened: ${ws_url}`);
     });
 
-    ws.on('message', function (data) {
+    ws.on('message', function (ev) {
 
-        const text = pako.inflate(data.data, {
+        const text = pako.inflate(ev.data, {
             to: 'string'
         });
         const msg = JSON.parse(text);
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            if (ws) {
-                console.log(ws.isOpen())
-            }
-        }, 10000);
+
         if (msg.ping) {
             ws.json({
                 pong: msg.ping
@@ -50,18 +49,16 @@ export function start (accessKey: string, secretKey: string) {
         }
     });
     ws.on('close', function (e) {
-        outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
-        // ws.close(e.code);
+        ws.reStart();
         if (e.code === 1006) {
             outLogger.info(`huobi-ws closed:`, 'connect ECONNREFUSED');
         } else {
             outLogger.info(`huobi-ws closed:`, e.reason);
         }
-        // ws.reStart();
     });
     ws.on('error', function (e) {
         ws.reStart();
-        errLogger.info(`huobi-ws[${huobi.ws_url_prex}] error:`, e.message);
+        errLogger.info(`huobi-ws error:`, e.message);
     })
 
     return ws;

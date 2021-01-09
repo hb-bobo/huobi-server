@@ -1,7 +1,5 @@
 import http from 'http';
-import moment from 'moment';
 import request from 'request';
-import { errLogger, outLogger } from "ROOT/common/logger";
 
 const DEFAULT_HEADER = {
     'content-type': 'application/json;charset=utf-8',
@@ -33,7 +31,9 @@ export const get = function(url, options) {
                     reject(res.statusCode);
                 }
             }
-        }).on('error', errLogger.error);
+        }).on('error', (err) => {
+            reject(err)
+        });
     });
 }
 
@@ -60,7 +60,9 @@ export const post = function(url, postdata, options) {
                     reject(res.statusCode);
                 }
             }
-        }).on('error', errLogger.error);
+        }).on('error', (err) => {
+            reject(err)
+        });
     });
 };
 
@@ -87,6 +89,8 @@ export const form_post = function(url, postdata, options) {
                     reject(res.statusCode);
                 }
             }
-        }).on('error', errLogger.error);
+        }).on('error', (err) => {
+            reject(err)
+        });
     });
 };

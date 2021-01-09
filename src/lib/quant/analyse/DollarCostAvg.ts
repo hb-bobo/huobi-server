@@ -14,7 +14,7 @@ interface Options {
     /**
      * 余额(对币的价格/当前价格)或者可用保证金
      */
-    balance: number;
+    balance?: number;
     /**
      * 最小下单
      */
@@ -77,8 +77,11 @@ export default class DollarCostAvg {
     public splitBill = () => {
         const max = Math.max(...this.maxs);
         const min = Math.max(...this.mins);
+        if (!this.option.balance) {
+            return;
+        }
         // 拿出一半封底/顶
-        let canUse = this.option.balance / 1.8;
+        let canUse = this.option.balance / 1.6;
         const buyList: any[] = [
             {
                 volume: canUse / 2,
@@ -92,8 +95,8 @@ export default class DollarCostAvg {
             }
         ];
 
-        while(canUse > this.option.minVolume * (1.8 * 2)) {
-            canUse = canUse / 1.8;
+        while(canUse > this.option.minVolume * (1.6 * 2)) {
+            canUse = canUse / 1.6;
             buyList.push({
                 volume: canUse / 2,
             });
@@ -137,7 +140,7 @@ export default class DollarCostAvg {
                 element.invalid = true;
                 return {
                     ...element,
-                    action: 'buy'
+                    action: 'buy' as const
                 };
             }
         }
@@ -152,7 +155,7 @@ export default class DollarCostAvg {
                 element.invalid = true;
                 return {
                     ...element,
-                    action: 'sell'
+                    action: 'sell' as const
                 };
             }
         }

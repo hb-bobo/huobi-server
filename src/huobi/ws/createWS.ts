@@ -1,6 +1,6 @@
 
-import noop from 'lodash/noop';
-import { errLogger, outLogger } from 'ROOT/common/logger';
+
+import {  outLogger } from 'ROOT/common/logger';
 import Sockette, { SocketteOptions } from 'ROOT/lib/sockette/Sockette';
 
 const defaultOptions = {
@@ -20,6 +20,9 @@ export class HuobiSockette extends Sockette{
         })
     }
     checkCache() {
+        if (!this.cache) {
+            return;
+        }
         for (const key in this.cache) {
             if (Object.prototype.hasOwnProperty.call(this.cache, key)) {
                 const subscribers = this.cache[key];
@@ -38,7 +41,7 @@ export class HuobiSockette extends Sockette{
     async sub(data: {sub: string, id: string}, id?: string) {
 
         const _id = id ? id : 'system';
-        const dataStr = data.sub;
+        const dataStr = JSON.stringify(data);
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             // 订阅
@@ -56,11 +59,11 @@ export class HuobiSockette extends Sockette{
      * @param data
      */
     async upsub(data: {sub?: string, unsub?: string, id: string}, id?: string) {
+        const _id = id ? id : 'system';
+        const dataStr: string = JSON.stringify(data);
         if (data.unsub === undefined) {
             data.unsub = data.sub;
         }
-        const _id = id ? id : 'system';
-        const dataStr: string = (data.unsub) as string;
         if (this.cache[dataStr]) {
             const subscribers = this.cache[dataStr];
             const index = subscribers.findIndex((subscriberId) => subscriberId === _id);
@@ -107,7 +110,18 @@ export function createHuobiWS (url: string, options: SocketteOptions = {}){
     const {
         ...mergeOptions
     } = {...options, ...defaultOptions};
-    return new HuobiSockette(url, {
+    // let timer;
+
+    const ws = new HuobiSockette(url, {
         ...mergeOptions,
     });
+
+    // ws.on('message', function () {
+    //     timer = setTimeout(() => {
+    //         if (ws) {
+    //             outLogger.info(`${url} status: ${ws.isOpen()}`);
+    //         }
+    //     }, 1000 * 30);
+    // });
+    return ws;
 }

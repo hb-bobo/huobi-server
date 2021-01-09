@@ -75,15 +75,15 @@ export default class Analyser {
          * 超买 > 0
          */
         row['close/MA60'] = this.getGain(row.close, row.MA60);
-        row['amount/amountMA20'] = this.getGain(row.amount, row.amountMA20);
+        row['amount/amountMA20'] = this.getGain(Number(row.amount), row.amountMA20);
         /**
          * 买盘力量大
          */
-        row['low-close'] = (row.low - row.close) / row.close;
+        row['low-close/close'] = (row.low - row.close) / row.close;
         /**
          * 卖盘力量大
          */
-        row['high-close'] = (row.high - row.close) / row.close;
+        row['high-close/close'] = (row.high - row.close) / row.close;
 
         this.middlewares.forEach((callback) => {
             callback(row);

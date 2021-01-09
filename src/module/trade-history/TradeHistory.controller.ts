@@ -3,7 +3,7 @@ import config from 'config';
 import schema from 'async-validator';
 import { AppContext } from 'ROOT/interface/App';
 
-import * as TradeService from './trade.service';
+import * as TradeService from './TradeHistory.service';
 
 
 /**
@@ -32,7 +32,7 @@ export const get = async (ctx: AppContext) => {
         return;
     }
     try {
-        let res = await TradeService.find({
+        const res = await TradeService.find({
             start: new Date(start),
             end: new Date(end), symbol: (symbol as string).toLowerCase()}
         );

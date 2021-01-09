@@ -1,27 +1,35 @@
 import config from 'config'
 import { AppConfig } from 'ROOT/interface/App';
-import { Period } from "ROOT/interface/Huobi"
 import { auth_V2 } from './util';
 
-const huobi = config.get<AppConfig['huobi']>('huobi');
 
-export const WS_SUB = {
+
+export const WS_SUB_V2 = {
 
 }
-export const WS_REQ = {
+export const WS_REQ_V2 = {
     /**
      * 发送auth请求
      * @param ws
      */
-    auth (accessKey: string, secretKey: string, data?: any) {
+    auth (accessKey: string, secretKey: string, WS_URL: string) {
         return {
             action: 'req',
             ch: "auth",
             params: {
                 authType:"api",
-                ...auth_V2('GET', huobi.ws_url_prex, accessKey, secretKey, data)
+                ...auth_V2('GET', WS_URL, accessKey, secretKey)
             }
         }
-    }
+    },
+    /**
+     * 订阅账户变更
+     */
+    accounts (mode?: 1 | 2 | 0) {
+        return {
+            "action": "sub",
+            "ch": "accounts.update"
+        }
+    },
 }
 

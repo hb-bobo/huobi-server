@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { getRepository, getConnection, EntityManager  } from "typeorm";
 import isNil from "lodash/isNil";
 import { errLogger } from "ROOT/common/logger";
-import { entitysMap, tableNameFactory, TradeDTO, createEntitySchema } from './trade.entity'
+import { entitysMap, tableNameFactory, TradeDTO, createEntitySchema } from './TradeHistory.entity'
 
 /**
  * 查询
@@ -11,7 +11,7 @@ import { entitysMap, tableNameFactory, TradeDTO, createEntitySchema } from './tr
 export const find = async function({start, end, symbol}) {
     const tableNames = tableNameFactory.queryWidthIntervalTime(start, end)
 
-    let query = tableNames.map((name) => {
+    const query = tableNames.map((name) => {
         return `
         SELECT * FROM ${name}
         WHERE time BETWEEN '${dayjs(start).format('YYYY/MM/DD H:mm:ss')}' AND '${dayjs(end).format('YYYY/MM/DD H:mm:ss')}'

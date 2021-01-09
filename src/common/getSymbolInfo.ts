@@ -53,9 +53,12 @@ export const getSymbolInfo = function (symbol: string) {
     if(!symbol) {
         throw Error(`param error`);
     }
-    let info = {
+    const info = {
         'price-precision': 4,
         'amount-precision': 4,
+        'base-currency': '',
+        'quote-currency': '',
+        'limit-order-min-order-amt': 0.
     };
     // let _symbols = await getSymbols();
     _symbols.some((item) => {
@@ -70,6 +73,7 @@ export const getSymbolInfo = function (symbol: string) {
             info['amount-precision'] = item['amount-precision'];
             info['base-currency'] = item['base-currency'];
             info['quote-currency'] = item['quote-currency'];
+            info['limit-order-min-order-amt'] = item['limit-order-min-order-amt'];
             return true;
         }
         return false;

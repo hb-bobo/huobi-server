@@ -2,16 +2,13 @@
 import config from 'config';
 import { errLogger, outLogger } from 'ROOT/common/logger';
 import { AppConfig } from 'ROOT/interface/App';
-import { SocketFrom } from 'ROOT/interface/ws';
-
 import { createHuobiWS } from 'ROOT/huobi/ws/createWS';
-import { EventTypes, ws_event } from './events';
-import { ws_auth, WS_SUB } from './ws.cmd';
-import Sockette from 'ROOT/lib/sockette/Sockette';
+import { ws_event } from './eventsV2';
+import { WS_REQ_V2 } from './ws.cmd.v2';
 
 const huobi = config.get<AppConfig['huobi']>('huobi');
 const ws_url = huobi.ws_url_prex + '/v2';
-let ws: Sockette;
+export let ws: ReturnType<typeof createHuobiWS>;
 
 /**
  * 账户订单数据
@@ -19,19 +16,17 @@ let ws: Sockette;
  * @param secretKey
  */
 export function start (accessKey: string, secretKey: string) {
-    if (ws && !ws.isOpen()) {
-        return ws;
-    }
+
     ws = createHuobiWS(ws_url);
     ws.on('open', function () {
         outLogger.info(`huobi-ws-v2 opened: ${ws_url}`);
-        ws.json(ws_auth(accessKey, secretKey));
+        ws.json(WS_REQ_V2.auth(accessKey, secretKey, ws_url));
+
     });
     ws.on('message', function (ev) {
 
         if (typeof ev.data !== 'string') {
-            outLogger.info(`!ev.data: ${ev.type}`);
-            return;
+            outLogger.info(`huobi-ws-v2: !ev.data ${ev.data}`);
         }
         const msg = JSON.parse(ev.data as string);
 
@@ -43,54 +38,31 @@ export function start (accessKey: string, secretKey: string) {
                 }
             });
         } else if (msg.data) {
-            handle(msg);
+            const [channel] = msg.ch.split('#');
+            switch(channel) {
+                case 'auth':
+                    ws_event.emit('auth', undefined);
+                    break;
+                case 'accounts.update':
+                    ws_event.emit('accounts.update', msg.data);
+                    break;
+                default:return;
+            }
         } else {
-            outLogger.info(`huobi-ws-v2: else ${msg}`);
+            outLogger.info(`huobi-ws-v2: on message ${JSON.stringify(msg)}`);
         }
     });
     ws.on('close', function (e) {
-        ws.close(e.code);
         if (e.code === 1006) {
+            ws.reStart();
             outLogger.info(`huobi-ws-v2 closed:`, 'connect ECONNREFUSED');
-            start(accessKey, secretKey);
         } else {
             outLogger.info(`huobi-ws-v2 closed:`, e.reason);
         }
-        setTimeout(() => {
-            start(accessKey, secretKey);
-        }, 1000 * 60);
     });
     ws.on('error', function (e) {
+        ws.reStart();
         errLogger.info(`huobi-ws-v2[${ws_url}] error:`, e.message);
-        setTimeout(() => {
-            start(accessKey, secretKey);
-        }, 1000 * 60);
     })
     return ws;
-}
-const handleMap: Record<string, (data: any) => {type: EventTypes, data: any}> = {
-
-    trade(data) {
-        return {
-            type: EventTypes.huobi_trade,
-            data: data.data
-        };
-    }
-}
-/* 处理返回的数据 */
-function handle(data) {
-    const [channel, symbol] = data.ch.split('#');
-    if (handleMap[channel]) {
-        const {type, data: otherData } = handleMap[channel](data);
-        ws_event.emit('huobi:ws:message', {
-            type,
-            from: SocketFrom.huobi,
-            data: {
-                channel: data.channel,
-                ch: data.ch,
-                symbol,
-                ...otherData,
-            },
-        } as any);
-    }
 }
