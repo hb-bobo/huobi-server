@@ -60,8 +60,8 @@ export default class Quant {
     use(...params: Parameters<Analyser['use']>) {
         return this.analyser.use(...params);
     }
-    analysis(...params: Parameters<Analyser['analysis']>) {
-        return this.analyser.analysis(...params);
+    analysis<T extends Record<string, any>>(dataOrList: T) {
+        return this.analyser.analysis(dataOrList);
     }
     mockUse(...params: Parameters<Analyser['use']>) {
         this.analyser.result.forEach((row) => {

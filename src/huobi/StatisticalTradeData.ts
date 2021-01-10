@@ -1,10 +1,8 @@
 import Emitter from 'events';
 import isEmpty from 'lodash/isEmpty';
-import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import { errLogger } from 'ROOT/common/logger';
 import { keepDecimalFixed } from 'ROOT/utils';
 import getPriceIndex from "./getPriceIndex";
-import symbolPrice from './price';
 
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
@@ -48,7 +46,7 @@ export default class StatisticalTrade extends Emitter{
         const _priceIndex = getPriceIndex(symbol);
         // 先找缓存的数据是否存在
         if (isEmpty(this._mergeData)) {
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 Object.assign(this._mergeData, _tempData);
             }
@@ -60,7 +58,7 @@ export default class StatisticalTrade extends Emitter{
         // 当前时间 > 上一个时间
         if ((ts - preTime)  > this.disTime) {
             // 开始一个新数据前把上次合并好的数据整理并emit；
-            let time = Number(this._mergeData._time);
+            const time = Number(this._mergeData._time);
             if (this._mergeData) {
                 this._mergeData.exchange = this.exchange;
                 this._mergeData.buy = keepDecimalFixed(this._mergeData.buy, 2);
@@ -75,7 +73,7 @@ export default class StatisticalTrade extends Emitter{
             // this._mergeData.sell = 0;
             // this._mergeData.buy = 0;
             // this._mergeData.amount = 0;
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 Object.assign(this._mergeData, _tempData);
                 this._mergeData.time = time;
@@ -83,7 +81,7 @@ export default class StatisticalTrade extends Emitter{
             }
         } else {
             // 合并数据
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 this._mergeData.buy += _tempData.buy;
                 this._mergeData.sell += _tempData.sell;
@@ -98,7 +96,7 @@ export default class StatisticalTrade extends Emitter{
  * @return {Array<Object>}
  */
 function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceIndex: number, symbol: string) {
-    let _tempData = {
+    const _tempData = {
         symbol: symbol,
         buy: 0,
         sell: 0,

@@ -44,7 +44,7 @@ export default class Analyser {
     constructor() {
         //
     }
-    public analysis(data: DataItem | DataItem[]) {
+    public analysiss<T extends Record<string, any>>(data: T | T[]) {
         this.MA5
         if (Array.isArray(data)) {
             data.forEach(item=> {
@@ -54,14 +54,14 @@ export default class Analyser {
         }
         this._analysis(data)
     }
-    public _analysis(data: DataItem) {
+    public _analysis<T extends Record<string, any>>(data: T){
         this.amountMA20.push(toNumber(data.amount))
         this.MA5.push(data.close)
         this.MA10.push(data.close)
         this.MA30.push(data.close)
         this.MA60.push(data.close)
         const newData = omit(data, 'id');
-        const row = {
+        const row: Record<string, any> = {
             ...newData,
             time: new Date(Number(data.id + '000')),
             MA5: autoToFixed(this.MA5.last()) || null,

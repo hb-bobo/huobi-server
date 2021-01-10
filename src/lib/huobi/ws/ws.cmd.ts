@@ -1,6 +1,7 @@
-import config from 'config'
-import { auth, signatureSHA } from 'ROOT/huobi/hbsdk';
+
+import { signature } from '../utils/signature';
 import { Period } from '../interface'
+import { CandlestickIntervalEnum } from '../constant';
 
 
 
@@ -9,7 +10,7 @@ export const WS_SUB = {
      * k线订阅
      * @param param0
      */
-    kline (symbol: string, period: Period = '5min') {
+    kline (symbol: string, period: CandlestickIntervalEnum) {
         return {
             "sub": `market.${symbol}.kline.${period}`,
             "id": `sub_${symbol}_${period}`
@@ -50,7 +51,7 @@ export const WS_REQ = {
     auth(accessKey: string, secretKey: string, WS_URL: string) {
         return {
             op: 'auth',
-            ...auth('GET', WS_URL, accessKey, secretKey)
+            ...signature('GET', WS_URL, accessKey, secretKey)
         }
     },
     /**

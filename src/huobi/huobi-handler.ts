@@ -1,6 +1,6 @@
 import throttle from 'lodash/throttle';
 import { SocketFrom } from "ROOT/interface/ws";
-import { EventTypes, ws_event } from 'ROOT/huobi/ws/events';
+import { EventTypes, ws_event } from 'ROOT/huobi/events';
 import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
@@ -12,18 +12,9 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
 import { getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
-import { toNumber } from 'lodash';
 
-interface Event {
-    type: EventTypes;
-    from: SocketFrom.huobi;
-    data: {
-        channel: string;
-        ch: string;
-        symbol: string,
-        [x: string]: any;
-    },
-}
+
+
 const minute = 1000 * 60
 let watchSymbols: string[] = [];
 
@@ -31,87 +22,84 @@ let watchSymbols: string[] = [];
 const depthHandles = {};
 // 交易数据处理方法
 const tradeHandles = {};
-export async function handle(event: Event) {
-    const symbol = event.data.symbol;
-    const data = event.data;
 
+async function getWatchSymbols() {
     if (watchSymbols.length === 0) {
         const WatchEntityList = await WatchService.find();
         watchSymbols = WatchEntityList.map((WatchEntity) => {
             return WatchEntity.symbol;
         });
-
     }
-    switch (event.type) {
-        case EventTypes.huobi_depth:
+    return watchSymbols;
+}
+export async function handleDepth(data) {
+    const symbol = data.symbol;
+    await getWatchSymbols();
+    if (typeof depthHandles[symbol] !== 'function') {
+        depthHandles[symbol] = throttle(analyseAndWriteDepth, 5000, { trailing: false, leading: true });
+    }
+    /* ch:"market.bchusdt.depth.step0"
+    channel:"depth"
+    symbol:"bchusdt"
+    tick:Object {bids: Array(150), asks: Array(150), ts: 1554568106017, …}
+    type:"WS_HUOBI" */
+    // console.log(data)
+    depthHandles[symbol](data);
+}
 
-            if (typeof depthHandles[symbol] !== 'function') {
-                depthHandles[symbol] = throttle(handleDepth, 5000, { trailing: false, leading: true });
+export async function handleKline(data) {
+    const symbol = data.symbol;
+    await getWatchSymbols();
+    if (symbol === 'btcusdt') {
+        symbolPrice.set('btc', data.kline.close);
+    } else if (symbol === 'etcusdt') {
+        symbolPrice.set('eth', data.kline.close);
+    } else if (symbol === 'htusdt') {
+        symbolPrice.set('ht', data.kline.close);
+    }
+
+    delete data.kline.id;
+    ws_event.emit("server:ws:message", {
+        from: SocketFrom.server,
+        type: EventTypes.huobi_kline,
+        data: {
+            symbol: symbol,
+            ...data.kline,
+            // ch: data.ch,
+        },
+    });
+}
+export async function handleTrade(data) {
+    const symbol = data.symbol;
+
+    await getWatchSymbols();
+    if (tradeHandles[symbol] === undefined) {
+        tradeHandles[symbol] = new StatisticalTrade({
+            symbol: symbol,
+            exchange: 1,
+            disTime:  minute * 5,
+        });
+        tradeHandles[symbol].on('merge', function (symbol, data) {
+
+            const _data = {
+                symbol: symbol,
+                sell: data.sell || 0,
+                buy: data.buy || 0,
+                time: data.time ? new Date(data.time) : new Date(),
+                usdtPrice: data.usdtPrice,
             }
-            /* ch:"market.bchusdt.depth.step0"
-            channel:"depth"
-            symbol:"bchusdt"
-            tick:Object {bids: Array(150), asks: Array(150), ts: 1554568106017, …}
-            type:"WS_HUOBI" */
-            // console.log(data)
-            depthHandles[symbol](data);
-            break;
-        case EventTypes.huobi_kline:
-            if (symbol === 'btcusdt') {
-                symbolPrice.set('btc', data.kline.close);
-            } else if (symbol === 'etcusdt') {
-                symbolPrice.set('eth', data.kline.close);
-            } else if (symbol === 'htusdt') {
-                symbolPrice.set('ht', data.kline.close);
-            }
-            // broadcast(WS_SERVER, {
-            //     type: 'WS_HUOBI',
-            //     kline: data.tick,
-            //     symbol: symbol,
-            // });
-            delete data.kline.id;
+
+            TradeHistoryService.create(_data);
             ws_event.emit("server:ws:message", {
                 from: SocketFrom.server,
-                type: EventTypes.huobi_kline,
+                type: EventTypes.huobi_trade,
                 data: {
-                    symbol: symbol,
-                    ...data.kline,
-                    // ch: data.ch,
+                    ..._data,
                 },
             });
-            break;
-        case EventTypes.huobi_trade:
-            if (tradeHandles[symbol] === undefined) {
-                tradeHandles[symbol] = new StatisticalTrade({
-                    symbol: symbol,
-                    exchange: 1,
-                    disTime:  minute * 5,
-                });
-                tradeHandles[symbol].on('merge', function (symbol, data) {
-
-                    const _data = {
-                        symbol: symbol,
-                        sell: data.sell || 0,
-                        buy: data.buy || 0,
-                        time: data.time ? new Date(data.time) : new Date(),
-                        usdtPrice: data.usdtPrice,
-                    }
-       
-                    TradeHistoryService.create(_data);
-                    ws_event.emit("server:ws:message", {
-                        from: SocketFrom.server,
-                        type: EventTypes.huobi_trade,
-                        data: {
-                            ..._data,
-                        },
-                    });
-                });
-            }
-            tradeHandles[symbol].merge(data.trade);
-
-            break;
-        default:
+        });
     }
+    tradeHandles[symbol].merge(data.trade);
 }
 
 
@@ -128,7 +116,7 @@ const status = {}
 /**
  * 处理深度数据
  */
-const handleDepth = function (data: { tick: any, symbol: string, ch }) {
+const analyseAndWriteDepth = function (data: { tick: any, symbol: string, ch }) {
 
     if (!data.tick || !data.symbol) {
         throw Error(`data.tick, data.symbol`);

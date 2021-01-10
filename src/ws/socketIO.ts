@@ -1,8 +1,8 @@
 import socket from 'socket.io';
 import { outLogger } from 'ROOT/common/logger';
-import { ws_event } from 'ROOT/huobi/ws/events';
-import { ws } from 'ROOT/huobi/ws/ws'
-import { WS_SUB } from 'ROOT/huobi/ws/ws.cmd';
+import { ws_event } from 'ROOT/huobi/events';
+import { hbsdk } from 'ROOT/huobi/hbsdk';
+import { CandlestickIntervalEnum } from 'ROOT/lib/huobi';
 
 /**
  * 与客户端的socket
@@ -18,13 +18,26 @@ socketIO.on('connection', function (socket) {
     socket.on('sub', function ({symbol}) {
         outLogger.info('socketIO: onsub ', symbol)
         symbol = symbol.toLowerCase();
-        ws.sub(WS_SUB.kline(symbol, '1min'), socket.id);
-        ws.sub(WS_SUB.depth(symbol), socket.id);
-        ws.sub(WS_SUB.tradeDetail(symbol), socket.id);
+
+        hbsdk.subMarketDepth({symbol}, (data) => {
+            socket.send(data);
+        });
+        hbsdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN1},  (data) => {
+            socket.send(data);
+        })
+        hbsdk.subMarketTrade({symbol},  (data) => {
+            socket.send(data);
+        })
+        // ws.sub(WS_SUB.kline(symbol, '1min'), socket.id);
+        // ws.sub(WS_SUB.depth(symbol), socket.id);
+        // ws.sub(WS_SUB.tradeDetail(symbol), socket.id);
         unSub = () => {
-            ws.unSubFormClinet(WS_SUB.kline(symbol, '1min'), socket.id);
-            ws.unSubFormClinet(WS_SUB.depth(symbol), socket.id);
-            ws.unSubFormClinet(WS_SUB.tradeDetail(symbol), socket.id);
+            if (!hbsdk.market_cache_ws) {
+                return;
+            }
+            hbsdk.market_cache_ws.unSubFormClinet(WS_SUB.kline(symbol, '1min'), socket.id);
+            hbsdk.market_cache_ws.unSubFormClinet(WS_SUB.depth(symbol), socket.id);
+            hbsdk.market_cache_ws.unSubFormClinet(WS_SUB.tradeDetail(symbol), socket.id);
         }
     })
     socket.on("disconnect", (reason) => {
@@ -39,11 +52,14 @@ socketIO.on('connection', function (socket) {
 });
 ws_event.on("server:ws:message", function(data) {
     if (data.data && data.data.symbol) {
-        for (const key in ws.cache) {
-            if (!Object.prototype.hasOwnProperty.call(ws.cache, key)) {
+        if (!hbsdk.market_cache_ws) {
+            return;
+        }
+        for (const key in hbsdk.market_cache_ws.cache) {
+            if (!Object.prototype.hasOwnProperty.call(hbsdk.market_cache_ws.cache, key)) {
                 return;
             }
-            const ids = ws.cache[key];
+            const ids = hbsdk.market_cache_ws.cache[key];
             // outLogger.info(ids, Object.keys(sockets))
             ids.forEach((id) => {
                 if (!sockets[id]) {

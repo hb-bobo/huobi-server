@@ -1,17 +1,13 @@
 // import { outLogger } from "ROOT/common/logger";
 import { toNumber } from "lodash";
-import { create_hbsdk, hbsdk_commom } from "./hbsdk";
-import { start as huobiWSStartV2 } from 'ROOT/huobi/ws/ws.v2';
-import { ws_event } from './ws/eventsV2';
-import { WS_REQ_V2 } from "./ws/ws.cmd.v2";
 import { Period } from "./interface";
 import StatisticalTrade from "./StatisticalTradeData";
 import { Quant } from "ROOT/lib/quant";
 import { getSymbolInfo, getSymbols } from "ROOT/common/getSymbolInfo";
-import dayjs from "dayjs";
 import { keepDecimalFixed } from "ROOT/utils";
 import { errLogger, outLogger } from "ROOT/common/logger";
 import getPriceIndex from "./getPriceIndex";
+import HuobiSDK from "ROOT/lib/huobi";
 
 
 interface SymbolConfig{
@@ -29,8 +25,7 @@ interface SymbolConfig{
 }
 
 export class Trader {
-    sdk: ReturnType<typeof create_hbsdk>;
-    ws_v2: ReturnType<typeof huobiWSStartV2>;
+    sdk: HuobiSDK;
     _balanceMap: Record<string, number>;
     bidsList: any[];
     asksList: any[];
@@ -42,29 +37,26 @@ export class Trader {
         "makerFeeRate": 0.002,
         "takerFeeRate": 0.002,
     };
-    constructor({ accessKey, secretKey }) {
-        this.sdk = create_hbsdk({ accessKey, secretKey });
-        this.ws_v2 = huobiWSStartV2(accessKey, secretKey);
-    
-        this.sdk.get_account().then(data => {
+    constructor(sdk) {
+        this.sdk = sdk;
+        this.sdk.getAccountId().then(() => {
             this.getBalance();
         })
-        ws_event.on('auth', () => {
-            this.ws_v2.json(WS_REQ_V2.accounts())
-        });
-        ws_event.on('accounts.update', (data) => {
 
-            if (Array.isArray(data)) {
-                data.forEach((item) => {
-                    this._balanceMap[item.currency] = toNumber(item.available);
-                });
-            }
-            if( data.currency) {
-                if (!this._balanceMap) {
-                    this._balanceMap = {}
+        this.sdk.subAuth(() => {
+            this.sdk.subAccountsUpdate({}, (data) => {
+                if (Array.isArray(data)) {
+                    data.forEach((item) => {
+                        this._balanceMap[item.currency] = toNumber(item.available);
+                    });
                 }
-                this._balanceMap[data.currency] = toNumber(data.available);
-            }
+                if( data.currency) {
+                    if (!this._balanceMap) {
+                        this._balanceMap = {}
+                    }
+                    this._balanceMap[data.currency] = toNumber(data.available);
+                }
+            });
         });
     }
     /**
@@ -75,19 +67,14 @@ export class Trader {
         if (this._balanceMap && symbol) {
             return this._balanceMap[symbol]
         }
-        this.sdk.get_balance().then((data) => {
+        this.sdk.getAccountBalance().then((data) => {
             if (!data) {
                 return;
             }
-
             data.list.forEach((item) => {
                 this._balanceMap[item.currency] = toNumber(item.balance);
             });
-        }).catch(() => {
-            setTimeout(() => {
-                this.ws_v2.json(WS_REQ_V2.accounts())
-            }, 1000 * 10)
-        })
+        });
     }
     async autoTrader({
         symbol,
@@ -120,9 +107,9 @@ export class Trader {
             buyAmountRatio: 2.1,
             price: 0,
         }
-        const data = await hbsdk_commom.getMarketHistoryKline(symbol, period);
+        const data = await this.sdk.getMarketHistoryKline(symbol, period);
         const rData = data.reverse();
-        quant.analysis(rData);
+        quant.analysis(rData as any[]);
 
         quant.use((row) => {
             this.symbolInfo[symbol].price = row.close;
@@ -178,7 +165,7 @@ export class Trader {
             outLogger.info('当前币不足');
             return Promise.reject('当前币不足');
         }
-        const openOrderRes = await this.sdk.get_open_orders({symbol, size: 10});
+        const openOrderRes = await this.sdk.getOpenOrders(symbol, null, 10);
         for (let i = 0; i < openOrderRes.length; i++) {
             const oriderInfo = openOrderRes[i];
             if (oriderInfo.source === 'api') {
@@ -197,12 +184,7 @@ export class Trader {
                 }
             }
         }
-        await this.sdk.order({
-            symbol: symbol,
-            amount: this.amountToFixed(symbol, amount),
-            price: this.priceToFixed(symbol, price),
-            type: `${type}-limit`,
-        });
+        await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
     }
     cancelOrder(id: string) {
         return this.sdk.cancelOrder(id);

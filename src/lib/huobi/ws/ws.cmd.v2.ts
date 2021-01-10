@@ -1,6 +1,5 @@
-import config from 'config'
-import { AppConfig } from 'ROOT/interface/App';
-import { auth_V2 } from './util';
+
+import { signature_V2 } from '../utils/signature';
 
 
 
@@ -18,7 +17,7 @@ export const WS_REQ_V2 = {
             ch: "auth",
             params: {
                 authType:"api",
-                ...auth_V2('GET', WS_URL, accessKey, secretKey)
+                ...signature_V2('GET', WS_URL, accessKey, secretKey)
             }
         }
     },
