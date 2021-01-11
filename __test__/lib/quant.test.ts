@@ -1,4 +1,4 @@
-import { MA } from "ROOT/lib/quant";
+import { MA } from "ROOT/lib/quant/indicators";
 
 test('MA', () => {
 

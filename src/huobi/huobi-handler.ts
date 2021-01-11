@@ -1,17 +1,15 @@
 import throttle from 'lodash/throttle';
 import { SocketFrom } from "ROOT/interface/ws";
 import { EventTypes, ws_event } from 'ROOT/huobi/events';
-import getPriceIndex from 'ROOT/huobi/getPriceIndex';
 import symbolPrice from 'ROOT/huobi/price';
 import StatisticalTrade from 'ROOT/huobi/StatisticalTradeData';
-import { getSameAmount } from 'ROOT/common/getSameAmount';
 import * as TradeHistoryService from 'ROOT/module/trade-history/TradeHistory.service';
 import * as DepthService from 'ROOT/module/depth/depth.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
-import { getSymbolInfo } from 'ROOT/common/getSymbolInfo';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
-import { getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
+import { autoToFixed, getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
+import { getPriceIndex, getSameAmount } from './util';
 
 
 
@@ -77,7 +75,7 @@ export async function handleTrade(data) {
         tradeHandles[symbol] = new StatisticalTrade({
             symbol: symbol,
             exchange: 1,
-            disTime:  minute * 5,
+            disTime: minute * 5,
         });
         tradeHandles[symbol].on('merge', function (symbol, data) {
 
@@ -116,7 +114,7 @@ const status = {}
 /**
  * 处理深度数据
  */
-const analyseAndWriteDepth = function (data: { tick: any, symbol: string, ch }) {
+const analyseAndWriteDepth = async function (data: { tick: any, symbol: string, ch }) {
 
     if (!data.tick || !data.symbol) {
         throw Error(`data.tick, data.symbol`);
@@ -173,20 +171,17 @@ const analyseAndWriteDepth = function (data: { tick: any, symbol: string, ch }) 
 
     // 取当前时间
     const datetime = new Date();
-    const symbolInfo = getSymbolInfo(symbol);
-    const amountPrecision = symbolInfo['amount-precision'];
-    const pricePrecision = symbolInfo['price-precision'];
-    
+
     const currentPrice = (bids1[0] + aks1[0]) / 2;
     const insertData = {
         symbol: symbol,
         exchange: 1,
-        sell_1: keepDecimalFixed((aks1[1]), amountPrecision),
-        sell_2: keepDecimalFixed((aks2[1]), amountPrecision),
-        buy_1: keepDecimalFixed((bids1[1]), amountPrecision),
-        buy_2: keepDecimalFixed((bids2[1]), amountPrecision),
+        sell_1: autoToFixed((aks1[1])),
+        sell_2: autoToFixed((aks2[1])),
+        buy_1: autoToFixed((bids1[1])),
+        buy_2: autoToFixed((bids2[1])),
         usdtPrice: 0,
-        price: (currentPrice).toString().length > pricePrecision ? keepDecimalFixed(currentPrice, pricePrecision) : currentPrice,
+        price: autoToFixed(currentPrice),
         bids_max_1: bidsList[0].amount,
         bids_max_2: bidsList[1].amount,
         asks_max_1: asksList[0].amount,
@@ -195,7 +190,7 @@ const analyseAndWriteDepth = function (data: { tick: any, symbol: string, ch }) 
         asks_max_price: [asksList[0].price, asksList[1].price].join(','),
         time: datetime,
     }
-    insertData.usdtPrice = keepDecimalFixed(insertData.price * getPriceIndex(symbol), pricePrecision)
+    insertData.usdtPrice = autoToFixed(insertData.price * getPriceIndex(symbol))
     // 非监控的币，不写入数据库，直接返回给前端
     if (!watchSymbols.includes(symbol.toUpperCase())) {
         return;
@@ -226,7 +221,7 @@ const analyseAndWriteDepth = function (data: { tick: any, symbol: string, ch }) 
     const asksHistoryStatus = sellMaxAM.historyStatus;
     const buyStatus = getRepeatCount(bidsHistoryStatus);
     const sellStatus = getRepeatCount(asksHistoryStatus);
-   
+
     // 无状况
     if (
         bidsHistoryStatus.length > 2

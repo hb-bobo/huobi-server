@@ -1,8 +1,8 @@
 
 import config from 'config';
-import { WS_SUB } from 'ROOT/huobi/ws/ws.cmd';
+
 import { AppContext } from 'ROOT/interface/App';
-import { ws as HUOBI_WS } from 'ROOT/huobi/ws/ws';
+
 import WatchEntity from './watch.entity';
 import * as WatchEntityService from './watch.service';
 
@@ -43,9 +43,9 @@ export const updateOne = async (ctx: AppContext) => {
         } else if (data.symbol) {
             res = await WatchEntityService.create(data);
             const SYMBOL = data.symbol.toLowerCase();
-            HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
-            HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
-            HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
+            // HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
+            // HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
+            // HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
         } else {
             ctx.sendError({message: '格式有误'});
             return;
@@ -73,9 +73,9 @@ export const removeOne = async (ctx: AppContext) => {
     try {
         const res = await WatchEntityService.deleteOne({id: id});
         const SYMBOL = res.symbol.toLowerCase();
-        HUOBI_WS.upsub(WS_SUB.kline(SYMBOL, '1min'));
-        HUOBI_WS.upsub(WS_SUB.depth(SYMBOL));
-        HUOBI_WS.upsub(WS_SUB.tradeDetail(SYMBOL));
+        // HUOBI_WS.upsub(WS_SUB.kline(SYMBOL, '1min'));
+        // HUOBI_WS.upsub(WS_SUB.depth(SYMBOL));
+        // HUOBI_WS.upsub(WS_SUB.tradeDetail(SYMBOL));
         ctx.sendSuccess({
             data: res
         });

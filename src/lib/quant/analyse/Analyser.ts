@@ -44,7 +44,7 @@ export default class Analyser {
     constructor() {
         //
     }
-    public analysiss<T extends Record<string, any>>(data: T | T[]) {
+    public analysis<T extends Record<string, any>>(data: T | T[]) {
         this.MA5
         if (Array.isArray(data)) {
             data.forEach(item=> {

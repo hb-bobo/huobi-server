@@ -8,6 +8,15 @@ export interface MailOption{
     text: string; // plain text body
     html: string; // html body
 }
+export interface MailConfig{
+    host: string,
+    port: number,
+    secure: boolean, // true for 465, false for other ports
+    auth: {
+      user: string, // generated ethereal user
+      pass: string, // generated ethereal password
+    },
+}
 // let mailOptions = {
 //     from: '"Fred Foo 👻" <foo@example.com>', // sender address
 //     to: 'bar@example.com, baz@example.com', // list of receivers
@@ -20,7 +29,7 @@ export interface MailOption{
  * @param emailConfig
  * @param mailOptions
  */
-function sentMail(emailConfig: any, mailOptions: MailOption) {
+function sentMail(emailConfig: MailConfig, mailOptions: MailOption) {
     return new Promise(function (resolve, reject) {
         if (!mailOptions.from || !mailOptions.to) {
             throw Error('mailOptions invalid:' + JSON.stringify(mailOptions));

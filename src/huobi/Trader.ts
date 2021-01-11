@@ -1,13 +1,12 @@
 // import { outLogger } from "ROOT/common/logger";
 import { toNumber } from "lodash";
-import { Period } from "./interface";
+import { errLogger, outLogger } from "ROOT/common/logger";
 import StatisticalTrade from "./StatisticalTradeData";
 import { Quant } from "ROOT/lib/quant";
-import { getSymbolInfo, getSymbols } from "ROOT/common/getSymbolInfo";
 import { keepDecimalFixed } from "ROOT/utils";
-import { errLogger, outLogger } from "ROOT/common/logger";
-import getPriceIndex from "./getPriceIndex";
-import HuobiSDK from "ROOT/lib/huobi";
+import HuobiSDK, { SymbolInfo } from "ROOT/lib/huobi";
+import { Period } from "./interface";
+import { getPriceIndex, getSymbolInfo, _SYMBOL_INFO_MAP } from "./util";
 
 
 interface SymbolConfig{
@@ -25,11 +24,12 @@ interface SymbolConfig{
 }
 
 export class Trader {
+    static symbolInfoMap: Record<string, SymbolInfo> = {};
     sdk: HuobiSDK;
     _balanceMap: Record<string, number>;
     bidsList: any[];
     asksList: any[];
-    symbolInfo: Record<string, SymbolConfig>;
+    orderConfigMap: Record<string, SymbolConfig>;
     /**
      * 交易费率
      */
@@ -76,6 +76,13 @@ export class Trader {
             });
         });
     }
+    async getSymbolInfo(symbol: string) {
+        const symbolInfo = await getSymbolInfo(symbol);
+        if (Trader.symbolInfoMap[symbol] === undefined && symbolInfo) {
+            Trader.symbolInfoMap[symbol] = symbolInfo;
+        }
+        return;
+    }
     async autoTrader({
         symbol,
         buy_usdt,
@@ -83,15 +90,14 @@ export class Trader {
         period,
         forceTrade,
     }) {
-        const symbolInfo = getSymbolInfo(symbol);
 
         const quant = new Quant({
             symbol: 'btcusdt',
-            quoteCurrencyBalance: this._balanceMap[symbolInfo['quote-currency']],
-            baseCurrencyBalance: this._balanceMap[symbolInfo['base-currency']],
-            minVolume: symbolInfo['limit-order-min-order-amt'],
+            quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
+            baseCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['base-currency']],
+            minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
         })
-        this.symbolInfo[symbol] = {
+        this.orderConfigMap[symbol] = {
             buy_usdt,
             sell_usdt,
             period,
@@ -112,7 +118,7 @@ export class Trader {
         quant.analysis(rData as any[]);
 
         quant.use((row) => {
-            this.symbolInfo[symbol].price = row.close;
+            this.orderConfigMap[symbol].price = row.close;
             if (!row.MA5 || !row.MA60 || !row.MA30) {
                 return;
             }
@@ -120,8 +126,8 @@ export class Trader {
             if (row.close > row.MA60) {
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (
-                    row["close/MA60"] > this.symbolInfo[symbol].oversoldRatio
-                    || row['amount/amountMA20'] > this.symbolInfo[symbol].sellAmountRatio
+                    row["close/MA60"] > this.orderConfigMap[symbol].oversoldRatio
+                    || row['amount/amountMA20'] > this.orderConfigMap[symbol].sellAmountRatio
                 ) {
                     if (tradingAdvice) {
                         this.order(symbol, tradingAdvice.action, tradingAdvice.volume, tradingAdvice.price);
@@ -134,8 +140,8 @@ export class Trader {
             if (row.close < row.MA60) {
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (
-                    row["close/MA60"] < this.symbolInfo[symbol].overboughtRatio
-                    || row['amount/amountMA20'] > this.symbolInfo[symbol].buyAmountRatio
+                    row["close/MA60"] < this.orderConfigMap[symbol].overboughtRatio
+                    || row['amount/amountMA20'] > this.orderConfigMap[symbol].buyAmountRatio
                 ) {
                     if (tradingAdvice) {
                         this.order(symbol, tradingAdvice.action, tradingAdvice.volume, tradingAdvice.price);
@@ -150,11 +156,12 @@ export class Trader {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
 
         const priceIndex = getPriceIndex(symbol);
-        const symbolInfo = getSymbolInfo(symbol);
+        const symbolInfo = await this.getSymbolInfo(symbol);
+
         const quoteCurrencyBalance = this._balanceMap[symbolInfo['quote-currency']];
         const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
-      
-        const hasEnoughBalance = quoteCurrencyBalance > (amount * this.symbolInfo[symbol].price * priceIndex * 1.002);
+
+        const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
 
         if (!hasEnoughBalance) {
@@ -177,7 +184,7 @@ export class Trader {
                     return Promise.reject(msg);
                 }
                 // 挂单价与当前价是否失效
-                const gain2 = Math.abs((oriderInfo.price - this.symbolInfo[symbol].price) / this.symbolInfo[symbol].price);
+                const gain2 = Math.abs((oriderInfo.price - this.orderConfigMap[symbol].price) / this.orderConfigMap[symbol].price);
                 if (gain2 > 0.4) {
                     outLogger.info(`gain: symbol(${gain2})`);
                     this.cancelOrder(oriderInfo.id)
@@ -190,11 +197,11 @@ export class Trader {
         return this.sdk.cancelOrder(id);
     }
     amountToFixed(symbol, amount: number) {
-        const symbolInfo = getSymbolInfo(symbol);
+        const symbolInfo = _SYMBOL_INFO_MAP[symbol];
         return keepDecimalFixed(amount, symbolInfo['amount-precision']);
     }
     priceToFixed(symbol, amount: number) {
-        const symbolInfo = getSymbolInfo(symbol);
+        const symbolInfo = _SYMBOL_INFO_MAP[symbol];
         return keepDecimalFixed(amount, symbolInfo['price-precision']);
     }
 }

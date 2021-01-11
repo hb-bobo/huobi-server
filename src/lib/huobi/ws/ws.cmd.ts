@@ -18,7 +18,8 @@ export const WS_SUB = {
     },
     /**
      * 市场深度行情数据
-     * @param symbol 
+     * @param symbol
+     * @param step 合并
      */
     depth(symbol: string, step = 'step0') {
         return {
@@ -28,7 +29,7 @@ export const WS_SUB = {
     },
     /**
      *  订阅 Market Detail 数据
-     * @param symbol 
+     * @param symbol
      */
     marketDetail(symbol: string) {
         return{
@@ -66,7 +67,7 @@ export const WS_REQ = {
     },
     /**
      *  请求 Trade Detail 数据
-     * @param symbol 
+     * @param symbol
      */
     marketDetail(symbol: string) {
         return{

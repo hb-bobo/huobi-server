@@ -6,8 +6,9 @@ import dayjs from 'dayjs';
 import schema from 'async-validator';
 import config from 'config';
 import { AppContext } from 'ROOT/interface/App';
-import { hbsdk_commom } from 'ROOT/huobi/hbsdk';
+
 import { mkdir } from 'ROOT/utils';
+import { hbsdk } from 'ROOT/huobi/hbsdk';
 
 const writeFilePromisify = promisify(writeFile);
 
@@ -48,7 +49,7 @@ export const download = async (ctx: AppContext) => {
 
     try {
 
-        const data = await hbsdk_commom
+        const data = await hbsdk
             .getMarketHistoryKline( body.symbol, body.period, body.size);
         const fileName = `${body.symbol}-${body.period}-${dayjs().format("YYYY-MM-DD")}.json`
         if (data === undefined) {
@@ -88,7 +89,7 @@ export const Backtest = async (ctx: AppContext) => {
 
     try {
         // new Quant()
-        const data = await hbsdk_commom
+        const data = await hbsdk
             .getMarketHistoryKline( body.symbol, body.period, body.size);
         const fileName = `${body.symbol}-${body.period}-${dayjs().format("YYYY-MM-DD")}.json`
         if (data === undefined) {

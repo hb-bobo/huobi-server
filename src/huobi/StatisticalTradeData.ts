@@ -1,8 +1,9 @@
 import Emitter from 'events';
 import isEmpty from 'lodash/isEmpty';
 import { errLogger } from 'ROOT/common/logger';
-import { keepDecimalFixed } from 'ROOT/utils';
-import getPriceIndex from "./getPriceIndex";
+import { autoToFixed } from 'ROOT/utils';
+import { getPriceIndex } from './util';
+
 
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
@@ -36,7 +37,7 @@ export default class StatisticalTrade extends Emitter{
     }
     /**
      * 按时间合并交易数据
-     * @param {{ts: number, data: {amount: number, ts: number, price: number, direction: 'buy' | 'sell'}[]}} trade 
+     * @param {{ts: number, data: {amount: number, ts: number, price: number, direction: 'buy' | 'sell'}[]}} trade
      */
     merge(trade) {
         const symbol = this.symbol;
@@ -61,8 +62,8 @@ export default class StatisticalTrade extends Emitter{
             const time = Number(this._mergeData._time);
             if (this._mergeData) {
                 this._mergeData.exchange = this.exchange;
-                this._mergeData.buy = keepDecimalFixed(this._mergeData.buy, 2);
-                this._mergeData.sell = keepDecimalFixed(this._mergeData.sell, 2);
+                this._mergeData.buy = autoToFixed(this._mergeData.buy, 2);
+                this._mergeData.sell = autoToFixed(this._mergeData.sell, 2);
                 // this._mergeData.amount = this._tempData.amount;
                 this._mergeData.usdtPrice = tradeData.price
                 delete this._mergeData._time;
@@ -112,7 +113,7 @@ function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceInd
     tradeData.forEach(item => {
         // const amountMoney = item.amount; // * item.price * _priceIndex;
         const direction = item.direction;
-        _tempData[direction] = keepDecimalFixed(item.amount + _tempData[direction], 2);
+        _tempData[direction] = autoToFixed(item.amount + _tempData[direction], 2);
         _tempData.amount += item.amount;
         _tempData.usdtPrice = item.price;
     });

@@ -1,6 +1,6 @@
 import { isNil } from "lodash";
 import { errLogger } from "ROOT/common/logger";
-import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
+import { DEFAULT_PAGE_SIZE } from "ROOT/constants/common";
 import { SaveOptions } from "typeorm";
 import AutoOrderEntity from "./AutoOrder.entity";
 

@@ -4,6 +4,7 @@ import { CacheSockette } from "./ws/CacheSockette";
 import { WS_SUB } from "./ws/ws.cmd";
 import { CandlestickIntervalEnum } from './constant';
 import { WS_REQ_V2 } from "./ws/ws.cmd.v2";
+import { Sockette } from "../sockette";
 
 export interface HuobiSDKOptions extends HuobiSDKBaseOptions {
 
@@ -16,6 +17,7 @@ export interface MarketMessageData {
 }
 
 export class HuobiSDK extends HuobiSDKBase{
+
     /**
      * 现货账户id
      */
@@ -25,42 +27,55 @@ export class HuobiSDK extends HuobiSDKBase{
 
     /**
      * huobi sdk 包含rest api, 行情ws, 账户与订单ws
-     * @param parameters 
+     * @param parameters
      */
     constructor(parameters?: HuobiSDKOptions) {
         super(parameters);
     }
+    /**
+     * 添加事件
+     * @param event
+     * @param callback
+     */
+    addEvent(event: string, callback?: (...arg: any[]) => void) {
+        if (typeof callback === 'function') {
+            this.on(event, callback);
+        }
+    }
     setOptions(options: HuobiSDKOptions) {
         super.setOptions(options);
     }
-    getWS = <K extends keyof Pick<Required<HuobiSDK>, 'market_cache_ws' | 'account_cache_ws' | 'market_ws' | 'account_ws'>>(type: K) => {
-        return new Promise<Required<HuobiSDK>[K]>((resolve, reject) => {
+    getSocket = (type: 'market_cache_ws' | 'account_cache_ws' | 'market_ws' | 'account_ws') => {
+        return new Promise<CacheSockette & Sockette>((resolve, reject) => {
             if (this['market_cache_ws'] === undefined || this['market_ws'] === undefined) {
                 const market_ws = this.createMarketWS();
                 this.market_cache_ws = new CacheSockette(market_ws);
                 this.on('market_ws.open', () => {
-                    resolve(this[type] as any);
+                    resolve(this[type] || HuobiSDKBase[type]);
                 });
             }
             if (this['account_cache_ws'] === undefined || this['account_ws'] === undefined) {
                 const account_ws = this.createAccountWS();
                 this.account_cache_ws = new CacheSockette(account_ws);
                 this.on('account_ws.open', () => {
-                    resolve(this[type] as any);
+                    resolve(this[type]  || HuobiSDKBase[type]);
                 });
             }
-            if (this[type] === undefined) {
-                reject(`${type} 不存在`);
-            }
-            return resolve(this[type] as any);
+            // if (this[type] === undefined && HuobiSDKBase[type]) {
+            //     reject(`${type} 不存在`);
+            // }
+            // return resolve(this[type] || HuobiSDKBase[type]);
         })
     }
+    /**
+     */
     getSymbols() {
         const path = `/v1/common/symbols`;
         return this.request<SymbolInfo[]>(`${path}`, {
             method: 'GET'
         });
     }
+
     getMarketHistoryKline(symbol: string, period?: Period, size?: number) {
         const path = `/market/history/kline`;
         return this.request<Record<string, any>[]>(`${path}`, {
@@ -78,22 +93,29 @@ export class HuobiSDK extends HuobiSDKBase{
     }
     async getAccountId(type = 'spot') {
         const data = await this.getAccounts();
+
+        if (!data) {
+            return;
+        }
         data.forEach(item => {
             if (item.type === type) {
                 this.spot_account_id = item.id;
             }
         });
     }
-    getAccountBalance() {
-        const path = `/v1/account/accounts/${this.spot_account_id}/balance`;
+    getAccountBalance(spot_account_id = this.spot_account_id) {
+        if (!spot_account_id) {
+            throw Error('请先初始化getAccountId()')
+        }
+        const path = `/v1/account/accounts/${spot_account_id}/balance`;
 
         return this.auth_get<{list: BalanceItem[]}>(`${path}`);
     }
     /**
      * 查询当前未成交订单
-     * @param symbol 
-     * @param side 
-     * @param size 
+     * @param symbol
+     * @param side
+     * @param size
      */
     getOpenOrders(symbol: string, side: TradeType | null = null, size?: number) {
         const path = `/v1/order/openOrders`;
@@ -116,10 +138,10 @@ export class HuobiSDK extends HuobiSDKBase{
     }
     /**
      * 下单(现货)
-     * @param symbol 
-     * @param type 
-     * @param amount 
-     * @param price 
+     * @param symbol
+     * @param type
+     * @param amount
+     * @param price
      */
     order(symbol: string, type: string, amount: number, price: number) {
         const path = '/v1/order/orders/place'
@@ -166,33 +188,33 @@ export class HuobiSDK extends HuobiSDKBase{
         return this.auth_post( path, {symbol: symbol});
     }
 
-    async subMarketDepth({symbol, step}: {symbol: string, step?: string}, subscription: (data: MarketMessageData) => void) {
+    async subMarketDepth({symbol, step}: {symbol: string, step?: string}, subscription?: (data: MarketMessageData) => void) {
         const subMessage = WS_SUB.depth(symbol, step);
-        const market_cache_ws = await this.getWS('market_cache_ws');
+        const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage);
         }
-        this.on('market.depth', subscription);
+        this.addEvent('market.depth', subscription);
     }
-    async subMarketKline({symbol, period}: {symbol: string, period: CandlestickIntervalEnum}, subscription: (data: MarketMessageData) => void) {
+    async subMarketKline({symbol, period}: {symbol: string, period: CandlestickIntervalEnum}, subscription?: (data: MarketMessageData) => void) {
         const subMessage = WS_SUB.kline(symbol, period);
-        const market_cache_ws = await this.getWS('market_cache_ws');
+        const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage);
         }
-        this.on('market.kline', subscription);
+        this.addEvent('market.kline', subscription);
     }
-    async subMarketTrade({symbol}: {symbol: string}, subscription: (data: MarketMessageData) => void) {
+    async subMarketTrade({symbol}: {symbol: string}, subscription?: (data: MarketMessageData) => void) {
         const subMessage = WS_SUB.tradeDetail(symbol);
-        const market_cache_ws = await this.getWS('market_cache_ws');
+        const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage);
         }
-        this.on('market.trade', subscription);
+        this.addEvent('market.trade', subscription);
     }
 
-    async subAuth(subscription: (data: Record<string, any>) => void) {
-        const account_ws = await this.getWS('account_ws');
+    async subAuth(subscription?: (data: Record<string, any>) => void) {
+        const account_ws = await this.getSocket('account_ws');
         account_ws.json(
             WS_REQ_V2.auth(
                 this.options.accessKey,
@@ -201,17 +223,17 @@ export class HuobiSDK extends HuobiSDKBase{
             )
         );
 
-        this.on('auth', subscription);
+        this.addEvent('auth', subscription);
     }
-    async subAccountsUpdate({mode}: {mode?: 0 | 1 | 2}, subscription: (data: Record<string, any>) => void) {
+    async subAccountsUpdate({mode}: {mode?: 0 | 1 | 2}, subscription?: (data: Record<string, any>) => void) {
         const subMessage = WS_REQ_V2.accounts(mode);
-        const account_cache_ws = await this.getWS('account_cache_ws');
-        const account_ws = await this.getWS('account_ws');
+        const account_cache_ws = await this.getSocket('account_cache_ws');
+        const account_ws = await this.getSocket('account_ws');
         if (!account_cache_ws.hasCache(subMessage)) {
             account_cache_ws.setCache(subMessage);
             account_ws.json(subMessage);
         }
-        this.on('accounts.update', subscription);
+        this.addEvent('accounts.update', subscription);
     }
 }
 

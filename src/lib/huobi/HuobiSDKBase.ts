@@ -16,11 +16,11 @@ export interface HuobiSDKBaseOptions {
     /**
      * 自定义日志方法
      */
-    errLogger?: (...arg: any[]) => void;
+    errLogger?: (mssage: string, ...arg: any[]) => void;
     /**
      * 自定义日志方法
      */
-    outLogger?: (...arg: any[]) => void;
+    outLogger?: (mssage: string, ...arg: any[]) => void;
     /**
      * http相关设置
      */
@@ -55,9 +55,10 @@ const DEFAUTL_HTTP_OPTIONS = {
 };
 
 export class HuobiSDKBase extends EventEmitter {
+
+    static market_ws?: Sockette;
+    static account_ws?: Sockette;
     options: Required<HuobiSDKBaseOptions>;
-    market_ws?: Sockette;
-    account_ws?: Sockette;
     constructor(options?: Partial<HuobiSDKBaseOptions>) {
         super();
         if (!options) {
@@ -84,7 +85,8 @@ export class HuobiSDKBase extends EventEmitter {
             }
         });
     }
-    request<T>(path: string, options: HttpOptions): Promise<T> {
+    _request<T>(path: string, options: HttpOptions): Promise<T> {
+        console.log(path)
         return request<T>(path, {
             ...this.options.httpOptions,
             ...options
@@ -120,13 +122,16 @@ export class HuobiSDKBase extends EventEmitter {
                 this.errLogger(options.method, "-", path, "异常", ex);
             });
     }
+    request<T>(path: string, options: HttpOptions): Promise<T> {
+        return this._request<T>(`${this.options.url.rest}${path}`, options);
+    }
     auth_get<T = any>(
         path: string,
         params: Record<string, any> = {} as Record<string, any>
     ) {
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
-        return this.request<T>(PATH, {
+        return this._request<T>(PATH, {
             method: "GET",
             searchParams: signature("GET", PATH, accessKey, secretKey, params)
         });
@@ -134,55 +139,54 @@ export class HuobiSDKBase extends EventEmitter {
     auth_post<T = any>(path: string, data: Record<string, any>) {
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
-        return this.request<T>(PATH, {
+        return this._request<T>(PATH, {
             method: "POST",
             searchParams: signature("POST", PATH, accessKey, secretKey, data),
             json: data
         });
     }
 
-    errLogger(...arg) {
+    errLogger = (msg: string, ...arg: any[]) => {
         if (typeof this.options.errLogger === "function") {
-            this.options.errLogger(...arg);
+            this.options.errLogger(msg, ...arg);
             return;
         }
         const prefix = `[${dayjs()
             .utcOffset(8)
             .format("YYYY-MM-DD HH:mm:ss")}] [ERROR] `;
-
-        console.error(prefix, ...arg);
+        console.error(`${prefix} ${msg}`, ...arg);
     }
-    outLogger(...arg) {
+    outLogger = (msg: string, ...arg: any[]) => {
         if (typeof this.options.outLogger === "function") {
-            this.options.outLogger(...arg);
+            this.options.outLogger(msg, ...arg);
             return;
         }
         const prefix = `[${dayjs()
             .utcOffset(8)
-            .format("YYYY-MM-DD HH:mm:ss")}] [ERROR] `;
+            .format("YYYY-MM-DD HH:mm:ss")}] [INFO] `;
 
-        console.info(prefix, ...arg);
+        console.log(`${prefix} ${msg}`, ...arg);
     }
     createMarketWS() {
-        if (this.market_ws && this.market_ws.isOpen()) {
-            return this.market_ws;
+        if (HuobiSDKBase.market_ws && HuobiSDKBase.market_ws.isOpen()) {
+            return HuobiSDKBase.market_ws;
         }
 
-        this.market_ws = new Sockette(this.options.url.market_ws as string, {
+        HuobiSDKBase.market_ws = new Sockette(this.options.url.market_ws as string, {
             ...this.options.socket
         });
-        this.market_ws.on('open',  () => {
+        HuobiSDKBase.market_ws.on('open',  () => {
             this.emit('market_ws.open');
             this.outLogger(`${this.options.url.market_ws} open`);
         });
-        this.market_ws.on("message", ev => {
+        HuobiSDKBase.market_ws.on("message", ev => {
             const text = pako.inflate(ev.data, {
                 to: "string"
             });
             const msg = JSON.parse(text);
 
             if (msg.ping) {
-                (this.market_ws as Sockette).json({
+                (HuobiSDKBase.market_ws as Sockette).json({
                     pong: msg.ping
                 });
             } else if (msg.tick) {
@@ -191,7 +195,7 @@ export class HuobiSDKBase extends EventEmitter {
                 this.outLogger(`market_ws: on message ${text}`)
             }
         });
-        return this.market_ws;
+        return HuobiSDKBase.market_ws;
     }
     handleMarketWSMessage(msg) {
         if(!msg.ch) {
@@ -217,24 +221,24 @@ export class HuobiSDKBase extends EventEmitter {
         }
     }
     createAccountWS() {
-        if (this.account_ws && this.account_ws.isOpen()) {
-            return this.account_ws;
+        if (HuobiSDKBase.account_ws && HuobiSDKBase.account_ws.isOpen()) {
+            return HuobiSDKBase.account_ws;
         }
-     
-        this.account_ws = new Sockette(this.options.url.account_ws as string, {
+
+        HuobiSDKBase.account_ws = new Sockette(this.options.url.account_ws as string, {
             ...this.options.socket
         });
-        this.account_ws.on('open',  () => {
+        HuobiSDKBase.account_ws.on('open',  () => {
             this.emit('account_ws.open');
             this.outLogger(`${this.options.url.account_ws} open`);
         });
-        this.account_ws.on("message", ev => {
+        HuobiSDKBase.account_ws.on("message", ev => {
             if (typeof ev.data !== 'string') {
                 this.outLogger(`account_ws: !ev.data ${ev.data}`);
             }
             const msg = JSON.parse(ev.data as string);
             if (msg.action === 'ping') {
-                (this.account_ws as Sockette).json({
+                (HuobiSDKBase.account_ws as Sockette).json({
                     action: "pong",
                     data: {
                         ts: msg.data.ts // 使用Ping消息中的ts值
@@ -246,7 +250,7 @@ export class HuobiSDKBase extends EventEmitter {
                 this.outLogger(`account_ws: on message ${JSON.stringify(msg)}`);
             }
         });
-        return this.account_ws;
+        return HuobiSDKBase.account_ws;
     }
     handleAccountWSMessage(msg) {
         if(!msg.ch) {

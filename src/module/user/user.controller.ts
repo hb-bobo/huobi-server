@@ -4,7 +4,7 @@ import config from 'config';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { outLogger } from 'ROOT/common/logger';
-import { AUTHORITY } from 'ROOT/constants';
+import { AUTHORITY } from 'ROOT/constants/common';
 import { AppContext } from 'ROOT/interface/App';
 import * as UserService from './user.service';
 
@@ -26,9 +26,9 @@ export function get() {
     return UserService.find({});
 }
 /**
- * 
- * @param {Koa.Context} ctx 
- * @param {Function} next 
+ *
+ * @param {Koa.Context} ctx
+ * @param {Function} next
  */
 export const login = async (ctx: AppContext) => {
     const {userName, password} = ctx.request.body;
@@ -68,9 +68,9 @@ export const login = async (ctx: AppContext) => {
 
 
 /**
- * 
- * @param {Koa.Context} ctx 
- * @param {Function} next 
+ *
+ * @param {Koa.Context} ctx
+ * @param {Function} next
  */
 export const createUser = async (ctx: AppContext) => {
     const {userName, password} = ctx.request.body;
@@ -85,7 +85,7 @@ export const createUser = async (ctx: AppContext) => {
         ctx.sendError({message: '用户名已存在'});
         return;
     }
-    
+
     try {
         const newUser = await UserService.create(userName, password, AUTHORITY.user);
         if (newUser.id) {
@@ -98,8 +98,8 @@ export const createUser = async (ctx: AppContext) => {
 
 /**
  * 创建第一个用户
- * @param {Koa.Context} ctx 
- * @param {Function} next 
+ * @param {Koa.Context} ctx
+ * @param {Function} next
  */
 export const createFirstUser = async (ctx: AppContext) => {
     const {userName, password} = ctx.query;
@@ -121,9 +121,9 @@ export const createFirstUser = async (ctx: AppContext) => {
 }
 
 /**
- * 
- * @param {Koa.Context} ctx 
- * @param {Function} next 
+ *
+ * @param {Koa.Context} ctx
+ * @param {Function} next
  */
 export const userInfo = async (ctx: AppContext) => {
     if (!ctx.state.user) {

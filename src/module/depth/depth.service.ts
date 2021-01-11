@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { getConnection, getRepository } from "typeorm";
 import { errLogger } from "ROOT/common/logger";
-import { DEFAULT_PAGE_SIZE } from "ROOT/constants";
+import { DEFAULT_PAGE_SIZE } from "ROOT/constants/common";
 import { entitysMap, tableNameFactory, DepthDTO } from "./depth.entity";
 
 /**
@@ -9,9 +9,9 @@ import { entitysMap, tableNameFactory, DepthDTO } from "./depth.entity";
  */
 export const find = async function({start, end, symbol}) {
     const tableNames = tableNameFactory.queryWidthIntervalTime(start, end)
-    let query = tableNames.map((name) => {
+    const query = tableNames.map((name) => {
         return `
-        SELECT 
+        SELECT
             *
         FROM ${name}
         WHERE time BETWEEN '${dayjs(start).format('YYYY/MM/DD H:mm:ss')}' AND '${dayjs(end).format('YYYY/MM/DD H:mm:ss')}'

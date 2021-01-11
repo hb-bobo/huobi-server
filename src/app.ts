@@ -5,7 +5,7 @@ import http from 'http';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import cors from 'koa-cors';
-import koaJSON from 'koa-json';
+// import koaJSON from 'koa-json';
 import koaOnError from 'koa-onerror';
 import session from 'koa-session';
 import serve from 'koa-static';
@@ -14,8 +14,8 @@ import { errLogger, outLogger } from 'ROOT/common/logger';
 import { logger, send } from 'ROOT/middleware';
 import routes from 'ROOT/routes';
 import { socketIO } from 'ROOT/ws/socketIO';
-import './schedule';
 import './db/orm';
+import './huobi/start';
 // const debug = require('debug')('koa2:server')
 
 const app = new Koa();

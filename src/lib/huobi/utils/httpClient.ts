@@ -22,9 +22,7 @@ export const request = async function <T>(url, options: Options = {}) {
         method: options.method,
         timeout: options.timeout || 6000,
         headers: options.headers || DEFAULT_HEADER,
-        agent: {
-            http: keepAliveAgent,
-        },
+        agent: keepAliveAgent,
         json: options.json,
         responseType: 'json'
     })
