@@ -54,7 +54,7 @@ function start(accessKey, secretKey) {
         else {
             logger_1.outLogger.info(`huobi-ws closed:`, e.reason);
         }
-        // ws.reStart();
+        exports.ws.reStart();
     });
     exports.ws.on('error', function (e) {
         exports.ws.reStart();
