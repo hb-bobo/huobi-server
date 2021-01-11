@@ -18,7 +18,7 @@ exports.socketIO = socket_io_1.default({
 });
 const sockets = {};
 exports.socketIO.on('connection', function (socket) {
-    let unSub = () => { };
+    let unSub;
     sockets[socket.id] = socket;
     socket.on('sub', function ({ symbol }) {
         logger_1.outLogger.info('socketIO: onsub ', symbol);
@@ -33,7 +33,7 @@ exports.socketIO.on('connection', function (socket) {
         };
     });
     socket.on("disconnect", (reason) => {
-        unSub();
+        unSub && unSub();
         delete sockets[socket.id];
     });
     // 发送单个

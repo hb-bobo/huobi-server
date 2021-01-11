@@ -23,7 +23,7 @@ let TradeAccountEntity = /** @class */ (() => {
     ], TradeAccountEntity.prototype, "id", void 0);
     __decorate([
         typeorm_1.Column({ type: 'tinyint' }),
-        __metadata("design:type", Number)
+        __metadata("design:type", Object)
     ], TradeAccountEntity.prototype, "auto_trade", void 0);
     __decorate([
         typeorm_1.Column({ type: 'varchar', length: 10 }),

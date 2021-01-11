@@ -4,6 +4,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * 加权定投，以主观最高位，最低位(中长期)增长型定投
  */
 class DollarCostAvg {
+    /**
+     * 加权定投，以主观最高位，最低位(中长期)增长型定投
+     * @param option
+     */
     constructor(option) {
         /**
          * 你看涨的最大值
@@ -59,6 +63,8 @@ class DollarCostAvg {
             }
             mapPrice(buyList, 'buy');
             mapPrice(sellList, 'sell');
+            this.buyList = buyList;
+            this.sellList = sellList;
             return {
                 buyList,
                 sellList,
@@ -71,14 +77,44 @@ class DollarCostAvg {
         this.maxs = this.option.maxs;
         this.mins = this.option.mins;
     }
+    trade(close, action) {
+        if (this.buyList === undefined || this.sellList === undefined) {
+            this.splitBill();
+        }
+        for (let i = 0; i < this.buyList.length; i++) {
+            const element = this.buyList[i];
+            if (close < element.price && !element.invalid) {
+                if (this.buyList[i - 1] && close < this.buyList[i - 1].price) {
+                    continue;
+                }
+                element.invalid = true;
+                return {
+                    ...element,
+                    action: 'buy'
+                };
+            }
+        }
+        for (let i = 0; i < this.sellList.length; i++) {
+            const element = this.sellList[i];
+            if (close > element.price && !element.invalid) {
+                if (this.sellList[i - 1] && close > this.sellList[i - 1].price) {
+                    continue;
+                }
+                element.invalid = true;
+                return {
+                    ...element,
+                    action: 'sell'
+                };
+            }
+        }
+    }
+    updateConfig(config) {
+        Object.assign(this.option, config);
+        this.init();
+        this.splitBill();
+    }
 }
 exports.default = DollarCostAvg;
-const dc = new DollarCostAvg({
-    maxs: [11527],
-    mins: [8444],
-    minVolume: 1,
-    balance: 101,
-});
 // const price = 9500
 // const n = 10;
 // const max = 11000;

@@ -31,6 +31,7 @@ const DepthController = __importStar(require("../module/depth/Depth.controller")
 const WatchController = __importStar(require("../module/watch/watch.controller"));
 const MailController = __importStar(require("../module/email/config.controller"));
 const ConfigController = __importStar(require("../module/config/config.controller"));
+const TrainController = __importStar(require("../module/train/train.controller"));
 // /index
 const apiPrefix = '/api';
 const router = new koa_router_1.default();
@@ -51,3 +52,4 @@ router.get(`${apiPrefix}/config`, checkToken_1.default, ConfigController.index);
 router.post(`${apiPrefix}/config`, checkToken_1.default, ConfigController.create);
 router.get(`${apiPrefix}/trade`, checkToken_1.default, TradeController.get);
 router.get(`${apiPrefix}/depth`, checkToken_1.default, DepthController.get);
+router.post(`${apiPrefix}/train/download`, checkToken_1.default, TrainController.download);

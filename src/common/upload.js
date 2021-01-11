@@ -8,10 +8,10 @@ const config_1 = __importDefault(require("config"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const request_promise_1 = __importDefault(require("request-promise"));
-const utils_1 = require("../utils");
+const fs_2 = require("../utils/fs");
 const validator_1 = __importDefault(require("validator"));
 const publicPath = config_1.default.get('publicPath');
-utils_1.os.mkdir(path_1.default.join(publicPath, '/upload/'));
+fs_2.mkdir(path_1.default.join(publicPath, '/upload/'));
 // utils.mkdir(path.join(publicPath, '/upload/images/network'));
 /**
  * 通过远程文件上传到本地服务器
@@ -44,7 +44,7 @@ exports.uploadFromNetWork = (url, writePath, requestOption) => {
 // const relativePath = `/upload/network`;
 // // 图片上传目录绝对路径
 // const imgUploadPath = path.join(publicPath, relativePath);
-utils_1.os.mkdir(path_1.default.join(publicPath, '/upload/files/'));
+fs_2.mkdir(path_1.default.join(publicPath, '/upload/files/'));
 /**
  * 上传文件
  * @param {Files} files
@@ -55,7 +55,7 @@ exports.uploadFiles = async (files, host, relativePath) => {
     // 上传目录绝对路径
     const uploadPath = path_1.default.join(publicPath, relativePath);
     // 没有上传的路径则创建
-    await utils_1.os.mkdir(uploadPath);
+    await fs_2.mkdir(uploadPath);
     const data = {};
     const keys = Object.keys(files);
     try {

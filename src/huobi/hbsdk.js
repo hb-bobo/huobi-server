@@ -32,7 +32,7 @@ function sign_sha(method, curl, secretKey, data) {
     const { host, pathname } = url_1.default.parse(curl);
     // 将参数值 encode
     for (const key in data) {
-        if (data.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(data, "key")) {
             const value = data[key];
             pars.push(`${key}=${encodeURIComponent(value)}`);
         }
@@ -112,19 +112,16 @@ exports.hbsdk_commom = {
     getSymbols() {
         const path = `${BASE_URL}/v1/common/symbols`;
         return call_get(`${path}`);
-        ;
     },
     getMarketHistoryKline(params) {
         const path = `${BASE_URL}/market/history/kline`;
         return call_get(`${path}`, params);
-        ;
     },
 };
 function create_hbsdk({ accessKey, secretKey, account_id_pro } = {}) {
     return function () {
         function GET(path, params = {}) {
             return call_get(`${path}?${querystring_1.stringify(params)}&${auth('GET', path, accessKey, secretKey)}`);
-            ;
         }
         function POST(path, data) {
             return call_post(path, auth('POST', path, accessKey, secretKey, data), data);
@@ -134,13 +131,11 @@ function create_hbsdk({ accessKey, secretKey, account_id_pro } = {}) {
             get_account() {
                 const path = `${BASE_URL}/v1/contract_account_info`;
                 return GET(`${path}`);
-                ;
             },
             /** 获取账户信息 */
             get_balance(account_id_pro) {
                 const path = `${BASE_URL}/v1/account/accounts/${account_id_pro}/balance`;
                 return GET(`${path}`);
-                ;
             },
             /** 获取合约信息 */
             contract_contract_info() {

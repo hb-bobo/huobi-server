@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getRepeatCount = void 0;
 /**
  * 获取数组元素出现的次数
  * @param {Array<number & string>} arr
  * @return { object }
  */
-const getRepeatCount = function (arr) {
+exports.getRepeatCount = function (arr) {
     const res = {};
     arr.forEach(item => {
         if (res[item] === undefined) {
@@ -17,4 +18,3 @@ const getRepeatCount = function (arr) {
     });
     return res;
 };
-exports.default = getRepeatCount;

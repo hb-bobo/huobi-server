@@ -17,7 +17,7 @@ exports.prices = {
  */
 function getPriceIndex(symbol) {
     // btc eth交易对转美元
-    let _temp = {
+    const _temp = {
         usdt: 1,
         btc: price_1.default.get('btc'),
         eth: price_1.default.get('eth'),
@@ -25,7 +25,7 @@ function getPriceIndex(symbol) {
         husd: 1,
     };
     let _price = 0;
-    for (let key in _temp) {
+    for (const key in _temp) {
         if (symbol.endsWith(key)) {
             _price = _temp[key];
             break;

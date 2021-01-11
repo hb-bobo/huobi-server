@@ -21,7 +21,7 @@ class MA {
      */
     push(value) {
         // 数据量还不够${this.count}个
-        if (this.result.length < this.count) {
+        if (this.result.length < this.count - 1) {
             this.result.push('-');
             this._datas.push(value);
             return;
@@ -34,7 +34,7 @@ class MA {
         });
         this.result.push(sum / this._datas.length);
         // 只缓存最新的${this.count}个数据，多了就删除
-        if (this._datas.length > this.count) {
+        if (this._datas.length >= this.count) {
             this._datas.shift();
         }
         this.checkMax();

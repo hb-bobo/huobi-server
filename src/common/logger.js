@@ -39,10 +39,10 @@ log4js_1.default.configure({
 });
 // 创建log的根目录'logs'
 if (basePath) {
-    utils_1.os.mkdir(basePath);
+    utils_1.mkdir(basePath);
     // 根据不同的logType创建不同的文件目录
-    utils_1.os.mkdir(errorPath);
-    utils_1.os.mkdir(outPath);
+    utils_1.mkdir(errorPath);
+    utils_1.mkdir(outPath);
 }
 exports.outLogger = log4js_1.default.getLogger('out');
 exports.errLogger = log4js_1.default.getLogger('error');

@@ -14,8 +14,8 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 // };
 /**
  *
- * @param {object} emailConfig
- * @param {object} mailOptions
+ * @param emailConfig
+ * @param mailOptions
  */
 function sentMail(emailConfig, mailOptions) {
     return new Promise(function (resolve, reject) {
