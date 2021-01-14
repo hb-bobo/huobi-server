@@ -10,6 +10,8 @@ import * as WatchController from 'ROOT/module/watch/watch.controller';
 import * as MailController from 'ROOT/module/email/config.controller';
 import * as ConfigController from 'ROOT/module/config/config.controller';
 import * as TrainController from 'ROOT/module/train/train.controller';
+import AutoOrderConfigController from 'ROOT/module/auto-order-config/AutoOrderConfig.controller';
+
 // /index
 const apiPrefix = '/api';
 const router = new Router<AppState, AppContext>();
@@ -42,3 +44,7 @@ router.get(`${apiPrefix}/trade-history`, checkToken, TradeHistoryController.get)
 router.get(`${apiPrefix}/depth`, checkToken, DepthController.get);
 
 router.post(`${apiPrefix}/train/download`, checkToken, TrainController.download);
+
+router.get(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.index);
+router.post(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.updateOne);
+router.delete(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.removeOne);

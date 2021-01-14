@@ -44,3 +44,15 @@ content-type: application/json
     "period": "5min",
     "size": 2000
 }
+
+###
+# @name 自动下单
+POST   {{currentURL}}/auto-order-config
+Authorization: test
+content-type: application/json
+
+{
+    "symbol": "btcusdt",
+    "buy_usdt": 10,
+    "sell_usdt": 10
+}

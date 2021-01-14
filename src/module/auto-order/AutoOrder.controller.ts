@@ -12,7 +12,7 @@ export default class AutoOrderController {
         try {
             let res: OrderEntity | OrderEntity[] | undefined;
             if (id) {
-                res = await AutoOrderService.findOne({id});
+               
                 if (!res) {
                     ctx.sendError({message: 'error'});
                     return;
@@ -70,7 +70,7 @@ export default class AutoOrderController {
         try {
             let res;
             if (data.id || data._id) {
-                res = await AutoOrderService.updateOne({id: data.id || data._id}, data);
+                //
             } else if (data.title) {
                 res = await AutoOrderService.create(data);
             } else {
@@ -93,10 +93,10 @@ export default class AutoOrderController {
     public static  removeOne = async (ctx: AppContext) => {
         const data = ctx.request.body;
         try {
-            const res = await AutoOrderService.deleteOne({id: data._id});
-            ctx.sendSuccess({
-                data: res
-            });
+            // const res = await AutoOrderService.deleteOne({id: data._id});
+            // ctx.sendSuccess({
+            //     data: res
+            // });
         } catch (error) {
             ctx.sendError({message: error});
         }

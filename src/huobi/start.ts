@@ -12,6 +12,7 @@ import { hbsdk } from './hbsdk';
 
 dbEvent.on('connected', start);
 
+export const trader = new Trader(hbsdk);
 /**
  * 自动任务开始
  */
@@ -25,20 +26,20 @@ export async function start() {
     hbsdk.setOptions({
         accessKey: account.access_key,
         secretKey: account.secret_key,
-        // errLogger: (msg) => {
-        //     errLogger.error(msg);
-        // },
-        // outLogger: (msg) => {
-        //     outLogger.info(msg);
-        // },
+        errLogger: (msg) => {
+            errLogger.error(msg);
+        },
+        outLogger: (msg) => {
+            outLogger.info(msg);
+        },
         url:{
             rest: REST_URL,
             market_ws: MARKET_WS,
             account_ws: ACCOUNT_WS,
         }
     })
-    const trader = new Trader(hbsdk);
-    await hbsdk.getAccountId();
+    
+
     const WatchEntityList = await WatchService.find();
 
     // redis.set(

@@ -26,6 +26,7 @@ export const getSymbolInfo = async function (symbol?: string) {
             symbol.startsWith(symbolInfo['base-currency'])
             && symbol.endsWith(symbolInfo['quote-currency'])
         ) {
+
             return symbolInfo;
         }
     }

@@ -17,7 +17,7 @@ interface Options {
     /**
      * 最小交易单位
      */
-    minVolume?: number,
+    minVolume: number,
 }
 
 /**

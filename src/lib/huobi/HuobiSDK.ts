@@ -42,7 +42,7 @@ export class HuobiSDK extends HuobiSDKBase{
             this.on(event, callback);
         }
     }
-    setOptions(options: HuobiSDKOptions) {
+    setOptions = (options: HuobiSDKOptions) => {
         super.setOptions(options);
     }
 
@@ -52,6 +52,12 @@ export class HuobiSDK extends HuobiSDKBase{
                 const market_ws = this.createMarketWS();
                 if (this.market_cache_ws == undefined) {
                     this.market_cache_ws = new CacheSockette(market_ws);
+                    this.market_cache_ws.ws.on('error', () => {
+                        (this.market_cache_ws as any).reStart();
+                    });
+                    this.market_cache_ws.ws.on('close', () => {
+                        (this.market_cache_ws as any).reStart();
+                    });
                 }
                 this.on('market_ws.open', () => {
                     resolve(this[type] || HuobiSDKBase[type]);
@@ -193,7 +199,7 @@ export class HuobiSDK extends HuobiSDKBase{
         return this.auth_post( path, {symbol: symbol});
     }
 
-    async subMarketDepth({symbol, step}: {symbol: string, step?: string}, subscription?: (data: MarketMessageData) => void) {
+    async subMarketDepth({symbol, step}: {symbol: string, step?: string}, subscription?: (data: MarketMessageData<{bids: any[], asks: any[]}>) => void) {
         const subMessage = WS_SUB.depth(symbol, step);
         const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {

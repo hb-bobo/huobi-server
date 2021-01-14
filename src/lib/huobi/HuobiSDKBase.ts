@@ -61,7 +61,7 @@ export class HuobiSDKBase extends EventEmitter {
     static market_ws_status?: 'creating' | 'created'
     static account_ws_status?: 'creating' | 'created'
 
-    options: Required<HuobiSDKBaseOptions>;
+    options: Required<HuobiSDKBaseOptions> = {} as Required<HuobiSDKBaseOptions>;
     constructor(options?: Partial<HuobiSDKBaseOptions>) {
         super();
         if (!options) {
@@ -69,26 +69,31 @@ export class HuobiSDKBase extends EventEmitter {
         }
         this.setOptions(options);
     }
-    setOptions(options: Partial<HuobiSDKBaseOptions>) {
-        this.options = options as Required<HuobiSDKBaseOptions>;
+    setOptions  (options: Partial<HuobiSDKBaseOptions> = {})  {
+        const {httpOptions, url, socket, ...otherOptions } = options;
+
         Object.assign(this.options, {
             httpOptions: {
                 ...DEFAUTL_HTTP_OPTIONS,
-                ...(options.httpOptions || {})
+                ...(httpOptions || {})
             },
             url: {
                 rest: REST_URL,
                 market_ws: MARKET_WS,
                 account_ws: ACCOUNT_WS,
-                ...(options.url || {})
+                ...(url || {})
             },
             socket: {
-                ...(options.socket || {}),
+                ...(socket || {}),
                 ...SOCKET_CONFIG
-            }
+            },
+
         });
+        if (otherOptions) {
+            Object.assign(this.options, otherOptions);
+        }
     }
-    _request<T>(path: string, options: HttpOptions): Promise<T> {
+    _request = <T>(path: string, options: HttpOptions): Promise<T> => {
 
         return request<T>(path, {
             ...this.options.httpOptions,
@@ -110,13 +115,14 @@ export class HuobiSDKBase extends EventEmitter {
                 this.errLogger(options.method as string, "-", path, "异常", err);
             });
     }
-    request<T>(path: string, options: HttpOptions): Promise<T> {
+    request = <T>(path: string, options: HttpOptions): Promise<T> => {
+
         return this._request<T>(`${this.options.url.rest}${path}`, options);
     }
-    auth_get<T = any>(
+    auth_get = <T = any>(
         path: string,
         params: Record<string, any> = {} as Record<string, any>
-    ) {
+    ) => {
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
 
@@ -125,7 +131,7 @@ export class HuobiSDKBase extends EventEmitter {
             searchParams: signature("GET", PATH, accessKey, secretKey, params)
         });
     }
-    auth_post<T = any>(path: string, data: Record<string, any>) {
+    auth_post = <T = any>(path: string, data: Record<string, any>) => {
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
         return this._request<T>(PATH, {
@@ -169,7 +175,6 @@ export class HuobiSDKBase extends EventEmitter {
         HuobiSDKBase.market_ws.on('open',  () => {
             this.emit('market_ws.open');
             this.outLogger(`${this.options.url.market_ws} open`);
-
         });
         HuobiSDKBase.market_ws.on("message", ev => {
             const text = pako.inflate(ev.data, {
@@ -184,14 +189,19 @@ export class HuobiSDKBase extends EventEmitter {
             } else if (msg.tick) {
                 this.handleMarketWSMessage(msg);
             } else {
-                this.outLogger(`market_ws: on message ${text}`)
+                this.outLogger(`market_ws: on message ${text}`);
             }
         });
-        HuobiSDKBase.market_ws.on("error", ev => {
-            HuobiSDKBase.market_ws_status = undefined;
+        HuobiSDKBase.market_ws.on('close', (e) => {
+            if (e.code === 1006) {
+                this.errLogger(`market_ws closed:`, 'connect ECONNREFUSED');
+            }
+            else {
+                this.errLogger(`market_ws closed:`, e.reason);
+            }
         });
-        HuobiSDKBase.market_ws.on("close", ev => {
-            HuobiSDKBase.market_ws_status = undefined;
+        HuobiSDKBase.market_ws.on('error', (e) => {
+            this.errLogger(`market_ws  error: `, e.message);
         });
         return HuobiSDKBase.market_ws;
     }
@@ -252,6 +262,17 @@ export class HuobiSDKBase extends EventEmitter {
                 this.outLogger(`account_ws: on message ${JSON.stringify(msg)}`);
             }
         });
+        HuobiSDKBase.account_ws.on('close', (e) => {
+            if (e.code === 1006) {
+                this.errLogger(`account_ws closed:`, 'connect ECONNREFUSED');
+            }
+            else {
+                this.errLogger(`account_ws closed:`, e.reason);
+            }
+        });
+        HuobiSDKBase.account_ws.on('error', (e) => {
+            this.errLogger(`account_ws  error: `, e.message);
+        });
         return HuobiSDKBase.account_ws;
     }
     handleAccountWSMessage(msg) {
@@ -261,7 +282,7 @@ export class HuobiSDKBase extends EventEmitter {
         const [channel] = msg.ch.split('#');
         switch(channel) {
             case 'auth':
-                this.emit('auth', undefined);
+                this.emit('auth', msg);
                 break;
             case 'accounts.update':
                 this.emit('accounts.update', msg.data);

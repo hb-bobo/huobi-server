@@ -5,6 +5,7 @@ import { AppContext } from 'ROOT/interface/App';
 
 import AutoOrderConfigEntity from './AutoOrderConfig.entity';
 import * as AutoOrderConfigService from './AutoOrderConfig.service';
+import { trader } from 'ROOT/huobi/start';
 
 export default class AutoOrderConfigLogController {
     public static index = async (ctx: AppContext) => {
@@ -39,27 +40,12 @@ export default class AutoOrderConfigLogController {
                 type: "string",
                 required: true,
             },
-            amount: {
+            buy_usdt: {
                 type: "number",
             },
-            money: {
+            sell_usdt: {
                 type: "number",
-            },
-            buyCount: {
-                type: "number",
-            },
-            sellCount: {
-                type: "number",
-            },
-            // tradeType: {
-            //     type: "string",
-            // },
-            period: {
-                type: "number",
-            },
-            forceTrade: {
-                type: "boolean",
-            },
+            }
         });
         try {
             await validator.validate(data);
@@ -71,8 +57,13 @@ export default class AutoOrderConfigLogController {
             let res;
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
-            } else if (data.title) {
-                res = await AutoOrderConfigService.create(data);
+            } else if (data) {
+    
+                res = await AutoOrderConfigService.create({
+                    ...data,
+                    userId: ctx.state.user && ctx.state.user.id
+                });
+                await trader.autoTrader(data);
             } else {
                 ctx.sendError({message: '格式有误'});
                 return;

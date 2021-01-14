@@ -27,6 +27,10 @@ export default class Sockette extends EventEmitter {
     public max: number;
     public opts: Partial<SocketteOptions> & typeof defaultOptions;
     public url: string;
+    /**
+     * 缓存opened之前调用的消息
+     */
+    public messageCache: string[];
     constructor(url: string, opts: SocketteOptions = {}) {
         super();
         this.url = url;
@@ -34,6 +38,7 @@ export default class Sockette extends EventEmitter {
         this.num = 0;
         this.timer = 1;
         this.max = opts.maxAttempts === undefined ? Infinity :  opts.maxAttempts;
+        this.messageCache = [];
         this.open();
     }
     /**
@@ -58,6 +63,10 @@ export default class Sockette extends EventEmitter {
         this.wss.onopen = (e) => {
             this.emit('open', e);
             this.num = 0;
+            this.messageCache.forEach(msg => {
+                this.send(msg);
+            });
+            this.messageCache = [];
         };
 
         this.wss.onclose = (e) => {
@@ -88,14 +97,18 @@ export default class Sockette extends EventEmitter {
     };
 
     public send = (message: any) => {
+        // opening
+        if (this.wss.readyState === 0) {
+            this.messageCache.push(message);
+            return;
+        }
         if (!this.isOpen()) {
-            console.log('send', message)
-            // this.emit('error', {
-            //     error: 'error',
-            //     message: 'ws is not opening',
-            //     type: 'error',
-            //     target: this.wss,
-            // })
+            this.emit('error', {
+                error: 'error',
+                message: 'ws is not opening',
+                type: 'error',
+                target: this.wss,
+            })
             return;
         }
         this.wss.send(message);
