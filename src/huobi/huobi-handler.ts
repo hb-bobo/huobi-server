@@ -10,6 +10,7 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
 import { autoToFixed, getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
 import { getPriceIndex, getSameAmount } from './util';
+import { MarketMessageData } from 'ROOT/lib/huobi/HuobiSDK';
 
 
 
@@ -30,7 +31,7 @@ async function getWatchSymbols() {
     }
     return watchSymbols;
 }
-export async function handleDepth(data) {
+export async function handleDepth(data: MarketMessageData) {
     const symbol = data.symbol;
     await getWatchSymbols();
     if (typeof depthHandles[symbol] !== 'function') {
@@ -41,28 +42,29 @@ export async function handleDepth(data) {
     symbol:"bchusdt"
     tick:Object {bids: Array(150), asks: Array(150), ts: 1554568106017, …}
     type:"WS_HUOBI" */
-    // console.log(data)
-    depthHandles[symbol](data);
+
+    depthHandles[symbol]({symbol, ...data.data});
 }
 
-export async function handleKline(data) {
+export async function handleKline(data: MarketMessageData) {
+
     const symbol = data.symbol;
     await getWatchSymbols();
     if (symbol === 'btcusdt') {
-        symbolPrice.set('btc', data.kline.close);
+        symbolPrice.set('btc', data.data.close);
     } else if (symbol === 'etcusdt') {
-        symbolPrice.set('eth', data.kline.close);
+        symbolPrice.set('eth', data.data.close);
     } else if (symbol === 'htusdt') {
-        symbolPrice.set('ht', data.kline.close);
+        symbolPrice.set('ht', data.data.close);
     }
 
-    delete data.kline.id;
+    delete data.data.id;
     ws_event.emit("server:ws:message", {
         from: SocketFrom.server,
         type: EventTypes.huobi_kline,
         data: {
             symbol: symbol,
-            ...data.kline,
+            ...data.data,
             // ch: data.ch,
         },
     });
@@ -70,6 +72,7 @@ export async function handleKline(data) {
 export async function handleTrade(data) {
     const symbol = data.symbol;
 
+    const list = data.data;
     await getWatchSymbols();
     if (tradeHandles[symbol] === undefined) {
         tradeHandles[symbol] = new StatisticalTrade({
@@ -97,7 +100,8 @@ export async function handleTrade(data) {
             });
         });
     }
-    tradeHandles[symbol].merge(data.trade);
+
+    tradeHandles[symbol].merge(list);
 }
 
 
@@ -114,9 +118,10 @@ const status = {}
 /**
  * 处理深度数据
  */
-const analyseAndWriteDepth = async function (data: { tick: any, symbol: string, ch }) {
+const analyseAndWriteDepth = async function (data: {symbol: string, bids: any[], asks: any[] }) {
 
-    if (!data.tick || !data.symbol) {
+    if (!data.symbol) {
+
         throw Error(`data.tick, data.symbol`);
     }
 
@@ -124,8 +129,8 @@ const analyseAndWriteDepth = async function (data: { tick: any, symbol: string, 
     // 价格系数， 价格换算成usdt ，如果交易对是btc， 要*btc的usdt价格
     const _price = getPriceIndex(symbol);
 
-    const originBids = data.tick.bids;
-    const originAsks = data.tick.asks;
+    const originBids = data.bids;
+    const originAsks = data.asks;
     const bids1 = originBids[0];
     const bids2 = originBids[1];
     const aks1 = originAsks[0];
@@ -153,7 +158,6 @@ const analyseAndWriteDepth = async function (data: { tick: any, symbol: string, 
             asksList,
             aks1,
             bids1,
-            ch: data.ch,
         },
 
     });

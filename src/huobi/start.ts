@@ -38,7 +38,7 @@ export async function start() {
         }
     })
     const trader = new Trader(hbsdk);
-
+    await hbsdk.getAccountId();
     const WatchEntityList = await WatchService.find();
 
     // redis.set(

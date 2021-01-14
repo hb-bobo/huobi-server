@@ -26,7 +26,7 @@ interface SymbolConfig{
 export class Trader {
     static symbolInfoMap: Record<string, SymbolInfo> = {};
     sdk: HuobiSDK;
-    _balanceMap: Record<string, number>;
+    _balanceMap: Record<string, number> = {};
     bidsList: any[];
     asksList: any[];
     orderConfigMap: Record<string, SymbolConfig>;
@@ -63,7 +63,7 @@ export class Trader {
      * 获取余额
      * @param symbol usdt btc ht
      */
-    getBalance(symbol?: string) {
+    getBalance = (symbol?: string) => {
         if (this._balanceMap && symbol) {
             return this._balanceMap[symbol]
         }

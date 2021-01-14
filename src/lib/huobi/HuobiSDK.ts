@@ -9,11 +9,11 @@ import { Sockette } from "../sockette";
 export interface HuobiSDKOptions extends HuobiSDKBaseOptions {
 
 }
-export interface MarketMessageData {
+export interface MarketMessageData<T = any> {
     channel: string;
-    ch: string;
+    ch?: string;
     symbol: string;
-    tick: any;
+    data: T;
 }
 
 export class HuobiSDK extends HuobiSDKBase{
@@ -45,18 +45,23 @@ export class HuobiSDK extends HuobiSDKBase{
     setOptions(options: HuobiSDKOptions) {
         super.setOptions(options);
     }
+
     getSocket = (type: 'market_cache_ws' | 'account_cache_ws' | 'market_ws' | 'account_ws') => {
         return new Promise<CacheSockette & Sockette>((resolve, reject) => {
             if (this['market_cache_ws'] === undefined || this['market_ws'] === undefined) {
                 const market_ws = this.createMarketWS();
-                this.market_cache_ws = new CacheSockette(market_ws);
+                if (this.market_cache_ws == undefined) {
+                    this.market_cache_ws = new CacheSockette(market_ws);
+                }
                 this.on('market_ws.open', () => {
                     resolve(this[type] || HuobiSDKBase[type]);
                 });
             }
             if (this['account_cache_ws'] === undefined || this['account_ws'] === undefined) {
                 const account_ws = this.createAccountWS();
-                this.account_cache_ws = new CacheSockette(account_ws);
+                if (this.account_cache_ws === undefined) {
+                    this.account_cache_ws = new CacheSockette(account_ws);
+                }
                 this.on('account_ws.open', () => {
                     resolve(this[type]  || HuobiSDKBase[type]);
                 });

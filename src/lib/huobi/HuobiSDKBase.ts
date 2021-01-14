@@ -58,6 +58,9 @@ export class HuobiSDKBase extends EventEmitter {
 
     static market_ws?: Sockette;
     static account_ws?: Sockette;
+    static market_ws_status?: 'creating' | 'created'
+    static account_ws_status?: 'creating' | 'created'
+
     options: Required<HuobiSDKBaseOptions>;
     constructor(options?: Partial<HuobiSDKBaseOptions>) {
         super();
@@ -86,7 +89,7 @@ export class HuobiSDKBase extends EventEmitter {
         });
     }
     _request<T>(path: string, options: HttpOptions): Promise<T> {
-        console.log(path)
+
         return request<T>(path, {
             ...this.options.httpOptions,
             ...options
@@ -97,29 +100,14 @@ export class HuobiSDKBase extends EventEmitter {
                     if (json.status === "ok") {
                         return json.data || json;
                     } else {
-                        const ERROR = {
-                            method: options.method,
-                            data: data,
-                            message: '错误',
-                            url: path,
-                        };
-                        throw ERROR;
+                        this.errLogger(options.method as string, "-", path, "服务错误", json['err-msg']);
                     }
                 } catch (error) {
-                    const ERROR = {
-                        method: options.method,
-                        message: error,
-                        url: path,
-                    };
-                    throw ERROR;
+                    this.errLogger(options.method as string, "-", path, "解析异常", error);
                 }
             })
-            .catch(ex => {
-                if (ex.url) {
-                    this.errLogger(ex);
-                    return;
-                }
-                this.errLogger(options.method, "-", path, "异常", ex);
+            .catch(err => {
+                this.errLogger(options.method as string, "-", path, "异常", err);
             });
     }
     request<T>(path: string, options: HttpOptions): Promise<T> {
@@ -131,6 +119,7 @@ export class HuobiSDKBase extends EventEmitter {
     ) {
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
+
         return this._request<T>(PATH, {
             method: "GET",
             searchParams: signature("GET", PATH, accessKey, secretKey, params)
@@ -168,9 +157,11 @@ export class HuobiSDKBase extends EventEmitter {
         console.log(`${prefix} ${msg}`, ...arg);
     }
     createMarketWS() {
-        if (HuobiSDKBase.market_ws && HuobiSDKBase.market_ws.isOpen()) {
+
+        if (HuobiSDKBase.market_ws) {
             return HuobiSDKBase.market_ws;
         }
+
 
         HuobiSDKBase.market_ws = new Sockette(this.options.url.market_ws as string, {
             ...this.options.socket
@@ -178,6 +169,7 @@ export class HuobiSDKBase extends EventEmitter {
         HuobiSDKBase.market_ws.on('open',  () => {
             this.emit('market_ws.open');
             this.outLogger(`${this.options.url.market_ws} open`);
+
         });
         HuobiSDKBase.market_ws.on("message", ev => {
             const text = pako.inflate(ev.data, {
@@ -195,6 +187,12 @@ export class HuobiSDKBase extends EventEmitter {
                 this.outLogger(`market_ws: on message ${text}`)
             }
         });
+        HuobiSDKBase.market_ws.on("error", ev => {
+            HuobiSDKBase.market_ws_status = undefined;
+        });
+        HuobiSDKBase.market_ws.on("close", ev => {
+            HuobiSDKBase.market_ws_status = undefined;
+        });
         return HuobiSDKBase.market_ws;
     }
     handleMarketWSMessage(msg) {
@@ -203,10 +201,14 @@ export class HuobiSDKBase extends EventEmitter {
         }
         const [type, symbol, channel] = msg.ch.split('.');
         const commonData = {
-            ...msg,
+            data: {
+                ...msg.tick,
+            },
+            ch: msg.ch,
             channel: channel,
             symbol,
         }
+
         switch(channel) {
             case 'depth':
                 this.emit('market.depth', commonData);
@@ -221,7 +223,7 @@ export class HuobiSDKBase extends EventEmitter {
         }
     }
     createAccountWS() {
-        if (HuobiSDKBase.account_ws && HuobiSDKBase.account_ws.isOpen()) {
+        if (HuobiSDKBase.account_ws) {
             return HuobiSDKBase.account_ws;
         }
 
