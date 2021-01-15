@@ -1,6 +1,6 @@
 
 import { outLogger } from "ROOT/common/logger";
-import { HuobiSDK } from "ROOT/lib/huobi";
+import { HuobiSDK } from "ROOT/lib/huobi-sdk";
 import { Quant } from "ROOT/lib/quant";
 import Backtest from "ROOT/lib/quant/Backtest";
 

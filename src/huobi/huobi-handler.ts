@@ -10,7 +10,7 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
 import { autoToFixed, getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
 import { getPriceIndex, getSameAmount } from './util';
-import { MarketMessageData } from 'ROOT/lib/huobi/HuobiSDK';
+import { MarketMessageData } from 'ROOT/lib/huobi-sdk/lib/HuobiSDK';
 
 
 

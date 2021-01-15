@@ -5,7 +5,7 @@ import { dbEvent } from "ROOT/db/orm";
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { errLogger, outLogger } from 'ROOT/common/logger';
 import { Trader } from 'ROOT/huobi/Trader';
-import { CandlestickIntervalEnum } from "ROOT/lib/huobi";
+import { CandlestickIntervalEnum } from "ROOT/lib/huobi-sdk";
 import { REST_URL, MARKET_WS, ACCOUNT_WS } from "ROOT/constants/huobi";
 import { handleDepth, handleKline, handleTrade } from './huobi-handler';
 import { hbsdk } from './hbsdk';
