@@ -9,7 +9,7 @@ import AutoOrderConfigEntity from "./AutoOrderConfig.entity";
  * @param {object} query
  */
 export const find = async function(query: Record<string, any>) {
-    const res = await AutoOrderConfigEntity.find({})
+    const res = await AutoOrderConfigEntity.find(query)
     return res;
 }
 

@@ -14,7 +14,7 @@ interface SymbolConfig{
     price: number;
     buy_usdt: number;
     sell_usdt: number;
-    period?: Period;
+    period?: number;
 
     tradeHandle: StatisticalTrade;
     quant: Quant;
@@ -44,8 +44,12 @@ export class Trader {
         "takerFeeRate": 0.002,
     };
     constructor(sdk) {
-
         this.sdk = sdk;
+        if (this.sdk.options.url) {
+            this.init();
+        }
+    }
+    init() {
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         })
@@ -96,7 +100,7 @@ export class Trader {
         symbol,
         buy_usdt,
         sell_usdt,
-        period,
+        period = 5,
         // forceTrade,
     }) {
         await this.getSymbolInfo(symbol);
@@ -107,7 +111,7 @@ export class Trader {
             baseCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['base-currency']],
             minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
         });
-        console.log(this._balanceMap)
+
         this.orderConfigMap[symbol] = {
             buy_usdt,
             sell_usdt,
@@ -129,15 +133,15 @@ export class Trader {
             },
             trainer: new Trainer(quant, this.sdk)
         }
-        
+
         this.sdk.subMarketDepth({symbol}, throttle((data) => {
              // 处理数据
             const bidsList = getSameAmount(data.data.bids, {
                 type: 'bids',
                 symbol: symbol,
             });
-        
-            
+
+
             const asksList = getSameAmount(data.data.asks, {
                 type: 'asks',
                 symbol: symbol,
@@ -148,10 +152,10 @@ export class Trader {
             };
         }, 10000, {leading: true}));
 
-        this.sdk.subMarketKline({symbol, period: period || CandlestickIntervalEnum.MIN1}, (data) => {
+        this.sdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN1}, (data) => {
             this.orderConfigMap[symbol].price = data.data.close;
         })
-        const data = await this.sdk.getMarketHistoryKline(symbol, period);
+        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5);
         const rData = data.reverse();
         quant.analysis(rData as any[]);
         this.orderConfigMap[symbol].trainer.run(rData).then((config) => {

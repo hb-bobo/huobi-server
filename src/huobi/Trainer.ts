@@ -11,13 +11,19 @@ export class Trainer {
         this.quant = quant;
         this.sdk = sdk;
     }
+    getTop(result: any[]) {
+        const sortedList = result.sort((a, b) => {
+            return  b.return - a.return
+        });
+        return sortedList[0];
+    }
     /**
      * 训练
      */
     async run(history?: any[]) {
-        const overRatio = await this.trainOverRatio(history);
-        const amountRatio = await this.trainAmountRatio(history);
-     
+        const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
+        const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
+
         outLogger.info('训练完成:', this.quant.config.symbol, overRatio, amountRatio);
         const config = {
             ...overRatio,
@@ -55,7 +61,7 @@ export class Trainer {
         })[] = [];
         for (let oversoldRatio = 0.01; oversoldRatio < 0.09; oversoldRatio = oversoldRatio + 0.002) {
             for (let overboughtRatio = -0.01; overboughtRatio > -0.09; overboughtRatio = overboughtRatio - 0.002) {
-    
+
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
                     buyAmount: this.quant.config.minVolume * 10,
@@ -63,7 +69,7 @@ export class Trainer {
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 })
-    
+
                 quant.mockUse(function (row) {
                     if (!row.MA5 || !row.MA60 || !row.MA30) {
                         return;
@@ -75,7 +81,7 @@ export class Trainer {
                         bt.buy(row.close);
                     }
                 });
-                
+
                 result.push({
                     oversoldRatio: oversoldRatio,
                     overboughtRatio: overboughtRatio,
@@ -83,10 +89,11 @@ export class Trainer {
                 })
             }
         }
-        const sortedList = result.sort((a, b) => {
-            return  b.return - a.return
-        });
-        return sortedList[0];
+        return result;
+        // const sortedList = result.sort((a, b) => {
+        //     return  b.return - a.return
+        // });
+        // return sortedList[0];
     }
     async trainAmountRatio(history?: any[]) {
         if (!history) {
@@ -110,7 +117,7 @@ export class Trainer {
         })[] = [];
         for (let sellAmountRatio = 1; sellAmountRatio < 8; sellAmountRatio = sellAmountRatio + 0.1) {
             for (let buyAmountRatio = 1; buyAmountRatio < 8; buyAmountRatio = buyAmountRatio + 0.1) {
-    
+
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
                     buyAmount: this.quant.config.minVolume * 10,
@@ -136,7 +143,7 @@ export class Trainer {
                         }
                     }
                 });
-                
+
                 result.push({
                     sellAmountRatio,
                     buyAmountRatio,
@@ -144,9 +151,6 @@ export class Trainer {
                 })
             }
         }
-        const sortedList = result.sort((a, b) => {
-            return  b.return - a.return
-        });
-        return sortedList[0];
+        return result;
     }
 }

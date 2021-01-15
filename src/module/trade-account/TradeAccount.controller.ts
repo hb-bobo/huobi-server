@@ -100,12 +100,15 @@ export const updateOne = async (ctx: AppContext) => {
             res = await TradeAccountService.updateOne({id: ID}, DATA);
             ctx.sendSuccess();
         } else {
-            res = await TradeAccountService.create(DATA);
+            res = await TradeAccountService.create({
+                ...DATA,
+                userId: ctx.state.user && ctx.state.user.id
+            });
             ctx.sendSuccess({
                 data: res
             });
         }
-        
+
 
     } catch (error) {
         ctx.sendError({message: error});

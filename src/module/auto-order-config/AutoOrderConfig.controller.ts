@@ -53,12 +53,14 @@ export default class AutoOrderConfigLogController {
             ctx.sendError({errors});
             return;
         }
+
         try {
             let res;
+
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
             } else if (data) {
-    
+
                 res = await AutoOrderConfigService.create({
                     ...data,
                     userId: ctx.state.user && ctx.state.user.id

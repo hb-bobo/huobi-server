@@ -5,8 +5,9 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 export default class AutoOrderConfigEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
-    @Column({type: 'varchar', length: 10})
-    public userId!: string;
+
+    @Column()
+    public userId!: number;
 
     @Column({type: 'varchar', length: 10})
     public symbol!: string;
