@@ -19,9 +19,9 @@ socketIO.on('connection', function (socket) {
         outLogger.info('socketIO: onsub ', symbol)
         symbol = symbol.toLowerCase();
 
-        const unSubMarketDepth = hbsdk.subMarketDepth({symbol});
-        const unSubMarketKline = hbsdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN1});
-        const unsubMarketTrade = hbsdk.subMarketTrade({symbol});
+        const unSubMarketDepth = hbsdk.subMarketDepth({symbol, id: socket.id});
+        const unSubMarketKline = hbsdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN1, id: socket.id});
+        const unsubMarketTrade = hbsdk.subMarketTrade({symbol, id: socket.id});
         // ws.sub(WS_SUB.kline(symbol, '1min'), socket.id);
         // ws.sub(WS_SUB.depth(symbol), socket.id);
         // ws.sub(WS_SUB.tradeDetail(symbol), socket.id);
@@ -42,10 +42,12 @@ socketIO.on('connection', function (socket) {
     outLogger.info(`socket connected: ${socket.id}`);
 });
 ws_event.on("server:ws:message", function(data) {
+
     if (data.data && data.data.symbol) {
         if (!hbsdk.market_cache_ws) {
             return;
         }
+
         for (const key in hbsdk.market_cache_ws.cache) {
             if (!Object.prototype.hasOwnProperty.call(hbsdk.market_cache_ws.cache, key)) {
                 return;

@@ -36,7 +36,7 @@ export interface AppConfig{
 export interface AppState{
     user?: {
         user: string;
-        id: string;
+        id: number;
     }
 }
 export interface CustomContext{

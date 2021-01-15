@@ -1,6 +1,7 @@
 
 import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
+import * as AutoOrderConfigService from 'ROOT/module/auto-order-config/AutoOrderConfig.service';
 import { dbEvent } from "ROOT/db/orm";
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { errLogger, outLogger } from 'ROOT/common/logger';
@@ -18,10 +19,13 @@ export const trader = new Trader(hbsdk);
  */
 export async function start() {
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
+
     outLogger.info(`start: ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
+
+    const autoOrderList = await AutoOrderConfigService.find({userId: account.userId})
 
     hbsdk.setOptions({
         accessKey: account.access_key,
@@ -38,18 +42,21 @@ export async function start() {
             account_ws: ACCOUNT_WS,
         }
     })
-    
+    trader.init();
 
     const WatchEntityList = await WatchService.find();
 
-    // redis.set(
-    //     KEY_MAP['watch-symbol'],
-    //     WatchEntityList.map((WatchEntity) => {
-    //         return WatchEntity.symbol;
-    //     })
-    // );
 
+    if (autoOrderList.length > 0) {
+        autoOrderList.forEach((atoOrderConfigEntity) => {
+            trader.autoTrader({
+                symbol: atoOrderConfigEntity.symbol,
+                buy_usdt: atoOrderConfigEntity.buy_usdt,
+                sell_usdt: atoOrderConfigEntity.sell_usdt,
 
+            })
+        });
+    }
     if (WatchEntityList.length > 0) {
         WatchEntityList.forEach((WatchEntity) => {
             const SYMBOL = WatchEntity.symbol.toLowerCase();

@@ -36,7 +36,7 @@ async function tran() {
     const data = await readFilePromisify(filePath, { encoding: 'utf-8' });
     const history = (JSON.parse(data) as any[]).reverse();
 
-    
+
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -46,7 +46,7 @@ async function tran() {
         mins: [history[history.length - 1].close * 0.88],
         minVolume: 0.00001,
     });
-    
+
     const bt = new Backtest({
         symbol: 'btcusdt',
         quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
@@ -120,7 +120,7 @@ async function tran2() {
                     bt.buy(row.close);
                 }
             });
-            
+
             result.push({
                 oversoldRatio: oversoldRatio,
                 overboughtRatio: overboughtRatio,
@@ -190,7 +190,7 @@ async function tran3() {
                     }
                 }
             });
-            
+
             result.push({
                 sellAmountRatio,
                 buyAmountRatio,
@@ -202,7 +202,7 @@ async function tran3() {
         return  b.return - a.return
     });
 
-    console.log(sortedList[0])
+
     const sheet = xlsx.utils.json_to_sheet(result);
     const workbook = {
         SheetNames: ['买卖量分析'], //定义表名

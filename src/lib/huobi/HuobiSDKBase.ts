@@ -123,6 +123,9 @@ export class HuobiSDKBase extends EventEmitter {
         path: string,
         params: Record<string, any> = {} as Record<string, any>
     ) => {
+        if (!this.options.url.rest) {
+            return Promise.reject('未设置options.url.rest')
+        }
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
 
@@ -132,6 +135,9 @@ export class HuobiSDKBase extends EventEmitter {
         });
     }
     auth_post = <T = any>(path: string, data: Record<string, any>) => {
+        if (!this.options.url.rest) {
+            return Promise.reject('未设置options.url.rest')
+        }
         const PATH = `${this.options.url.rest}${path}`;
         const { accessKey, secretKey } = this.options;
         return this._request<T>(PATH, {
@@ -201,7 +207,7 @@ export class HuobiSDKBase extends EventEmitter {
             }
         });
         HuobiSDKBase.market_ws.on('error', (e) => {
-            this.errLogger(`market_ws  error: `, e.message);
+            this.errLogger(`market_ws  error: `, e);
         });
         return HuobiSDKBase.market_ws;
     }
@@ -267,7 +273,7 @@ export class HuobiSDKBase extends EventEmitter {
                 this.errLogger(`account_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`account_ws closed:`, e.reason);
+                this.errLogger(`account_ws closed:`, e);
             }
         });
         HuobiSDKBase.account_ws.on('error', (e) => {

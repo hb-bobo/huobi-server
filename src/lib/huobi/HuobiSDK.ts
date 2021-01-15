@@ -199,27 +199,27 @@ export class HuobiSDK extends HuobiSDKBase{
         return this.auth_post( path, {symbol: symbol});
     }
 
-    async subMarketDepth({symbol, step}: {symbol: string, step?: string}, subscription?: (data: MarketMessageData<{bids: any[], asks: any[]}>) => void) {
+    async subMarketDepth({symbol, step, id}: {symbol: string, step?: string, id?: string}, subscription?: (data: MarketMessageData<{bids: any[], asks: any[]}>) => void) {
         const subMessage = WS_SUB.depth(symbol, step);
         const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
-            market_cache_ws.sub(subMessage);
+            market_cache_ws.sub(subMessage, id);
         }
         this.addEvent('market.depth', subscription);
     }
-    async subMarketKline({symbol, period}: {symbol: string, period: CandlestickIntervalEnum}, subscription?: (data: MarketMessageData) => void) {
+    async subMarketKline({symbol, period, id}: {symbol: string, period: CandlestickIntervalEnum, id?: string}, subscription?: (data: MarketMessageData) => void) {
         const subMessage = WS_SUB.kline(symbol, period);
         const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
-            market_cache_ws.sub(subMessage);
+            market_cache_ws.sub(subMessage, id);
         }
         this.addEvent('market.kline', subscription);
     }
-    async subMarketTrade({symbol}: {symbol: string}, subscription?: (data: MarketMessageData) => void) {
+    async subMarketTrade({symbol, id}: {symbol: string, id?: string}, subscription?: (data: MarketMessageData) => void) {
         const subMessage = WS_SUB.tradeDetail(symbol);
         const market_cache_ws = await this.getSocket('market_cache_ws');
         if (!market_cache_ws.hasCache(subMessage)) {
-            market_cache_ws.sub(subMessage);
+            market_cache_ws.sub(subMessage, id);
         }
         this.addEvent('market.trade', subscription);
     }

@@ -5,7 +5,8 @@ import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 export default class TradeAccountEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
-
+    @Column()
+    public userId!: number;
     @Column({type: 'tinyint'})
     public auto_trade = 0;
     @Column({type: 'varchar', length: 10})
