@@ -281,8 +281,9 @@ export class Trader {
             outLogger.info(msg);
             return Promise.reject(msg);
         } else if (!hasEnoughAmount) {
-            outLogger.info('当前币不足');
-            return Promise.reject('当前币不足');
+            const msg = `当前币(${symbolInfo['base-currency']})不足`
+            outLogger.info(msg);
+            return Promise.reject(msg);
         }
         const openOrderRes = await this.sdk.getOpenOrders(symbol, null, 10);
         for (let i = 0; i < openOrderRes.length; i++) {
