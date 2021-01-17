@@ -191,7 +191,7 @@ const analyseAndWriteDepth = async function (data) {
     };
     insertData.usdtPrice = utils_1.autoToFixed(insertData.price * util_1.getPriceIndex(symbol));
     // 非监控的币，不写入数据库，直接返回给前端
-    if (!watchSymbols.includes(symbol.toUpperCase())) {
+    if (!watchSymbols.includes(symbol.toUpperCase()) && !watchSymbols.includes(symbol.toLowerCase())) {
         return;
     }
     /* -------write------- */
