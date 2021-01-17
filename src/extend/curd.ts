@@ -4,8 +4,8 @@ import { Pagination } from "ROOT/interface/List";
 import { errLogger } from "ROOT/common/logger";
 import { isNil } from "lodash";
 
-export class CrudService<T extends typeof BaseEntity> {
-    _Entity!: T;
+export class CrudService<T extends any = any> {
+    _Entity: any;
     constructor(Entity: T) {
         this._Entity = Entity;
     }
@@ -13,8 +13,8 @@ export class CrudService<T extends typeof BaseEntity> {
      * Get one
      * @param query
      */
-    public getOne = async <T extends BaseEntity>(query) => {
-        const res = await this._Entity.findOne(query)
+    public getOne = async <T>(query) => {
+        const res = await this._Entity.findOne<T>(query)
         return res;
     }
     

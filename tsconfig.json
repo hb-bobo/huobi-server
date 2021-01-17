@@ -4,13 +4,13 @@
     "module": "commonjs",
     "lib":["es2018"],
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": ".",
     "strict": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "noImplicitAny": false,
     "moduleResolution": "node",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "ROOT/*": ["src/*"]
     },

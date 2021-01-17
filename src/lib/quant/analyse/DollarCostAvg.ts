@@ -104,6 +104,7 @@ export default class DollarCostAvg {
                 volume: canUse / 2,
             });
         }
+
         const disPrice = ((max - min) / 2) / buyList.length;
 
         function mapPrice(arr:  any[], type: 'sell' | 'buy') {
@@ -117,8 +118,10 @@ export default class DollarCostAvg {
         }
         mapPrice(buyList, 'buy');
         mapPrice(sellList, 'sell');
+
         this.buyList = buyList;
         this.sellList = sellList;
+
         return {
             buyList,
             sellList,
@@ -128,6 +131,10 @@ export default class DollarCostAvg {
     public trade(close: number, action?: 'buy' | 'sell') {
         if (this.buyList === undefined || this.sellList === undefined) {
             this.splitBill();
+        }
+        console.log('trade', this.buyList)
+        if (!this.buyList) {
+            return;
         }
         for (let i = 0; i < this.buyList.length; i++) {
             const element = this.buyList[i];

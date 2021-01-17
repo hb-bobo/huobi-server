@@ -1,3 +1,4 @@
+import { keepDecimalFixed } from "./util";
 
 
 
@@ -56,6 +57,7 @@ export default class Backtest{
         "makerFeeRate": 0.002,
         "takerFeeRate": 0.002,
     };
+    _startPrice?: number;
     _lastPrice = 0;
     /**
      * 回测工具
@@ -72,6 +74,9 @@ export default class Backtest{
             this.baseCurrencyBalance += amount;
         }
         this._lastPrice = price;
+        if (this._startPrice === undefined) {
+            this._startPrice = price;
+        }
     }
     sell(price: number, amount = this.buyAmount) {
 
@@ -80,10 +85,17 @@ export default class Backtest{
             this.baseCurrencyBalance -= amount;
         }
         this._lastPrice = price;
+        if (this._startPrice === undefined) {
+            this._startPrice = price;
+        }
 
     }
     getReturn() {
-        return (this.quoteCurrencyBalance + this.baseCurrencyBalance * this._lastPrice - this.initOption.quoteCurrencyBalance)
-        / this.initOption.quoteCurrencyBalance;
+        if (!this._startPrice) {
+            return 0;
+        }
+        const currentBalance = this.quoteCurrencyBalance + this.baseCurrencyBalance * this._lastPrice;
+        const startBalance  = this.initOption.quoteCurrencyBalance + this.initOption.baseCurrencyBalance * this._startPrice;
+        return keepDecimalFixed((currentBalance - startBalance) / this.initOption.quoteCurrencyBalance, 2);
     }
 }

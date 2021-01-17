@@ -8,7 +8,7 @@ import * as DepthService from 'ROOT/module/depth/depth.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import AbnormalMonitor from 'ROOT/lib/quant/analyse/AbnormalMonitor';
-import { autoToFixed, getRepeatCount, keepDecimalFixed } from 'ROOT/utils';
+import { autoToFixed, getRepeatCount } from 'ROOT/utils';
 import { getPriceIndex, getSameAmount } from './util';
 import { MarketMessageData } from 'ROOT/lib/huobi-sdk/lib/HuobiSDK';
 
@@ -58,7 +58,7 @@ export async function handleKline(data: MarketMessageData) {
         symbolPrice.set('ht', data.data.close);
     }
 
-    delete data.data.id;
+
     ws_event.emit("server:ws:message", {
         from: SocketFrom.server,
         type: EventTypes.huobi_kline,

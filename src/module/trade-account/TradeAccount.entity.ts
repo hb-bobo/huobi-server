@@ -17,8 +17,7 @@ export default class TradeAccountEntity extends BaseEntity{
     public secret_key!: string;
     @Column({type: 'varchar', length: 32})
     public uid!: string;
-    @Column({type: 'varchar', length: 10})
-    public account_id_pro!: string;
+
     @Column({type: 'varchar', length: 14})
     public trade_password!: string;
 }

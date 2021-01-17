@@ -42,7 +42,6 @@ export const updateOne = async (ctx: AppContext) => {
         access_key,
         secret_key,
         uid,
-        account_id_pro,
         trade_password,
     } = ctx.request.body;
     const ID = id || _id;
@@ -52,16 +51,11 @@ export const updateOne = async (ctx: AppContext) => {
         access_key,
         secret_key,
         uid,
-        account_id_pro,
         trade_password,
     }
     const validator = new schema({
         id: {
             type: "string",
-        },
-        auto_trade: {
-            type: "boolean",
-            required: true,
         },
         exchange: {
             type: "string",
@@ -75,10 +69,6 @@ export const updateOne = async (ctx: AppContext) => {
             required: true,
         },
         uid: {
-            type: "string",
-            required: true,
-        },
-        account_id_pro: {
             type: "string",
             required: true,
         },

@@ -57,7 +57,7 @@ async function tran() {
         const tradingAdvice = quant.safeTrade(row.close);
         if (tradingAdvice) {
             const time = dayjs(row.time).format("YYYY/MM/DD H:mm:ss");
-            console.log(tradingAdvice)
+
             if (tradingAdvice.action === 'buy') {
                 bt.buy(row.close, tradingAdvice.volume);
             } else if (tradingAdvice.action === 'sell') {
@@ -132,7 +132,6 @@ async function tran2() {
         return  b.return - a.return
     });
 
-    console.log(sortedList[0])
     const sheet = xlsx.utils.json_to_sheet(result);
     const workbook = {
         SheetNames: ['超卖超买分析'], //定义表名

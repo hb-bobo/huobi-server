@@ -60,12 +60,12 @@ export default class AutoOrderConfigLogController {
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
             } else if (data) {
-
+                const userId = ctx.state.user && ctx.state.user.id;
                 res = await AutoOrderConfigService.create({
                     ...data,
-                    userId: ctx.state.user && ctx.state.user.id
+                    userId: userId
                 });
-                await trader.autoTrader(data);
+                await trader.autoTrader(data, userId as number);
             } else {
                 ctx.sendError({message: '格式有误'});
                 return;

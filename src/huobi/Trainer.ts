@@ -3,6 +3,7 @@ import { outLogger } from "ROOT/common/logger";
 import { HuobiSDK } from "ROOT/lib/huobi-sdk";
 import { Quant } from "ROOT/lib/quant";
 import Backtest from "ROOT/lib/quant/Backtest";
+import { keepDecimalFixed } from "ROOT/utils";
 
 export class Trainer {
     quant: Quant;
@@ -42,7 +43,10 @@ export class Trainer {
 
         if (!history) {
             const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 1000);
-            history = data.reverse();
+            history = data ? data.reverse() : [];
+        }
+        if (!history.length) {
+            return [];
         }
         const quant = new Quant({
             symbol: this.quant.config.symbol,
@@ -68,7 +72,7 @@ export class Trainer {
                     sellAmount: this.quant.config.minVolume * 10,
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
-                })
+                });
 
                 quant.mockUse(function (row) {
                     if (!row.MA5 || !row.MA60 || !row.MA30) {
@@ -83,10 +87,10 @@ export class Trainer {
                 });
 
                 result.push({
-                    oversoldRatio: oversoldRatio,
-                    overboughtRatio: overboughtRatio,
+                    oversoldRatio: keepDecimalFixed(oversoldRatio, 3),
+                    overboughtRatio: keepDecimalFixed(overboughtRatio, 3),
                     return: bt.getReturn() * 100,
-                })
+                });
             }
         }
         return result;
@@ -145,10 +149,10 @@ export class Trainer {
                 });
 
                 result.push({
-                    sellAmountRatio,
-                    buyAmountRatio,
+                    sellAmountRatio: keepDecimalFixed(sellAmountRatio, 3),
+                    buyAmountRatio: keepDecimalFixed(buyAmountRatio, 3),
                     return: bt.getReturn() * 100,
-                })
+                });
             }
         }
         return result;

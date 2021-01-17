@@ -46,22 +46,20 @@ export async function start() {
 
     const WatchEntityList = await WatchService.find();
 
-
     if (autoOrderList.length > 0) {
         autoOrderList.forEach((atoOrderConfigEntity) => {
             trader.autoTrader({
                 symbol: atoOrderConfigEntity.symbol,
                 buy_usdt: atoOrderConfigEntity.buy_usdt,
                 sell_usdt: atoOrderConfigEntity.sell_usdt,
-
-            })
+            }, atoOrderConfigEntity.userId)
         });
     }
     if (WatchEntityList.length > 0) {
         WatchEntityList.forEach((WatchEntity) => {
             const SYMBOL = WatchEntity.symbol.toLowerCase();
             hbsdk.subMarketDepth({symbol: SYMBOL}, handleDepth)
-            hbsdk.subMarketKline({symbol: SYMBOL, period: CandlestickIntervalEnum.MIN1}, handleKline)
+            hbsdk.subMarketKline({symbol: SYMBOL, period: CandlestickIntervalEnum.MIN5}, handleKline)
             hbsdk.subMarketTrade({symbol: SYMBOL}, handleTrade)
         });
     }

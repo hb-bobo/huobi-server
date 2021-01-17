@@ -1,5 +1,5 @@
 import { isNumber, omit, toNumber } from "lodash";
-import { autoToFixed } from "../../../utils";
+import { autoToFixed } from "../util";
 import { MA } from "../indicators";
 
 interface DataItem {

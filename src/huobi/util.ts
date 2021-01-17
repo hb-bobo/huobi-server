@@ -11,25 +11,21 @@ export const _SYMBOL_INFO_MAP: Record<string, SymbolInfo> = {};
  * 根据symbol获取精度，base-currency, quote-currency
  * @param {string} symbol
  */
-export const getSymbolInfo = async function (symbol?: string) {
-    if(!symbol) {
-        throw Error(`param error`);
-    }
+export const getSymbolInfo = async function (symbol: string) {
+
     if (symbol && _SYMBOL_INFO_MAP[symbol]) {
         return _SYMBOL_INFO_MAP[symbol];
     }
     const symbolsList = await hbsdk.getSymbols();
-
+    console.log('symbolsList', Array.isArray(symbolsList))
+    if (!symbolsList) {
+        return;
+    }
     for (let i = 0; i < symbolsList.length; i++) {
         const symbolInfo = symbolsList[i];
-        if (
-            symbol.startsWith(symbolInfo['base-currency'])
-            && symbol.endsWith(symbolInfo['quote-currency'])
-        ) {
-
-            return symbolInfo;
-        }
+        _SYMBOL_INFO_MAP[`${symbolInfo['base-currency']}${symbolInfo['quote-currency']}`] = symbolInfo;
     }
+    return _SYMBOL_INFO_MAP[symbol];
 }
 
 

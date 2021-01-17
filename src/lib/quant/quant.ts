@@ -30,7 +30,8 @@ export default class Quant {
     /**
      * 量化交易
      */
-    constructor(option: Options) {
+    constructor(option = {} as Options) {
+
         Object.assign(this.config, option);
 
         if (option.maxs && option.mins && option.minVolume) {
@@ -39,11 +40,13 @@ export default class Quant {
                 mins: option.mins,
                 minVolume: option.minVolume,
             });
-            this.analyser.use((row) => {
-                this.dc.updateConfig({balance: this.config.quoteCurrencyBalance / row.close});
-                this.config.price = row.close;
-            });
         }
+        this.analyser.use((row) => {
+            if (this.dc) {
+                this.dc.updateConfig({balance: this.config.quoteCurrencyBalance / row.close});
+            }
+            this.config.price = row.close;
+        });
     }
     /**
      * 安全交易
@@ -51,6 +54,17 @@ export default class Quant {
      * @param action 
      */
     safeTrade(price: number, action?: 'buy' | 'sell') {
+
+        if (!this.dc) {
+            const option = this.config;
+            const maxs = option.maxs || [price * 1.1];
+            const mins = option.mins || [price * 0.9];
+            this.dc = new DollarCostAvg({
+                maxs: maxs,
+                mins: mins,
+                minVolume: option.minVolume,
+            });
+        }
         return this.dc.trade(price, action);
     }
 
