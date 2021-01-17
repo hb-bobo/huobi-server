@@ -196,7 +196,7 @@ const analyseAndWriteDepth = async function (data: {symbol: string, bids: any[],
     }
     insertData.usdtPrice = autoToFixed(insertData.price * getPriceIndex(symbol))
     // 非监控的币，不写入数据库，直接返回给前端
-    if (!watchSymbols.includes(symbol.toUpperCase())) {
+    if (!watchSymbols.includes(symbol.toUpperCase()) && !watchSymbols.includes(symbol.toLowerCase())) {
         return;
     }
     /* -------write------- */
