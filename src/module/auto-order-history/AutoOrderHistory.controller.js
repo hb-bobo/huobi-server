@@ -42,7 +42,8 @@ let AutoOrderController = /** @class */ (() => {
                 });
             }
             else {
-                res = await AutoOrderHistoryService.find({});
+                const userId = ctx.state.user && ctx.state.user.id;
+                res = await AutoOrderHistoryService.find({ userId: userId });
                 ctx.sendSuccess({ data: res });
             }
         }
