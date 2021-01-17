@@ -22,106 +22,102 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handle = void 0;
+exports.handleTrade = exports.handleKline = exports.handleDepth = void 0;
 const throttle_1 = __importDefault(require("lodash/throttle"));
 const ws_1 = require("../interface/ws");
-const events_1 = require("./ws/events");
-const getPriceIndex_1 = __importDefault(require("./getPriceIndex"));
+const events_1 = require("./events");
 const price_1 = __importDefault(require("./price"));
 const StatisticalTradeData_1 = __importDefault(require("./StatisticalTradeData"));
-const getSameAmount_1 = require("../common/getSameAmount");
-const TradeService = __importStar(require("../module/trade/trade.service"));
+const TradeHistoryService = __importStar(require("../module/trade-history/TradeHistory.service"));
 const DepthService = __importStar(require("../module/depth/depth.service"));
 const WatchService = __importStar(require("../module/watch/watch.service"));
-const getSymbolInfo_1 = require("../common/getSymbolInfo");
 const AbnormalMonitor_1 = __importDefault(require("../lib/quant/analyse/AbnormalMonitor"));
 const utils_1 = require("../utils");
+const util_1 = require("./util");
 const minute = 1000 * 60;
 let watchSymbols = [];
 // 每一个币都存一个throttle包裹的handleDepth方法
 const depthHandles = {};
 // 交易数据处理方法
 const tradeHandles = {};
-async function handle(event) {
-    const symbol = event.data.symbol;
-    const data = event.data;
+async function getWatchSymbols() {
     if (watchSymbols.length === 0) {
         const WatchEntityList = await WatchService.find();
         watchSymbols = WatchEntityList.map((WatchEntity) => {
             return WatchEntity.symbol;
         });
     }
-    switch (event.type) {
-        case events_1.EventTypes.huobi_depth:
-            if (typeof depthHandles[symbol] !== 'function') {
-                depthHandles[symbol] = throttle_1.default(handleDepth, 5000, { trailing: false, leading: true });
-            }
-            /* ch:"market.bchusdt.depth.step0"
-            channel:"depth"
-            symbol:"bchusdt"
-            tick:Object {bids: Array(150), asks: Array(150), ts: 1554568106017, …}
-            type:"WS_HUOBI" */
-            // console.log(data)
-            depthHandles[symbol](data);
-            break;
-        case events_1.EventTypes.huobi_kline:
-            if (symbol === 'btcusdt') {
-                price_1.default.set('btc', data.kline.close);
-            }
-            else if (symbol === 'etcusdt') {
-                price_1.default.set('eth', data.kline.close);
-            }
-            else if (symbol === 'htusdt') {
-                price_1.default.set('ht', data.kline.close);
-            }
-            // broadcast(WS_SERVER, {
-            //     type: 'WS_HUOBI',
-            //     kline: data.tick,
-            //     symbol: symbol,
-            // });
-            delete data.kline.id;
+    return watchSymbols;
+}
+async function handleDepth(data) {
+    const symbol = data.symbol;
+    await getWatchSymbols();
+    if (typeof depthHandles[symbol] !== 'function') {
+        depthHandles[symbol] = throttle_1.default(analyseAndWriteDepth, 5000, { trailing: false, leading: true });
+    }
+    /* ch:"market.bchusdt.depth.step0"
+    channel:"depth"
+    symbol:"bchusdt"
+    tick:Object {bids: Array(150), asks: Array(150), ts: 1554568106017, …}
+    type:"WS_HUOBI" */
+    depthHandles[symbol]({ symbol, ...data.data });
+}
+exports.handleDepth = handleDepth;
+async function handleKline(data) {
+    const symbol = data.symbol;
+    await getWatchSymbols();
+    if (symbol === 'btcusdt') {
+        price_1.default.set('btc', data.data.close);
+    }
+    else if (symbol === 'etcusdt') {
+        price_1.default.set('eth', data.data.close);
+    }
+    else if (symbol === 'htusdt') {
+        price_1.default.set('ht', data.data.close);
+    }
+    events_1.ws_event.emit("server:ws:message", {
+        from: ws_1.SocketFrom.server,
+        type: events_1.EventTypes.huobi_kline,
+        data: {
+            symbol: symbol,
+            ...data.data,
+        },
+    });
+}
+exports.handleKline = handleKline;
+async function handleTrade(data) {
+    const symbol = data.symbol;
+    const list = data.data;
+    await getWatchSymbols();
+    if (tradeHandles[symbol] === undefined) {
+        tradeHandles[symbol] = new StatisticalTradeData_1.default({
+            symbol: symbol,
+            exchange: 1,
+            disTime: minute * 5,
+        });
+        tradeHandles[symbol].on('merge', function (symbol, data) {
+            const _data = {
+                symbol: symbol,
+                sell: data.sell || 0,
+                buy: data.buy || 0,
+                time: data.time ? new Date(data.time) : new Date(),
+                usdtPrice: data.usdtPrice,
+            };
+            TradeHistoryService.create(_data);
             events_1.ws_event.emit("server:ws:message", {
                 from: ws_1.SocketFrom.server,
-                type: events_1.EventTypes.huobi_kline,
+                type: events_1.EventTypes.huobi_trade,
                 data: {
-                    symbol: symbol,
-                    ...data.kline,
+                    ..._data,
                 },
             });
-            break;
-        case events_1.EventTypes.huobi_trade:
-            if (tradeHandles[symbol] === undefined) {
-                tradeHandles[symbol] = new StatisticalTradeData_1.default({
-                    symbol: symbol,
-                    exchange: 1,
-                    disTime: minute * 5,
-                });
-                tradeHandles[symbol].on('merge', function (symbol, data) {
-                    const _data = {
-                        symbol: symbol,
-                        sell: data.sell || 0,
-                        buy: data.buy || 0,
-                        time: data.time ? new Date(data.time) : new Date(),
-                        usdtPrice: data.usdtPrice,
-                    };
-                    TradeService.create(_data);
-                    events_1.ws_event.emit("server:ws:message", {
-                        from: ws_1.SocketFrom.server,
-                        type: events_1.EventTypes.huobi_trade,
-                        data: {
-                            ..._data,
-                        },
-                    });
-                });
-            }
-            tradeHandles[symbol].merge(data.trade);
-            break;
-        default:
+        });
     }
+    tradeHandles[symbol].merge(list);
 }
-exports.handle = handle;
+exports.handleTrade = handleTrade;
 /* ----------------------------------------------------------------------------- */
-let disTime = 1000 * 10;
+const disTime = 1000 * 10;
 // 状态异常监控(缓存多个币)
 const status = {};
 // const buyMaxAM = new AbnormalMonitor({config: {disTime: disTime, recordMaxLen: 6}});
@@ -131,25 +127,25 @@ const status = {};
 /**
  * 处理深度数据
  */
-const handleDepth = function (data) {
-    if (!data.tick || !data.symbol) {
+const analyseAndWriteDepth = async function (data) {
+    if (!data.symbol) {
         throw Error(`data.tick, data.symbol`);
     }
     const symbol = data.symbol;
     // 价格系数， 价格换算成usdt ，如果交易对是btc， 要*btc的usdt价格
-    const _price = getPriceIndex_1.default(symbol);
-    const originBids = data.tick.bids;
-    const originAsks = data.tick.asks;
-    let bids1 = originBids[0];
-    let bids2 = originBids[1];
-    let aks1 = originAsks[0];
-    let aks2 = originAsks[1];
+    const _price = util_1.getPriceIndex(symbol);
+    const originBids = data.bids;
+    const originAsks = data.asks;
+    const bids1 = originBids[0];
+    const bids2 = originBids[1];
+    const aks1 = originAsks[0];
+    const aks2 = originAsks[1];
     // 处理数据
-    let bidsList = getSameAmount_1.getSameAmount(originBids, {
+    const bidsList = util_1.getSameAmount(originBids, {
         type: 'bids',
         symbol: symbol,
     });
-    let asksList = getSameAmount_1.getSameAmount(originAsks, {
+    const asksList = util_1.getSameAmount(originAsks, {
         type: 'asks',
         symbol: symbol,
     });
@@ -162,7 +158,6 @@ const handleDepth = function (data) {
             asksList,
             aks1,
             bids1,
-            ch: data.ch,
         },
     });
     // [ 6584.05, 0.0004 ]
@@ -175,20 +170,17 @@ const handleDepth = function (data) {
     //     prices: [ 6650.95 ] }
     // ]
     // 取当前时间
-    let datetime = new Date();
-    let symbolInfo = getSymbolInfo_1.getSymbolInfo(symbol);
-    let amountPrecision = symbolInfo['amount-precision'];
-    let pricePrecision = symbolInfo['price-precision'];
-    let currentPrice = (bids1[0] + aks1[0]) / 2;
-    let insertData = {
+    const datetime = new Date();
+    const currentPrice = (bids1[0] + aks1[0]) / 2;
+    const insertData = {
         symbol: symbol,
         exchange: 1,
-        sell_1: utils_1.keepDecimalFixed((aks1[1]), amountPrecision),
-        sell_2: utils_1.keepDecimalFixed((aks2[1]), amountPrecision),
-        buy_1: utils_1.keepDecimalFixed((bids1[1]), amountPrecision),
-        buy_2: utils_1.keepDecimalFixed((bids2[1]), amountPrecision),
+        sell_1: utils_1.autoToFixed((aks1[1])),
+        sell_2: utils_1.autoToFixed((aks2[1])),
+        buy_1: utils_1.autoToFixed((bids1[1])),
+        buy_2: utils_1.autoToFixed((bids2[1])),
         usdtPrice: 0,
-        price: (currentPrice).toString().length > pricePrecision ? utils_1.keepDecimalFixed(currentPrice, pricePrecision) : currentPrice,
+        price: utils_1.autoToFixed(currentPrice),
         bids_max_1: bidsList[0].amount,
         bids_max_2: bidsList[1].amount,
         asks_max_1: asksList[0].amount,
@@ -197,7 +189,7 @@ const handleDepth = function (data) {
         asks_max_price: [asksList[0].price, asksList[1].price].join(','),
         time: datetime,
     };
-    insertData.usdtPrice = utils_1.keepDecimalFixed(insertData.price * getPriceIndex_1.default(symbol), pricePrecision);
+    insertData.usdtPrice = utils_1.autoToFixed(insertData.price * util_1.getPriceIndex(symbol));
     // 非监控的币，不写入数据库，直接返回给前端
     if (!watchSymbols.includes(symbol.toUpperCase())) {
         return;
@@ -223,10 +215,10 @@ const handleDepth = function (data) {
         ts: datetime.getTime(),
         symbol: symbol,
     });
-    let bidsHistoryStatus = buyMaxAM.historyStatus;
-    let asksHistoryStatus = sellMaxAM.historyStatus;
-    let buyStatus = utils_1.getRepeatCount(bidsHistoryStatus);
-    let sellStatus = utils_1.getRepeatCount(asksHistoryStatus);
+    const bidsHistoryStatus = buyMaxAM.historyStatus;
+    const asksHistoryStatus = sellMaxAM.historyStatus;
+    const buyStatus = utils_1.getRepeatCount(bidsHistoryStatus);
+    const sellStatus = utils_1.getRepeatCount(asksHistoryStatus);
     // 无状况
     if (bidsHistoryStatus.length > 2
         && buyStatus['涨'] === 0

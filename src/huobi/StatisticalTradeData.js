@@ -7,7 +7,7 @@ const events_1 = __importDefault(require("events"));
 const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
 const logger_1 = require("../common/logger");
 const utils_1 = require("../utils");
-const getPriceIndex_1 = __importDefault(require("./getPriceIndex"));
+const util_1 = require("./util");
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
  */
@@ -32,10 +32,10 @@ class StatisticalTrade extends events_1.default {
         const ts = trade.ts;
         const tradeData = trade.data;
         // 价格系数， 价格换算成usdt ，如果交易对是btc， 要*btc的usdt价格
-        const _priceIndex = getPriceIndex_1.default(symbol);
+        const _priceIndex = util_1.getPriceIndex(symbol);
         // 先找缓存的数据是否存在
         if (isEmpty_1.default(this._mergeData)) {
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 Object.assign(this._mergeData, _tempData);
             }
@@ -46,11 +46,11 @@ class StatisticalTrade extends events_1.default {
         // 当前时间 > 上一个时间
         if ((ts - preTime) > this.disTime) {
             // 开始一个新数据前把上次合并好的数据整理并emit；
-            let time = Number(this._mergeData._time);
+            const time = Number(this._mergeData._time);
             if (this._mergeData) {
                 this._mergeData.exchange = this.exchange;
-                this._mergeData.buy = utils_1.keepDecimalFixed(this._mergeData.buy, 2);
-                this._mergeData.sell = utils_1.keepDecimalFixed(this._mergeData.sell, 2);
+                this._mergeData.buy = utils_1.autoToFixed(this._mergeData.buy, 2);
+                this._mergeData.sell = utils_1.autoToFixed(this._mergeData.sell, 2);
                 // this._mergeData.amount = this._tempData.amount;
                 this._mergeData.usdtPrice = tradeData.price;
                 delete this._mergeData._time;
@@ -61,7 +61,7 @@ class StatisticalTrade extends events_1.default {
             // this._mergeData.sell = 0;
             // this._mergeData.buy = 0;
             // this._mergeData.amount = 0;
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 Object.assign(this._mergeData, _tempData);
                 this._mergeData.time = time;
@@ -70,7 +70,7 @@ class StatisticalTrade extends events_1.default {
         }
         else {
             // 合并数据
-            let _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
+            const _tempData = mergeTradeData(tradeData, ts, _priceIndex, symbol);
             if (_tempData) {
                 this._mergeData.buy += _tempData.buy;
                 this._mergeData.sell += _tempData.sell;
@@ -85,7 +85,7 @@ exports.default = StatisticalTrade;
  * @return {Array<Object>}
  */
 function mergeTradeData(tradeData, _time, _priceIndex, symbol) {
-    let _tempData = {
+    const _tempData = {
         symbol: symbol,
         buy: 0,
         sell: 0,
@@ -101,7 +101,7 @@ function mergeTradeData(tradeData, _time, _priceIndex, symbol) {
     tradeData.forEach(item => {
         // const amountMoney = item.amount; // * item.price * _priceIndex;
         const direction = item.direction;
-        _tempData[direction] = utils_1.keepDecimalFixed(item.amount + _tempData[direction], 2);
+        _tempData[direction] = utils_1.autoToFixed(item.amount + _tempData[direction], 2);
         _tempData.amount += item.amount;
         _tempData.usdtPrice = item.price;
     });

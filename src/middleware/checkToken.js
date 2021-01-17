@@ -17,7 +17,7 @@ exports.default = async (ctx, next) => {
     if (isDev && authorization === 'test') {
         ctx.state.user = {
             user: 'test',
-            id: 'ss',
+            id: 1,
         };
         await next();
         return;

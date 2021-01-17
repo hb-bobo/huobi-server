@@ -20,8 +20,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeOne = exports.updateOne = exports.get = void 0;
-const ws_cmd_1 = require("../../huobi/ws/ws.cmd");
-const ws_1 = require("../../huobi/ws/ws");
 const WatchEntityService = __importStar(require("./watch.service"));
 /**
  * 查询单个或者多个
@@ -62,9 +60,9 @@ exports.updateOne = async (ctx) => {
         else if (data.symbol) {
             res = await WatchEntityService.create(data);
             const SYMBOL = data.symbol.toLowerCase();
-            ws_1.ws.sub(ws_cmd_1.WS_SUB.kline(SYMBOL, '1min'));
-            ws_1.ws.sub(ws_cmd_1.WS_SUB.depth(SYMBOL));
-            ws_1.ws.sub(ws_cmd_1.WS_SUB.tradeDetail(SYMBOL));
+            // HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
+            // HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
+            // HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
         }
         else {
             ctx.sendError({ message: '格式有误' });
@@ -91,9 +89,9 @@ exports.removeOne = async (ctx) => {
     try {
         const res = await WatchEntityService.deleteOne({ id: id });
         const SYMBOL = res.symbol.toLowerCase();
-        ws_1.ws.upsub(ws_cmd_1.WS_SUB.kline(SYMBOL, '1min'));
-        ws_1.ws.upsub(ws_cmd_1.WS_SUB.depth(SYMBOL));
-        ws_1.ws.upsub(ws_cmd_1.WS_SUB.tradeDetail(SYMBOL));
+        // HUOBI_WS.upsub(WS_SUB.kline(SYMBOL, '1min'));
+        // HUOBI_WS.upsub(WS_SUB.depth(SYMBOL));
+        // HUOBI_WS.upsub(WS_SUB.tradeDetail(SYMBOL));
         ctx.sendSuccess({
             data: res
         });

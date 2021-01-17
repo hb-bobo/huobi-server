@@ -12,7 +12,7 @@ const AutoOrderConfig_entity_1 = __importDefault(require("./AutoOrderConfig.enti
  * @param {object} query
  */
 exports.find = async function (query) {
-    const res = await AutoOrderConfig_entity_1.default.find({});
+    const res = await AutoOrderConfig_entity_1.default.find(query);
     return res;
 };
 /**

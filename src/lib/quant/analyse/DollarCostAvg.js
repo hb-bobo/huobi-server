@@ -29,8 +29,11 @@ class DollarCostAvg {
         this.splitBill = () => {
             const max = Math.max(...this.maxs);
             const min = Math.max(...this.mins);
+            if (!this.option.balance) {
+                return;
+            }
             // 拿出一半封底/顶
-            let canUse = this.option.balance / 1.8;
+            let canUse = this.option.balance / 1.6;
             const buyList = [
                 {
                     volume: canUse / 2,
@@ -43,8 +46,8 @@ class DollarCostAvg {
                     price: max,
                 }
             ];
-            while (canUse > this.option.minVolume * (1.8 * 2)) {
-                canUse = canUse / 1.8;
+            while (canUse > this.option.minVolume * (1.6 * 2)) {
+                canUse = canUse / 1.6;
                 buyList.push({
                     volume: canUse / 2,
                 });
@@ -80,6 +83,10 @@ class DollarCostAvg {
     trade(close, action) {
         if (this.buyList === undefined || this.sellList === undefined) {
             this.splitBill();
+        }
+        console.log('trade', this.buyList);
+        if (!this.buyList) {
+            return;
         }
         for (let i = 0; i < this.buyList.length; i++) {
             const element = this.buyList[i];

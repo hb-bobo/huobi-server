@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.socketIO = void 0;
 const socket_io_1 = __importDefault(require("socket.io"));
 const logger_1 = require("../common/logger");
-const events_1 = require("../huobi/ws/events");
-const ws_1 = require("../huobi/ws/ws");
-const ws_cmd_1 = require("../huobi/ws/ws.cmd");
+const events_1 = require("../huobi/events");
+const hbsdk_1 = require("../huobi/hbsdk");
+const huobi_sdk_1 = require("../lib/huobi-sdk");
 /**
  * 与客户端的socket
  */
@@ -23,13 +23,16 @@ exports.socketIO.on('connection', function (socket) {
     socket.on('sub', function ({ symbol }) {
         logger_1.outLogger.info('socketIO: onsub ', symbol);
         symbol = symbol.toLowerCase();
-        ws_1.ws.sub(ws_cmd_1.WS_SUB.kline(symbol, '1min'), socket.id);
-        ws_1.ws.sub(ws_cmd_1.WS_SUB.depth(symbol), socket.id);
-        ws_1.ws.sub(ws_cmd_1.WS_SUB.tradeDetail(symbol), socket.id);
+        const unSubMarketDepth = hbsdk_1.hbsdk.subMarketDepth({ symbol, id: socket.id });
+        const unSubMarketKline = hbsdk_1.hbsdk.subMarketKline({ symbol, period: huobi_sdk_1.CandlestickIntervalEnum.MIN5, id: socket.id });
+        const unsubMarketTrade = hbsdk_1.hbsdk.subMarketTrade({ symbol, id: socket.id });
+        // ws.sub(WS_SUB.kline(symbol, '1min'), socket.id);
+        // ws.sub(WS_SUB.depth(symbol), socket.id);
+        // ws.sub(WS_SUB.tradeDetail(symbol), socket.id);
         unSub = () => {
-            ws_1.ws.unSubFormClinet(ws_cmd_1.WS_SUB.kline(symbol, '1min'), socket.id);
-            ws_1.ws.unSubFormClinet(ws_cmd_1.WS_SUB.depth(symbol), socket.id);
-            ws_1.ws.unSubFormClinet(ws_cmd_1.WS_SUB.tradeDetail(symbol), socket.id);
+            // unSubMarketDepth();
+            // unSubMarketKline();
+            // unsubMarketTrade();
         };
     });
     socket.on("disconnect", (reason) => {
@@ -44,19 +47,24 @@ exports.socketIO.on('connection', function (socket) {
 });
 events_1.ws_event.on("server:ws:message", function (data) {
     if (data.data && data.data.symbol) {
-        for (const key in ws_1.ws.cache) {
-            if (!Object.prototype.hasOwnProperty.call(ws_1.ws.cache, key)) {
-                return;
-            }
-            const ids = ws_1.ws.cache[key];
-            // outLogger.info(ids, Object.keys(sockets))
-            ids.forEach((id) => {
-                if (!sockets[id]) {
-                    return;
-                }
-                sockets[id].send(data);
-            });
+        if (!hbsdk_1.hbsdk.market_cache_ws) {
+            return;
         }
+        exports.socketIO.sockets.send(data);
+        return;
+        // console.log(hbsdk.market_cache_ws.cache)
+        // for (const key in hbsdk.market_cache_ws.cache) {
+        //     if (!Object.prototype.hasOwnProperty.call(hbsdk.market_cache_ws.cache, key)) {
+        //         return;
+        //     }
+        //     const ids = hbsdk.market_cache_ws.cache[key];
+        //     // outLogger.info(ids, Object.keys(sockets))
+        //     ids.forEach((id) => {
+        //         if (!sockets[id]) {
+        //             return;
+        //         }
+        //         sockets[id].send(data);
+        //     })
+        // }
     }
-    // socketIO.sockets.send(data);
 });

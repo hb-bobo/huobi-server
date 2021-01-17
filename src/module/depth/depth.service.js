@@ -12,9 +12,9 @@ const depth_entity_1 = require("./depth.entity");
  */
 exports.find = async function ({ start, end, symbol }) {
     const tableNames = depth_entity_1.tableNameFactory.queryWidthIntervalTime(start, end);
-    let query = tableNames.map((name) => {
+    const query = tableNames.map((name) => {
         return `
-        SELECT 
+        SELECT
             *
         FROM ${name}
         WHERE time BETWEEN '${dayjs_1.default(start).format('YYYY/MM/DD H:mm:ss')}' AND '${dayjs_1.default(end).format('YYYY/MM/DD H:mm:ss')}'

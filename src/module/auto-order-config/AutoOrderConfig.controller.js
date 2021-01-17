@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const async_validator_1 = __importDefault(require("async-validator"));
 const AutoOrderConfigService = __importStar(require("./AutoOrderConfig.service"));
+const start_1 = require("../../huobi/start");
 let AutoOrderConfigLogController = /** @class */ (() => {
     class AutoOrderConfigLogController {
     }
@@ -60,27 +61,12 @@ let AutoOrderConfigLogController = /** @class */ (() => {
                 type: "string",
                 required: true,
             },
-            amount: {
+            buy_usdt: {
                 type: "number",
             },
-            money: {
+            sell_usdt: {
                 type: "number",
-            },
-            buyCount: {
-                type: "number",
-            },
-            sellCount: {
-                type: "number",
-            },
-            // tradeType: {
-            //     type: "string",
-            // },
-            period: {
-                type: "number",
-            },
-            forceTrade: {
-                type: "boolean",
-            },
+            }
         });
         try {
             await validator.validate(data);
@@ -94,8 +80,13 @@ let AutoOrderConfigLogController = /** @class */ (() => {
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({ id: data.id || data._id }, data);
             }
-            else if (data.title) {
-                res = await AutoOrderConfigService.create(data);
+            else if (data) {
+                const userId = ctx.state.user && ctx.state.user.id;
+                res = await AutoOrderConfigService.create({
+                    ...data,
+                    userId: userId
+                });
+                await start_1.trader.autoTrader(data, userId);
             }
             else {
                 ctx.sendError({ message: '格式有误' });

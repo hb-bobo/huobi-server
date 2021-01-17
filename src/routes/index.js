@@ -26,12 +26,13 @@ const koa_router_1 = __importDefault(require("koa-router"));
 const checkToken_1 = __importDefault(require("../middleware/checkToken"));
 const UserController = __importStar(require("../module/user/user.controller"));
 const TradeAccountController = __importStar(require("../module/trade-account/TradeAccount.controller"));
-const TradeController = __importStar(require("../module/trade/Trade.controller"));
+const TradeHistoryController = __importStar(require("../module/trade-history/TradeHistory.controller"));
 const DepthController = __importStar(require("../module/depth/Depth.controller"));
 const WatchController = __importStar(require("../module/watch/watch.controller"));
 const MailController = __importStar(require("../module/email/config.controller"));
 const ConfigController = __importStar(require("../module/config/config.controller"));
 const TrainController = __importStar(require("../module/train/train.controller"));
+const AutoOrderConfig_controller_1 = __importDefault(require("../module/auto-order-config/AutoOrderConfig.controller"));
 // /index
 const apiPrefix = '/api';
 const router = new koa_router_1.default();
@@ -50,6 +51,9 @@ router.post(`${apiPrefix}/watch-symbol`, checkToken_1.default, WatchController.u
 router.delete(`${apiPrefix}/watch-symbol`, checkToken_1.default, WatchController.removeOne);
 router.get(`${apiPrefix}/config`, checkToken_1.default, ConfigController.index);
 router.post(`${apiPrefix}/config`, checkToken_1.default, ConfigController.create);
-router.get(`${apiPrefix}/trade`, checkToken_1.default, TradeController.get);
+router.get(`${apiPrefix}/trade-history`, checkToken_1.default, TradeHistoryController.get);
 router.get(`${apiPrefix}/depth`, checkToken_1.default, DepthController.get);
 router.post(`${apiPrefix}/train/download`, checkToken_1.default, TrainController.download);
+router.get(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.index);
+router.post(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.updateOne);
+router.delete(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.removeOne);

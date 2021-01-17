@@ -22,6 +22,10 @@ let TradeAccountEntity = /** @class */ (() => {
         __metadata("design:type", Number)
     ], TradeAccountEntity.prototype, "id", void 0);
     __decorate([
+        typeorm_1.Column(),
+        __metadata("design:type", Number)
+    ], TradeAccountEntity.prototype, "userId", void 0);
+    __decorate([
         typeorm_1.Column({ type: 'tinyint' }),
         __metadata("design:type", Object)
     ], TradeAccountEntity.prototype, "auto_trade", void 0);
@@ -41,10 +45,6 @@ let TradeAccountEntity = /** @class */ (() => {
         typeorm_1.Column({ type: 'varchar', length: 32 }),
         __metadata("design:type", String)
     ], TradeAccountEntity.prototype, "uid", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], TradeAccountEntity.prototype, "account_id_pro", void 0);
     __decorate([
         typeorm_1.Column({ type: 'varchar', length: 14 }),
         __metadata("design:type", String)

@@ -10,6 +10,7 @@ const http_1 = __importDefault(require("http"));
 const koa_1 = __importDefault(require("koa"));
 const koa_bodyparser_1 = __importDefault(require("koa-bodyparser"));
 const koa_cors_1 = __importDefault(require("koa-cors"));
+// import koaJSON from 'koa-json';
 const koa_onerror_1 = __importDefault(require("koa-onerror"));
 const koa_session_1 = __importDefault(require("koa-session"));
 const koa_static_1 = __importDefault(require("koa-static"));
@@ -18,8 +19,8 @@ const logger_1 = require("./common/logger");
 const middleware_1 = require("./middleware");
 const routes_1 = __importDefault(require("./routes"));
 const socketIO_1 = require("./ws/socketIO");
-require("./schedule");
 require("./db/orm");
+require("./huobi/start");
 // const debug = require('debug')('koa2:server')
 const app = new koa_1.default();
 const port = process.env.PORT || config_1.default.get('port');

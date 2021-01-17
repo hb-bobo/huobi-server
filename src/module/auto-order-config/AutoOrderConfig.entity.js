@@ -18,45 +18,21 @@ let AutoOrderConfigEntity = /** @class */ (() => {
         __metadata("design:type", Number)
     ], AutoOrderConfigEntity.prototype, "id", void 0);
     __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "user", void 0);
+        typeorm_1.Column(),
+        __metadata("design:type", Number)
+    ], AutoOrderConfigEntity.prototype, "userId", void 0);
     __decorate([
         typeorm_1.Column({ type: 'varchar', length: 10 }),
         __metadata("design:type", String)
     ], AutoOrderConfigEntity.prototype, "symbol", void 0);
     __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 18 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "sellAmountThreshold", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 18 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "buyAmountThreshold", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 18 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "buyStrengths", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "sellStrengths", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 14 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "buyGain", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 14 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "sellGain", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'tinyint' }),
+        typeorm_1.Column({ type: 'float' }),
         __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "isUp", void 0);
+    ], AutoOrderConfigEntity.prototype, "buy_usdt", void 0);
     __decorate([
-        typeorm_1.Column({ type: 'tinyint' }),
+        typeorm_1.Column({ type: 'float' }),
         __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "isFall", void 0);
+    ], AutoOrderConfigEntity.prototype, "sell_usdt", void 0);
     AutoOrderConfigEntity = __decorate([
         typeorm_1.Entity()
     ], AutoOrderConfigEntity);

@@ -27,7 +27,7 @@ const async_validator_1 = __importDefault(require("async-validator"));
 const config_1 = __importDefault(require("config"));
 const crypto_1 = __importDefault(require("crypto"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const constants_1 = require("../../constants");
+const common_1 = require("../../constants/common");
 const UserService = __importStar(require("./user.service"));
 const sign = config_1.default.get('sign');
 const userValidator = new async_validator_1.default({
@@ -104,7 +104,7 @@ exports.createUser = async (ctx) => {
         return;
     }
     try {
-        const newUser = await UserService.create(userName, password, constants_1.AUTHORITY.user);
+        const newUser = await UserService.create(userName, password, common_1.AUTHORITY.user);
         if (newUser.id) {
             ctx.sendSuccess({ data: newUser.id });
         }
@@ -132,7 +132,7 @@ exports.createFirstUser = async (ctx) => {
         ctx.sendError({ message: '写入失败' });
         return;
     }
-    const newUser = UserService.create(userName, password, constants_1.AUTHORITY.admin);
+    const newUser = UserService.create(userName, password, common_1.AUTHORITY.admin);
     if (newUser) {
         ctx.sendSuccess();
     }

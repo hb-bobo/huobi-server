@@ -14,10 +14,10 @@ class CrudService {
          * Get one
          * @param query
          */
-        this.getOne = async (query) => {
-            const res = await this._Entity.findOne(query);
-            return res;
-        };
+        // public getOne = async <T>(query) => {
+        //     const res = await this._Entity.findOne<T>(query)
+        //     return res;
+        // }
         /**
          * Get many
          * @param {object} query

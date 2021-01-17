@@ -1,8 +1,30 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const SymbolPrice_1 = __importDefault(require("../common/SymbolPrice"));
-const symbolPrice = new SymbolPrice_1.default('huobi');
+exports.SymbolPrice = void 0;
+/**
+ * 设置/获取btc eth ht对usdt的价格
+ */
+class SymbolPrice {
+    constructor(exchange) {
+        this.prices = {
+            btc: 10000,
+            eth: 300,
+            ht: 4,
+        };
+        this.exchange = exchange;
+    }
+    set(symbol, value) {
+        if (this.prices[symbol]) {
+            this.prices[symbol] = value;
+        }
+    }
+    get(symbol) {
+        if (this.prices[symbol]) {
+            return this.prices[symbol];
+        }
+        return 0;
+    }
+}
+exports.SymbolPrice = SymbolPrice;
+const symbolPrice = new SymbolPrice('huobi');
 exports.default = symbolPrice;

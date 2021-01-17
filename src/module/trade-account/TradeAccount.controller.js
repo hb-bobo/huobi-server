@@ -55,7 +55,7 @@ exports.get = async (ctx) => {
  * 更新或者新建
  */
 exports.updateOne = async (ctx) => {
-    const { id, _id, auto_trade, exchange, access_key, secret_key, uid, account_id_pro, trade_password, } = ctx.request.body;
+    const { id, _id, auto_trade, exchange, access_key, secret_key, uid, trade_password, } = ctx.request.body;
     const ID = id || _id;
     const DATA = {
         auto_trade,
@@ -63,16 +63,11 @@ exports.updateOne = async (ctx) => {
         access_key,
         secret_key,
         uid,
-        account_id_pro,
         trade_password,
     };
     const validator = new async_validator_1.default({
         id: {
             type: "string",
-        },
-        auto_trade: {
-            type: "boolean",
-            required: true,
         },
         exchange: {
             type: "string",
@@ -86,10 +81,6 @@ exports.updateOne = async (ctx) => {
             required: true,
         },
         uid: {
-            type: "string",
-            required: true,
-        },
-        account_id_pro: {
             type: "string",
             required: true,
         },
@@ -113,7 +104,10 @@ exports.updateOne = async (ctx) => {
             ctx.sendSuccess();
         }
         else {
-            res = await TradeAccountService.create(DATA);
+            res = await TradeAccountService.create({
+                ...DATA,
+                userId: ctx.state.user && ctx.state.user.id
+            });
             ctx.sendSuccess({
                 data: res
             });

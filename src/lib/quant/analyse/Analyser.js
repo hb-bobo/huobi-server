@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
-const utils_1 = require("../../../utils");
+const util_1 = require("../util");
 const indicators_1 = require("../indicators");
 /**
  * 量化
@@ -40,26 +40,26 @@ class Analyser {
         const row = {
             ...newData,
             time: new Date(Number(data.id + '000')),
-            MA5: utils_1.autoToFixed(this.MA5.last()) || null,
-            MA10: utils_1.autoToFixed(this.MA10.last()) || null,
-            MA30: utils_1.autoToFixed(this.MA30.last()) || null,
-            MA60: utils_1.autoToFixed(this.MA60.last()) || null,
-            amountMA20: utils_1.autoToFixed(this.amountMA20.last()) || null,
+            MA5: util_1.autoToFixed(this.MA5.last()) || null,
+            MA10: util_1.autoToFixed(this.MA10.last()) || null,
+            MA30: util_1.autoToFixed(this.MA30.last()) || null,
+            MA60: util_1.autoToFixed(this.MA60.last()) || null,
+            amountMA20: util_1.autoToFixed(this.amountMA20.last()) || null,
         };
         /**
          * 超跌 < 0
          * 超买 > 0
          */
         row['close/MA60'] = this.getGain(row.close, row.MA60);
-        row['amount/amountMA20'] = this.getGain(row.amount, row.amountMA20);
+        row['amount/amountMA20'] = this.getGain(Number(row.amount), row.amountMA20);
         /**
          * 买盘力量大
          */
-        row['low-close'] = (row.low - row.close) / row.close;
+        row['low-close/close'] = (row.low - row.close) / row.close;
         /**
          * 卖盘力量大
          */
-        row['high-close'] = (row.high - row.close) / row.close;
+        row['high-close/close'] = (row.high - row.close) / row.close;
         this.middlewares.forEach((callback) => {
             callback(row);
         });
