@@ -1,4 +1,4 @@
-import { SymbolInfo } from "ROOT/lib/huobi-sdk";
+import { SymbolInfo } from "node-huobi-sdk";
 import { autoToFixed } from "ROOT/utils";
 import { hbsdk } from "./hbsdk";
 import symbolPrice from "./price";

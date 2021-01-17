@@ -11,6 +11,7 @@ import * as MailController from 'ROOT/module/email/config.controller';
 import * as ConfigController from 'ROOT/module/config/config.controller';
 import * as TrainController from 'ROOT/module/train/train.controller';
 import AutoOrderConfigController from 'ROOT/module/auto-order-config/AutoOrderConfig.controller';
+import AutoOrderHistoryController from 'ROOT/module/auto-order-history/AutoOrderHistory.controller';
 
 // /index
 const apiPrefix = '/api';
@@ -48,3 +49,5 @@ router.post(`${apiPrefix}/train/download`, checkToken, TrainController.download)
 router.get(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.index);
 router.post(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.updateOne);
 router.delete(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.removeOne);
+
+router.get(`${apiPrefix}/auto-order-history`, checkToken, AutoOrderHistoryController.index);

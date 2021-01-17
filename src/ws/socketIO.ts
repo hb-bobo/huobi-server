@@ -2,7 +2,7 @@ import socket from 'socket.io';
 import { outLogger } from 'ROOT/common/logger';
 import { ws_event } from 'ROOT/huobi/events';
 import { hbsdk } from 'ROOT/huobi/hbsdk';
-import { CandlestickIntervalEnum } from 'ROOT/lib/huobi-sdk';
+import { CandlestickIntervalEnum } from 'node-huobi-sdk';
 
 /**
  * 与客户端的socket

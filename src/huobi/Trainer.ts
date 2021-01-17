@@ -1,6 +1,6 @@
 
 import { outLogger } from "ROOT/common/logger";
-import { HuobiSDK } from "ROOT/lib/huobi-sdk";
+import { HuobiSDK } from "node-huobi-sdk";
 import { Quant } from "ROOT/lib/quant";
 import Backtest from "ROOT/lib/quant/Backtest";
 import { keepDecimalFixed } from "ROOT/utils";

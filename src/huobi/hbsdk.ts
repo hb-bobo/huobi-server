@@ -1,3 +1,3 @@
-import { HuobiSDK } from "ROOT/lib/huobi-sdk";
+import { HuobiSDK } from "node-huobi-sdk";
 
 export const hbsdk = new HuobiSDK();

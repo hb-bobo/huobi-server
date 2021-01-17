@@ -13,10 +13,10 @@ export class CrudService<T extends any = any> {
      * Get one
      * @param query
      */
-    public getOne = async <T>(query) => {
-        const res = await this._Entity.findOne<T>(query)
-        return res;
-    }
+    // public getOne = async <T>(query) => {
+    //     const res = await this._Entity.findOne<T>(query)
+    //     return res;
+    // }
     
     /**
      * Get many

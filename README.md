@@ -1,6 +1,6 @@
-### ts-server
+### huobi-server
 
-蚂蚁仓 + 均线
+Trader for huobi
 
 ## run setup
 
@@ -19,3 +19,6 @@ npm run tsc
 npm run pm2:prod
 
 ```
+
+## node huobi-sdk
+[https://github.com/hb-bobo/huobi-sdk](https://github.com/hb-bobo/huobi-sdk)

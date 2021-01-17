@@ -4,7 +4,7 @@ import { errLogger, outLogger } from "ROOT/common/logger";
 import StatisticalTrade from "./StatisticalTradeData";
 import { Quant } from "ROOT/lib/quant";
 import { keepDecimalFixed } from "ROOT/utils";
-import HuobiSDK, { CandlestickIntervalEnum, SymbolInfo } from "ROOT/lib/huobi-sdk";
+import HuobiSDK, { CandlestickIntervalEnum, SymbolInfo } from "node-huobi-sdk";
 import { Period } from "./interface";
 import { getPriceIndex, getSameAmount, getSymbolInfo, getTracePrice, _SYMBOL_INFO_MAP } from "./util";
 import { Trainer } from "./Trainer";
