@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hbsdk = void 0;
-const huobi_sdk_1 = require("../lib/huobi-sdk");
-exports.hbsdk = new huobi_sdk_1.HuobiSDK();
+const src_1 = require("../lib/huobi-sdk/src");
+exports.hbsdk = new src_1.HuobiSDK();

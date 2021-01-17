@@ -26,7 +26,7 @@ const AutoOrderConfigService = __importStar(require("../module/auto-order-config
 const orm_1 = require("../db/orm");
 const logger_1 = require("../common/logger");
 const Trader_1 = require("./Trader");
-const huobi_sdk_1 = require("../lib/huobi-sdk");
+const src_1 = require("../lib/huobi-sdk/src");
 const huobi_1 = require("../constants/huobi");
 const huobi_handler_1 = require("./huobi-handler");
 const hbsdk_1 = require("./hbsdk");
@@ -72,7 +72,7 @@ async function start() {
         WatchEntityList.forEach((WatchEntity) => {
             const SYMBOL = WatchEntity.symbol.toLowerCase();
             hbsdk_1.hbsdk.subMarketDepth({ symbol: SYMBOL }, huobi_handler_1.handleDepth);
-            hbsdk_1.hbsdk.subMarketKline({ symbol: SYMBOL, period: huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, huobi_handler_1.handleKline);
+            hbsdk_1.hbsdk.subMarketKline({ symbol: SYMBOL, period: src_1.CandlestickIntervalEnum.MIN5 }, huobi_handler_1.handleKline);
             hbsdk_1.hbsdk.subMarketTrade({ symbol: SYMBOL }, huobi_handler_1.handleTrade);
         });
     }

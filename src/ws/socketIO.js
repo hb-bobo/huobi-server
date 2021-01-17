@@ -8,7 +8,7 @@ const socket_io_1 = __importDefault(require("socket.io"));
 const logger_1 = require("../common/logger");
 const events_1 = require("../huobi/events");
 const hbsdk_1 = require("../huobi/hbsdk");
-const huobi_sdk_1 = require("../lib/huobi-sdk");
+const src_1 = require("../lib/huobi-sdk/src");
 /**
  * 与客户端的socket
  */
@@ -24,7 +24,7 @@ exports.socketIO.on('connection', function (socket) {
         logger_1.outLogger.info('socketIO: onsub ', symbol);
         symbol = symbol.toLowerCase();
         const unSubMarketDepth = hbsdk_1.hbsdk.subMarketDepth({ symbol, id: socket.id });
-        const unSubMarketKline = hbsdk_1.hbsdk.subMarketKline({ symbol, period: huobi_sdk_1.CandlestickIntervalEnum.MIN5, id: socket.id });
+        const unSubMarketKline = hbsdk_1.hbsdk.subMarketKline({ symbol, period: src_1.CandlestickIntervalEnum.MIN5, id: socket.id });
         const unsubMarketTrade = hbsdk_1.hbsdk.subMarketTrade({ symbol, id: socket.id });
         // ws.sub(WS_SUB.kline(symbol, '1min'), socket.id);
         // ws.sub(WS_SUB.depth(symbol), socket.id);
