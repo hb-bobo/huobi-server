@@ -29,7 +29,7 @@ const logger_1 = require("../common/logger");
 const StatisticalTradeData_1 = __importDefault(require("./StatisticalTradeData"));
 const quant_1 = require("../lib/quant");
 const utils_1 = require("../utils");
-const src_1 = require("../lib/huobi-sdk/src");
+const node_huobi_sdk_1 = require("node-huobi-sdk");
 const util_1 = require("./util");
 const Trainer_1 = require("./Trainer");
 const AutoOrderHistoryService = __importStar(require("../module/auto-order-history/AutoOrderHistory.service"));
@@ -142,7 +142,7 @@ let Trader = /** @class */ (() => {
                     asksList: asksList,
                 };
             }, 10000, { leading: true }));
-            const data = await this.sdk.getMarketHistoryKline(symbol, src_1.CandlestickIntervalEnum.MIN5, 1500);
+            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 1500);
             const rData = data.reverse();
             quant.analysis(rData);
             this.orderConfigMap[symbol].trainer.run(rData).then((config) => {
@@ -217,7 +217,7 @@ let Trader = /** @class */ (() => {
                     }
                 }
             });
-            this.sdk.subMarketKline({ symbol, period: src_1.CandlestickIntervalEnum.MIN5 }, (data) => {
+            this.sdk.subMarketKline({ symbol, period: node_huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, (data) => {
                 this.orderConfigMap[symbol].price = data.data.close;
                 if (this.orderConfigMap[symbol].id !== data.data.id && data.symbol === symbol) {
                     console.log('subMarketKline', data.symbol, this.orderConfigMap[symbol].id);
