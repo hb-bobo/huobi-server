@@ -1,4 +1,5 @@
-import { Analyser, DollarCostAvg } from "./analyse"
+import { Analyser, DollarCostAvg } from "./analyse";
+import { AnalyserDataItem } from './analyse/Analyser';
 
 interface Options {
     symbol: string;
@@ -50,8 +51,8 @@ export default class Quant {
     }
     /**
      * 安全交易
-     * @param price 
-     * @param action 
+     * @param price
+     * @param action
      */
     safeTrade(price: number, action?: 'buy' | 'sell') {
 
@@ -77,13 +78,13 @@ export default class Quant {
     analysis<T extends Record<string, any>>(dataOrList: T) {
         return this.analyser.analysis(dataOrList);
     }
-    mockUse(...params: Parameters<Analyser['use']>) {
+    mockUse(middleware: (row: AnalyserDataItem) => void) {
         this.analyser.result.forEach((row) => {
             this.dc.updateConfig({
                 balance: this.config.quoteCurrencyBalance / row.close,
             });
             this.config.price = row.close;
-            params.forEach((callback) => callback(row as any))
+            middleware(row as any)
         })
     }
 }

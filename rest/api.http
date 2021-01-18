@@ -40,7 +40,7 @@ Authorization: test
 content-type: application/json
 
 {
-    "symbol": "btcusdt",
+    "symbol": "dotusdt",
     "period": "5min",
     "size": 2000
 }

@@ -1,8 +1,9 @@
 import { isNumber, omit, toNumber } from "lodash";
+import dayjs from 'dayjs';
 import { autoToFixed } from "../util";
 import { MA } from "../indicators";
 
-interface DataItem {
+export interface DataItem {
     "id": number,
     "open": number,
     "close": number,
@@ -12,7 +13,7 @@ interface DataItem {
     "vol": string,
     "count": number,
 }
-interface AnalyserDataItem extends DataItem{
+export interface AnalyserDataItem extends DataItem{
     "time": string;
     "MA5": number | null;
     "MA10": number | null;
@@ -55,7 +56,7 @@ export default class Analyser {
         this._analysis(data)
     }
     public _analysis<T extends Record<string, any>>(data: T){
-        this.amountMA20.push(toNumber(data.amount))
+
         this.MA5.push(data.close)
         this.MA10.push(data.close)
         this.MA30.push(data.close)
@@ -63,27 +64,33 @@ export default class Analyser {
         const newData = omit(data, 'id');
         const row: Record<string, any> = {
             ...newData,
-            time: new Date(Number(data.id + '000')),
+            time: dayjs(Number(data.id + '000')).format("YYYY-MM-DD HH:mm:ss"),
             MA5: autoToFixed(this.MA5.last()) || null,
             MA10: autoToFixed(this.MA10.last()) || null,
             MA30: autoToFixed(this.MA30.last()) || null,
             MA60: autoToFixed(this.MA60.last()) || null,
-            amountMA20: autoToFixed(this.amountMA20.last()) || null,
+        }
+
+
+        if (data.amount !== undefined) {
+            this.amountMA20.push(toNumber(data.amount));
+            row.amountMA20 = autoToFixed(this.amountMA20.last()) || null;
+            row['amount/amountMA20'] = this.getGain(Number(row.amount), row.amountMA20);
         }
         /**
          * 超跌 < 0
          * 超买 > 0
          */
         row['close/MA60'] = this.getGain(row.close, row.MA60);
-        row['amount/amountMA20'] = this.getGain(Number(row.amount), row.amountMA20);
+
         /**
          * 买盘力量大
          */
-        row['low-close/close'] = (row.low - row.close) / row.close;
+        row['low-close/close'] = autoToFixed((row.low - row.close) / row.close);
         /**
          * 卖盘力量大
          */
-        row['high-close/close'] = (row.high - row.close) / row.close;
+        row['high-close/close'] = autoToFixed((row.high - row.close) / row.close);
 
         this.middlewares.forEach((callback) => {
             callback(row);
@@ -97,7 +104,7 @@ export default class Analyser {
         if (!isNumber(close) || !isNumber(ma)) {
             return 0;
         }
-        return (close - ma) / ma;
+        return autoToFixed((close - ma) / ma);
     }
     /**
      * 添加中间件

@@ -158,7 +158,7 @@ export class Trader {
             };
         }, 10000, {leading: true}));
 
- 
+
         const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 1500);
         const rData = data.reverse();
 
@@ -173,83 +173,82 @@ export class Trader {
             }
 
             // 卖
-            if (row.close > row.M10 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
-                if (
-                    row["close/MA60"] > this.orderConfigMap[symbol].oversoldRatio
-                    || row['amount/amountMA20'] > this.orderConfigMap[symbol].sellAmountRatio
-                ) {
-                    const tradingAdvice = quant.safeTrade(row.close);
-                    this.orderConfigMap[symbol].trainer.run().then((config) => {
-                        Object.assign(this.orderConfigMap[symbol], config);
-                    });
-                    const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
-                    // if (false) {
-                    //     this.order(
-                    //         symbol,
-                    //         tradingAdvice.action,
-                    //         tradingAdvice.volume,
-                    //         tradingAdvice.price
-                    //     );
-                    // } else {
-                        
-                    // }
-                    const price = sell_usdt / row.close;
-                    const amount =  pricePoolFormDepth.sell[0] || row.close * 1.02;
-                    this.order(
+
+            if (
+                row["close/MA60"] > this.orderConfigMap[symbol].oversoldRatio
+                // || row['amount/amountMA20'] > this.orderConfigMap[symbol].sellAmountRatio
+            ) {
+                const tradingAdvice = quant.safeTrade(row.close);
+                this.orderConfigMap[symbol].trainer.run().then((config) => {
+                    Object.assign(this.orderConfigMap[symbol], config);
+                });
+                const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
+                // if (false) {
+                //     this.order(
+                //         symbol,
+                //         tradingAdvice.action,
+                //         tradingAdvice.volume,
+                //         tradingAdvice.price
+                //     );
+                // } else {
+
+                // }
+                const price = sell_usdt / row.close;
+                const amount =  pricePoolFormDepth.sell[0] || row.close * 1.02;
+                this.order(
+                    symbol,
+                    'sell',
+                    price,
+                    amount
+                );
+                if (userId) {
+                    AutoOrderHistoryService.create({
+                        time: new Date(),
                         symbol,
-                        'sell',
                         price,
-                        amount
-                    );
-                    if (userId) {
-                        AutoOrderHistoryService.create({
-                            time: new Date(),
-                            symbol,
-                            price,
-                            amount,
-                            userId,
-                        });
-                    }
+                        amount,
+                        userId,
+                    });
                 }
             }
+
             // 买
-            if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
-                if (
-                    row["close/MA60"] < this.orderConfigMap[symbol].overboughtRatio
-                    || row['amount/amountMA20'] > this.orderConfigMap[symbol].buyAmountRatio
-                ) {
-                    const tradingAdvice = quant.safeTrade(row.close);
-                    this.orderConfigMap[symbol].trainer.run().then((config) => {
-                        Object.assign(this.orderConfigMap[symbol], config);
-                    });
-                    const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
-                    // if (false) {
-                    //     this.order(
-                    //         symbol,
-                    //         tradingAdvice.action,
-                    //         tradingAdvice.volume,
-                    //         tradingAdvice.price
-                    //     );
-                    // }
-                    const price = buy_usdt / row.close;
-                    const amount =  pricePoolFormDepth.buy[0] || row.close *  0.98;
-                    this.order(
+            if (
+                row["close/MA60"] < this.orderConfigMap[symbol].overboughtRatio
+                // || row['amount/amountMA20'] > this.orderConfigMap[symbol].buyAmountRatio
+            ) {
+                const tradingAdvice = quant.safeTrade(row.close);
+                this.orderConfigMap[symbol].trainer.run().then((config) => {
+                    Object.assign(this.orderConfigMap[symbol], config);
+                });
+                const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
+                // if (false) {
+                //     this.order(
+                //         symbol,
+                //         tradingAdvice.action,
+                //         tradingAdvice.volume,
+                //         tradingAdvice.price
+                //     );
+                // }
+                const price = buy_usdt / row.close;
+                const amount =  pricePoolFormDepth.buy[0] || row.close *  0.98;
+                this.order(
+                    symbol,
+                    'buy',
+                    price,
+                    amount
+                );
+                if (userId) {
+                    AutoOrderHistoryService.create({
+                        time: new Date(),
                         symbol,
-                        'buy',
                         price,
-                        amount
-                    );
-                    if (userId) {
-                        AutoOrderHistoryService.create({
-                            time: new Date(),
-                            symbol,
-                            price,
-                            amount,
-                            userId,
-                        });
-                    }
+                        amount,
+                        userId,
+                    });
                 }
             }
+
         });
 
         this.sdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN5}, (data) => {
