@@ -53,13 +53,13 @@ class Quant {
     analysis(dataOrList) {
         return this.analyser.analysis(dataOrList);
     }
-    mockUse(...params) {
+    mockUse(middleware) {
         this.analyser.result.forEach((row) => {
             this.dc.updateConfig({
                 balance: this.config.quoteCurrencyBalance / row.close,
             });
             this.config.price = row.close;
-            params.forEach((callback) => callback(row));
+            middleware(row);
         });
     }
 }

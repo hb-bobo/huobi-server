@@ -47,7 +47,7 @@ class Backtest {
         }
         const currentBalance = this.quoteCurrencyBalance + this.baseCurrencyBalance * this._lastPrice;
         const startBalance = this.initOption.quoteCurrencyBalance + this.initOption.baseCurrencyBalance * this._startPrice;
-        return util_1.keepDecimalFixed((currentBalance - startBalance) / this.initOption.quoteCurrencyBalance, 2);
+        return util_1.keepDecimalFixed((currentBalance - startBalance) / startBalance, 2);
     }
 }
 exports.default = Backtest;

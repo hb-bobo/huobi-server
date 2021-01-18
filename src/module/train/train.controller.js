@@ -53,7 +53,7 @@ exports.download = async (ctx) => {
             ctx.sendError({ message: '数据拉取失败' });
             return;
         }
-        await writeFilePromisify(path_1.join(downloadPath, fileName), JSON.stringify(data));
+        await writeFilePromisify(path_1.join(downloadPath, fileName), JSON.stringify(data.reverse()));
         ctx.sendSuccess({
             data: {
                 url: `${ctx.URL.origin}/download/history-data/${fileName}`
@@ -91,7 +91,7 @@ exports.Backtest = async (ctx) => {
             ctx.sendError({ message: '数据拉取失败' });
             return;
         }
-        await writeFilePromisify(path_1.join(downloadPath, fileName), JSON.stringify(data));
+        await writeFilePromisify(path_1.join(downloadPath, fileName), JSON.stringify(data.reverse()));
         ctx.sendSuccess({
             data: {
                 url: `${ctx.URL.origin}/download/history-data/${fileName}`

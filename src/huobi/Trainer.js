@@ -68,14 +68,18 @@ class Trainer {
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
                 quant.mockUse(function (row) {
-                    if (!row.MA5 || !row.MA60 || !row.MA30) {
+                    if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
-                    if (row["close/MA60"] > oversoldRatio && row.MA5 > row.MA30) {
-                        bt.sell(row.close);
+                    if (row.M10 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
+                        if (row["close/MA60"] > oversoldRatio) {
+                            bt.sell(row.close);
+                        }
                     }
-                    if (row["close/MA60"] < overboughtRatio && row.MA5 < row.MA30) {
-                        bt.buy(row.close);
+                    if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
+                        if (row["close/MA60"] < overboughtRatio) {
+                            bt.buy(row.close);
+                        }
                     }
                 });
                 result.push({
@@ -117,17 +121,17 @@ class Trainer {
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
                 quant.mockUse(function (row) {
-                    if (!row.MA5 || !row.MA60 || !row.MA30) {
+                    if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
                     // 卖
-                    if (row.close > row.MA30) {
+                    if (row.close > row.M10 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
                         if (row['amount/amountMA20'] > sellAmountRatio) {
                             bt.sell(row.close);
                         }
                     }
                     // 买
-                    if (row.close < row.MA30) {
+                    if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
                         if (row['amount/amountMA20'] > buyAmountRatio) {
                             bt.buy(row.close);
                         }
