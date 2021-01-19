@@ -84,7 +84,6 @@ class DollarCostAvg {
         if (this.buyList === undefined || this.sellList === undefined) {
             this.splitBill();
         }
-        console.log('trade', this.buyList);
         if (!this.buyList) {
             return;
         }

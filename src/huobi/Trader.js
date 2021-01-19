@@ -98,6 +98,7 @@ let Trader = /** @class */ (() => {
         async autoTrader({ symbol, buy_usdt, sell_usdt, period = 5, }, userId) {
             await this.getSymbolInfo(symbol);
             await this.getBalance(symbol);
+            logger_1.outLogger.info('autoTrader.userId', userId);
             const quant = new quant_1.Quant({
                 symbol: symbol,
                 quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
