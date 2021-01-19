@@ -4,6 +4,7 @@
             "name": "huobi-server",
             "script": "./dist/src/app.js",
             "cwd": "./",
+            "instance_var": "INSTANCE_ID",
             "watch": [
                 "dist/config",
                 "dist/src"
