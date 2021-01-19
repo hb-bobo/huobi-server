@@ -26,7 +26,7 @@ router.post(`${apiPrefix}/login/account`, UserController.login);
 
 router.get(`${apiPrefix}/trade-account`, checkToken, TradeAccountController.get);
 router.post(`${apiPrefix}/trade-account`, checkToken, TradeAccountController.updateOne);
-
+router.delete(`${apiPrefix}/trade-account`, checkToken, TradeAccountController.removeOne);
 
 router.get(`${apiPrefix}/send-email`, MailController.index);
 router.post(`${apiPrefix}/send-email`, MailController.create);

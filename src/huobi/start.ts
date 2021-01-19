@@ -46,6 +46,7 @@ export async function start() {
 
     const WatchEntityList = await WatchService.find();
 
+    outLogger.info(`autoOrderList`, autoOrderList.length)
     if (autoOrderList.length > 0) {
         autoOrderList.forEach((atoOrderConfigEntity) => {
             trader.autoTrader({
