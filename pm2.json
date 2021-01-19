@@ -4,6 +4,7 @@
       "name": "huobi-server",
       "script": "./src/app.js",
       "cwd": "./",
+      "instance_var": "INSTANCE_ID",
       "watch": ["config", "src"],
       "env": { "NODE_ENV": "development" },
       "env_production": { "NODE_ENV": "production" },
