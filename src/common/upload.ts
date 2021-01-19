@@ -1,8 +1,7 @@
 import config from 'config';
-import { Files } from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import request from 'request-promise';
+import got from 'got';
 import { mkdir } from 'ROOT/utils/fs';
 import validator from 'validator';
 
@@ -27,7 +26,7 @@ export const uploadFromNetWork = (url: string, writePath: string, requestOption:
             return
         }
 
-        request.get(url, requestOption)
+        got.stream(url, requestOption)
         .on('error', function(err) {
             reject(err);
         })
@@ -52,7 +51,7 @@ mkdir(path.join(publicPath, '/upload/files/'));
  * @param {string} relativePath
  */
 
-export const uploadFiles = async (files: Files, host: string, relativePath: string) => {
+export const uploadFiles = async (files: any[], host: string, relativePath: string) => {
     // 上传目录绝对路径
     const uploadPath = path.join(publicPath, relativePath);
     // 没有上传的路径则创建
