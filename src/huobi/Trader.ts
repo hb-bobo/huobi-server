@@ -255,7 +255,7 @@ export class Trader {
             this.orderConfigMap[symbol].price = data.data.close;
 
             if (this.orderConfigMap[symbol].id !== data.data.id && data.symbol === symbol) {
-                console.log('subMarketKline', data.symbol, this.orderConfigMap[symbol].id)
+                outLogger.info('subMarketKline', data.symbol, this.orderConfigMap[symbol].id)
                 this.orderConfigMap[symbol].id = data.data.id;
                 quant.analysis(data.data);
             }

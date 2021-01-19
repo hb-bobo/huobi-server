@@ -42,7 +42,7 @@ async function tranSafeTrade() {
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
-        quoteCurrencyBalance: 800,
+        quoteCurrencyBalance: 400,
         baseCurrencyBalance: 0,
         maxs: [history[history.length - 1].close * 1.12],
         mins: [history[history.length - 1].close * 0.88],
@@ -54,8 +54,8 @@ async function tranSafeTrade() {
         quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
         baseCurrencyBalance: quant.config.baseCurrencyBalance,
     });
-
-    quant.use(function(row) {
+    quant.analysis(history);
+    quant.mockUse(function(row) {
         const tradingAdvice = quant.safeTrade(row.close);
         if (tradingAdvice) {
             const time = dayjs(row.time).format("YYYY/MM/DD H:mm:ss");
@@ -65,6 +65,7 @@ async function tranSafeTrade() {
             } else if (tradingAdvice.action === 'sell') {
                 bt.sell(row.close, tradingAdvice.volume);
             }
+            console.log(tradingAdvice)
         }
         // quant.dc.updateConfig({
         //     maxs: [row.close * 1.1],
@@ -72,8 +73,8 @@ async function tranSafeTrade() {
         // });
     })
 
-    quant.analysis(history);
-    quant.analysis(history);
+
+
     console.log(
         `
         quoteCurrencyBalance: ${bt.quoteCurrencyBalance}
@@ -83,7 +84,7 @@ async function tranSafeTrade() {
     )
 
 }
-// tranSafeTrade();
+tranSafeTrade();
 
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -150,7 +151,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-tran2();
+// tran2();
 
 
 
