@@ -45,6 +45,7 @@ router.post(`${apiPrefix}/user/create`, checkToken_1.default, UserController.cre
 router.post(`${apiPrefix}/login/account`, UserController.login);
 router.get(`${apiPrefix}/trade-account`, checkToken_1.default, TradeAccountController.get);
 router.post(`${apiPrefix}/trade-account`, checkToken_1.default, TradeAccountController.updateOne);
+router.delete(`${apiPrefix}/trade-account`, checkToken_1.default, TradeAccountController.removeOne);
 router.get(`${apiPrefix}/send-email`, MailController.index);
 router.post(`${apiPrefix}/send-email`, MailController.create);
 router.get(`${apiPrefix}/watch-symbol`, checkToken_1.default, WatchController.get);
