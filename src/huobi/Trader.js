@@ -218,7 +218,7 @@ let Trader = /** @class */ (() => {
             this.sdk.subMarketKline({ symbol, period: node_huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, (data) => {
                 this.orderConfigMap[symbol].price = data.data.close;
                 if (this.orderConfigMap[symbol].id !== data.data.id && data.symbol === symbol) {
-                    console.log('subMarketKline', data.symbol, this.orderConfigMap[symbol].id);
+                    logger_1.outLogger.info('subMarketKline', data.symbol, this.orderConfigMap[symbol].id);
                     this.orderConfigMap[symbol].id = data.data.id;
                     quant.analysis(data.data);
                 }
