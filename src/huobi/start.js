@@ -59,7 +59,7 @@ async function start() {
     });
     exports.trader.init();
     const WatchEntityList = await WatchService.find();
-    console.log(autoOrderList);
+    logger_1.outLogger.info(`autoOrderList`, autoOrderList.length);
     if (autoOrderList.length > 0) {
         autoOrderList.forEach((atoOrderConfigEntity) => {
             exports.trader.autoTrader({
