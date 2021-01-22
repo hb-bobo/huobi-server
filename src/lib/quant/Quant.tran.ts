@@ -12,7 +12,7 @@ import Backtest from './Backtest';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'btcusdt-5min-2021-01-18'
+const fileName = 'ethusdt-5min-2021-01-18'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
@@ -84,7 +84,7 @@ async function tranSafeTrade() {
     )
 
 }
-tranSafeTrade();
+// tranSafeTrade();
 
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -117,9 +117,11 @@ async function tran2() {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
+                    console.log(row)
                     bt.sell(row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
+                    console.log(row)
                     bt.buy(row.close);
                 }
                 // if (row.MA5 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
@@ -153,6 +155,74 @@ async function tran2() {
 }
 // tran2();
 
+async function tran3() {
+    const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
+
+    const history = JSON.parse(data);
+    const quant = new Quant({
+        symbol: 'btcusdt',
+        price: history[history.length - 1].close,
+        quoteCurrencyBalance: 300,
+        baseCurrencyBalance: 0,
+        maxs: [history[history.length - 1].close * 1.04],
+        mins: [history[history.length - 1].close * 0.96],
+        minVolume: 0.00001,
+    });
+    quant.analysis(history);
+    const result: any[] = []
+    const bt = new Backtest({
+        symbol: 'btcusdt',
+        buyAmount: 0.01,
+        sellAmount: 0.01,
+        quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
+        baseCurrencyBalance: quant.config.baseCurrencyBalance,
+    })
+
+    quant.mockUse(function (row) {
+        if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+            return;
+        }
+        if (row["close/MA60"] > 0.068) {
+
+            bt.sell(row.close);
+            result.push({
+                action: 'sell',
+                ...row,
+            });
+        }
+        if (row["close/MA60"] < -0.01) {
+
+            bt.buy(row.close);
+            result.push({
+                action: 'buy',
+                ...row,
+            });
+        }
+        // if (row.MA5 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
+
+        // }
+        // if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
+
+        // }
+    });
+    console.log(
+        `
+        quoteCurrencyBalance: ${bt.quoteCurrencyBalance}
+        baseCurrencyBalance: ${bt.baseCurrencyBalance}
+        收益率: ${bt.getReturn() * 100}%
+        `
+    )
+    const sheet = xlsx.utils.json_to_sheet(result);
+    const workbook = {
+        SheetNames: ['交易结果'], //定义表名
+        Sheets: {
+            '交易结果': sheet //表对象[注意表明]
+        },
+    }
+
+    xlsx.writeFile(workbook, join(publicPath, '/download/tran3.xlsx'));
+}
+tran3();
 
 
 async function tranAmount() {
