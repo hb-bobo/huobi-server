@@ -18,7 +18,7 @@ export default class AutoOrderHistoryEntity extends BaseEntity{
     @Column({type: 'varchar', length: 4})
     public type!: string;
     @Column({type: 'datetime'})
-    public time!: Date;
+    public datetime!: Date;
     @Column({type: 'int'})
     public status!: number;
 }

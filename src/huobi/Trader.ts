@@ -203,7 +203,7 @@ export class Trader {
                 );
                 if (userId) {
                     AutoOrderHistoryService.create({
-                        time: new Date(),
+                        datetime: new Date(),
                         symbol,
                         price,
                         amount,
@@ -241,7 +241,7 @@ export class Trader {
                 );
                 if (userId) {
                     AutoOrderHistoryService.create({
-                        time: new Date(),
+                        datetime: new Date(),
                         symbol,
                         price,
                         amount,

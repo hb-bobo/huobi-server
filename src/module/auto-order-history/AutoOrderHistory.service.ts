@@ -19,7 +19,7 @@ export const find = async function(query: Partial<AutoOrderHistory> = {}, pagina
     const [list, total] = await getRepository(AutoOrderHistory)
     .createQueryBuilder("FeedbackEntity")
     .where({userId: query.userId})
-    .orderBy('date')
+    .orderBy('datetime')
     .skip(skip)
     .take(take)
     .getManyAndCount();
