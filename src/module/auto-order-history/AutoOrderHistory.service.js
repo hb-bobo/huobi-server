@@ -20,7 +20,7 @@ exports.find = async function (query = {}, paginationOption) {
     const [list, total] = await typeorm_1.getRepository(AutoOrderHistory_entity_1.default)
         .createQueryBuilder("FeedbackEntity")
         .where({ userId: query.userId })
-        .orderBy('datetime')
+        .orderBy('datetime', 'DESC')
         .skip(skip)
         .take(take)
         .getManyAndCount();
