@@ -277,11 +277,11 @@ export class Trader {
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
 
         if (!hasEnoughBalance) {
-            const msg = `${symbolInfo['quote-currency']}不足`
+            const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`
             outLogger.info(msg);
             return Promise.reject(msg);
         } else if (!hasEnoughAmount) {
-            const msg = `当前币(${symbolInfo['base-currency']})不足`
+            const msg = `base-currency( ${symbolInfo['base-currency']} ) not enough`
             outLogger.info(msg);
             return Promise.reject(msg);
         }
