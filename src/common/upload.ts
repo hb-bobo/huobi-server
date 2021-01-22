@@ -33,7 +33,7 @@ export const uploadFromNetWork = (url: string, writePath: string, requestOption:
         .on('close', function() {
             resolve(true);
         })
-        .pipe(fs.createWriteStream(writePath))
+        .pipe(fs.createWriteStream(writePath) as NodeJS.WritableStream)
     });
 }
 
@@ -74,7 +74,7 @@ export const uploadFiles = async (files: any[], host: string, relativePath: stri
             // 创建可写流
             const upStream = fs.createWriteStream(filePath);
             // 可读流通过管道写入可写流
-            reader.pipe(upStream);
+            reader.pipe(upStream as NodeJS.WritableStream);
 
             // 删除临时文件
             fs.unlink(file.path, function (error) {
