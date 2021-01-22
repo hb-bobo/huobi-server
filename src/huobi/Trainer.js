@@ -25,7 +25,7 @@ class Trainer {
     async run(history) {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
         const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
-        logger_1.outLogger.info('训练完成:', this.quant.config.symbol, overRatio, amountRatio);
+        logger_1.outLogger.info('Training complete:', this.quant.config.symbol, overRatio, amountRatio);
         const config = {
             ...overRatio,
             ...amountRatio
