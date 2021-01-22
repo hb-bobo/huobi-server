@@ -10,7 +10,7 @@ export default class AutoOrderController {
     public static index = async (ctx: AppContext) => {
         const { id } = ctx.request.query;
         try {
-            let res: AutoOrderHistoryEntity | AutoOrderHistoryEntity[] | undefined;
+            let res;
             if (id) {
                 res = await AutoOrderHistoryService.find({id});
                 if (!res) {
@@ -66,7 +66,7 @@ export default class AutoOrderController {
             ctx.sendError({errors});
             return;
         }
-        
+
         try {
             let res;
             if (data.id || data._id) {

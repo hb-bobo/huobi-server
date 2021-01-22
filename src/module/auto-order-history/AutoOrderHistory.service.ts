@@ -1,21 +1,41 @@
 
 import AutoOrderHistory from "./AutoOrderHistory.entity";
 import { CrudService } from 'ROOT/extend/CURD';
-import { SaveOptions } from "typeorm";
+import { getRepository, SaveOptions } from "typeorm";
 import { TRADE_STATUS } from "ROOT/constants/huobi";
+import pagination from "ROOT/common/pagination";
+import { Pagination } from "ROOT/interface/List";
 
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 
 // }
 // export default new AutoOrderHistoryService(AutoOrderHistory);
-
 /**
  * 查询
  * @param {object} query
  */
-export const find = async function(query: Record<string, any>) {
-    const res = await AutoOrderHistory.find(query)
-    return res;
+export const find = async function(query: Partial<AutoOrderHistory> = {}, paginationOption?: Pagination) {
+    const {skip, take, current} = pagination(paginationOption);
+    const [list, total] = await getRepository(AutoOrderHistory)
+    .createQueryBuilder("FeedbackEntity")
+    .where({userId: query.userId})
+    .orderBy('date')
+    .skip(skip)
+    .take(take)
+    .getManyAndCount();
+
+    return {
+        list: list.map((item) => {
+            return {
+                ...item,
+            };
+        }),
+        pagination: {
+            current,
+            pageSize: take,
+            total,
+        }
+    };
 }
 
 
