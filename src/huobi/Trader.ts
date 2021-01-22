@@ -193,8 +193,8 @@ export class Trader {
                 // } else {
 
                 // }
-                const price = sell_usdt / row.close;
-                const amount =  pricePoolFormDepth.sell[0] || row.close * 1.02;
+                const amount = sell_usdt / row.close;
+                const price =  pricePoolFormDepth.sell[0] || row.close * 1.02;
                 this.order(
                     symbol,
                     'sell',
@@ -208,7 +208,8 @@ export class Trader {
                         price,
                         amount,
                         userId,
-                    });
+                        type: 'sell'
+                    }).catch(errLogger.error);
                 }
             }
 
@@ -230,8 +231,8 @@ export class Trader {
                 //         tradingAdvice.price
                 //     );
                 // }
-                const price = buy_usdt / row.close;
-                const amount =  pricePoolFormDepth.buy[0] || row.close *  0.98;
+                const amount = buy_usdt / row.close;
+                const price =  pricePoolFormDepth.buy[0] || row.close *  0.98;
                 this.order(
                     symbol,
                     'buy',
@@ -245,7 +246,8 @@ export class Trader {
                         price,
                         amount,
                         userId,
-                    });
+                        type: 'buy'
+                    }).catch(errLogger.error);
                 }
             }
 
@@ -253,7 +255,6 @@ export class Trader {
 
         this.sdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN5}, (data) => {
             this.orderConfigMap[symbol].price = data.data.close;
-
             if (this.orderConfigMap[symbol].id !== data.data.id && data.symbol === symbol) {
                 outLogger.info('subMarketKline', data.symbol, this.orderConfigMap[symbol].id)
                 this.orderConfigMap[symbol].id = data.data.id;

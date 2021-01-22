@@ -5,7 +5,7 @@ import {
     PrimaryGeneratedColumn,
     EntitySchema
 } from "typeorm";
-import { SplitTableWithYear } from "ROOT/common/SplitTableWithYear";
+import { SplitTableWithYear } from "ROOT/extend/SplitTableWithYear";
 import { outLogger } from "ROOT/common/logger";
 
 export const tableNameFactory = new SplitTableWithYear("depth_entity");

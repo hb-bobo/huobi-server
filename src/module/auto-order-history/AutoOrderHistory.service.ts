@@ -1,7 +1,8 @@
 
 import AutoOrderHistory from "./AutoOrderHistory.entity";
-import { CrudService } from 'ROOT/extend/curd';
+import { CrudService } from 'ROOT/extend/CURD';
 import { SaveOptions } from "typeorm";
+import { TRADE_STATUS } from "ROOT/constants/huobi";
 
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 
@@ -33,6 +34,7 @@ export const updateOne = async function(query: Partial<AutoOrderHistory>, newDat
  * @param { Document }
  */
 export const create = async function(data: Partial<AutoOrderHistory>) {
+    data.status = TRADE_STATUS.wait;
     const Doc = AutoOrderHistory.create(data)
     return Doc.save();
 }

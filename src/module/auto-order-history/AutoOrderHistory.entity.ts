@@ -19,4 +19,6 @@ export default class AutoOrderHistoryEntity extends BaseEntity{
     public type!: string;
     @Column({type: 'datetime'})
     public time!: Date;
+    @Column({type: 'int'})
+    public status!: number;
 }
