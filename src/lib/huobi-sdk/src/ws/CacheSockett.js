@@ -12,7 +12,7 @@ class CacheSockett {
         ws.on('open', () => {
             const list = Object.keys(this.cache);
             list.forEach((str) => {
-                ws.json(JSON.parse(str));
+                this.ws.json(JSON.parse(str));
             });
         });
     }

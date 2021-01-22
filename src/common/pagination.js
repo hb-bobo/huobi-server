@@ -7,9 +7,9 @@ const defaultOption = {
 function pagination({ pageSize = defaultOption.pageSize, current = 1 } = {}) {
     return {
         skip: pageSize * (current - 1),
-        take: Number(pageSize),
-        current: Number(current),
-        pageSize: Number(pageSize),
+        take: pageSize,
+        current: current,
+        pageSize: pageSize,
     };
 }
 exports.default = pagination;

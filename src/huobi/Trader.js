@@ -176,7 +176,7 @@ let Trader = /** @class */ (() => {
                     this.order(symbol, 'sell', price, amount);
                     if (userId) {
                         AutoOrderHistoryService.create({
-                            time: new Date(),
+                            datetime: new Date(),
                             symbol,
                             price,
                             amount,
@@ -207,7 +207,7 @@ let Trader = /** @class */ (() => {
                     this.order(symbol, 'buy', price, amount);
                     if (userId) {
                         AutoOrderHistoryService.create({
-                            time: new Date(),
+                            datetime: new Date(),
                             symbol,
                             price,
                             amount,

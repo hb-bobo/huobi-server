@@ -28,11 +28,12 @@ let AutoOrderController = /** @class */ (() => {
     class AutoOrderController {
     }
     AutoOrderController.index = async (ctx) => {
-        const { id } = ctx.request.query;
+        const { id, current, pageSize } = ctx.request.query;
+        const userId = ctx.state.user && ctx.state.user.id;
         try {
             let res;
             if (id) {
-                res = await AutoOrderHistoryService.find({ id });
+                res = await AutoOrderHistoryService.find({ id: id });
                 if (!res) {
                     ctx.sendError({ message: 'error' });
                     return;
@@ -42,8 +43,7 @@ let AutoOrderController = /** @class */ (() => {
                 });
             }
             else {
-                const userId = ctx.state.user && ctx.state.user.id;
-                res = await AutoOrderHistoryService.find({ userId: userId });
+                res = await AutoOrderHistoryService.find({ userId: userId }, { current, pageSize });
                 ctx.sendSuccess({ data: res });
             }
         }

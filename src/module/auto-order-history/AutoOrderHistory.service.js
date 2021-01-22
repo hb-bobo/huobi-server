@@ -5,7 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = exports.updateOne = exports.find = void 0;
 const AutoOrderHistory_entity_1 = __importDefault(require("./AutoOrderHistory.entity"));
+const typeorm_1 = require("typeorm");
 const huobi_1 = require("../../constants/huobi");
+const pagination_1 = __importDefault(require("../../common/pagination"));
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 // }
 // export default new AutoOrderHistoryService(AutoOrderHistory);
@@ -13,9 +15,27 @@ const huobi_1 = require("../../constants/huobi");
  * 查询
  * @param {object} query
  */
-exports.find = async function (query) {
-    const res = await AutoOrderHistory_entity_1.default.find(query);
-    return res;
+exports.find = async function (query = {}, paginationOption) {
+    const { skip, take, current } = pagination_1.default(paginationOption);
+    const [list, total] = await typeorm_1.getRepository(AutoOrderHistory_entity_1.default)
+        .createQueryBuilder("FeedbackEntity")
+        .where({ userId: query.userId })
+        .orderBy('datetime')
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
+    return {
+        list: list.map((item) => {
+            return {
+                ...item,
+            };
+        }),
+        pagination: {
+            current,
+            pageSize: take,
+            total,
+        }
+    };
 };
 /**
  * 更新单个
