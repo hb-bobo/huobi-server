@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEntitySchema = exports.entitysMap = exports.tableNameFactory = void 0;
 const typeorm_1 = require("typeorm");
-const SplitTableWithYear_1 = require("../../common/SplitTableWithYear");
+const SplitTableWithYear_1 = require("../../extend/SplitTableWithYear");
 exports.tableNameFactory = new SplitTableWithYear_1.SplitTableWithYear("depth_entity");
 exports.entitysMap = {};
 function createEntitySchema(name) {

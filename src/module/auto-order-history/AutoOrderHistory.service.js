@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = exports.updateOne = exports.find = void 0;
 const AutoOrderHistory_entity_1 = __importDefault(require("./AutoOrderHistory.entity"));
+const huobi_1 = require("../../constants/huobi");
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 // }
 // export default new AutoOrderHistoryService(AutoOrderHistory);
@@ -30,6 +31,7 @@ exports.updateOne = async function (query, newData, options) {
  * @param { Document }
  */
 exports.create = async function (data) {
+    data.status = huobi_1.TRADE_STATUS.wait;
     const Doc = AutoOrderHistory_entity_1.default.create(data);
     return Doc.save();
 };

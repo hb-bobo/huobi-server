@@ -41,6 +41,10 @@ let AutoOrderHistoryEntity = /** @class */ (() => {
         typeorm_1.Column({ type: 'datetime' }),
         __metadata("design:type", Date)
     ], AutoOrderHistoryEntity.prototype, "time", void 0);
+    __decorate([
+        typeorm_1.Column({ type: 'int' }),
+        __metadata("design:type", Number)
+    ], AutoOrderHistoryEntity.prototype, "status", void 0);
     AutoOrderHistoryEntity = __decorate([
         typeorm_1.Entity()
     ], AutoOrderHistoryEntity);

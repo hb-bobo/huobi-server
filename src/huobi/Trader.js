@@ -98,7 +98,6 @@ let Trader = /** @class */ (() => {
         async autoTrader({ symbol, buy_usdt, sell_usdt, period = 5, }, userId) {
             await this.getSymbolInfo(symbol);
             await this.getBalance(symbol);
-            logger_1.outLogger.info('autoTrader.userId', userId);
             const quant = new quant_1.Quant({
                 symbol: symbol,
                 quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
@@ -172,8 +171,8 @@ let Trader = /** @class */ (() => {
                     //     );
                     // } else {
                     // }
-                    const price = sell_usdt / row.close;
-                    const amount = pricePoolFormDepth.sell[0] || row.close * 1.02;
+                    const amount = sell_usdt / row.close;
+                    const price = pricePoolFormDepth.sell[0] || row.close * 1.02;
                     this.order(symbol, 'sell', price, amount);
                     if (userId) {
                         AutoOrderHistoryService.create({
@@ -182,7 +181,8 @@ let Trader = /** @class */ (() => {
                             price,
                             amount,
                             userId,
-                        });
+                            type: 'sell'
+                        }).catch(logger_1.errLogger.error);
                     }
                 }
                 // 买
@@ -202,8 +202,8 @@ let Trader = /** @class */ (() => {
                     //         tradingAdvice.price
                     //     );
                     // }
-                    const price = buy_usdt / row.close;
-                    const amount = pricePoolFormDepth.buy[0] || row.close * 0.98;
+                    const amount = buy_usdt / row.close;
+                    const price = pricePoolFormDepth.buy[0] || row.close * 0.98;
                     this.order(symbol, 'buy', price, amount);
                     if (userId) {
                         AutoOrderHistoryService.create({
@@ -212,7 +212,8 @@ let Trader = /** @class */ (() => {
                             price,
                             amount,
                             userId,
-                        });
+                            type: 'buy'
+                        }).catch(logger_1.errLogger.error);
                     }
                 }
             });
