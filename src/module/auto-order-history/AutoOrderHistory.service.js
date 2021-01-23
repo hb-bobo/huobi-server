@@ -8,6 +8,7 @@ const AutoOrderHistory_entity_1 = __importDefault(require("./AutoOrderHistory.en
 const typeorm_1 = require("typeorm");
 const huobi_1 = require("../../constants/huobi");
 const pagination_1 = __importDefault(require("../../common/pagination"));
+const utils_1 = require("../../utils");
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 // }
 // export default new AutoOrderHistoryService(AutoOrderHistory);
@@ -52,6 +53,8 @@ exports.updateOne = async function (query, newData, options) {
  */
 exports.create = async function (data) {
     data.status = huobi_1.TRADE_STATUS.wait;
+    data.amount = utils_1.autoToFixed(data.amount);
+    data.price = utils_1.autoToFixed(data.price);
     const Doc = AutoOrderHistory_entity_1.default.create(data);
     return Doc.save();
 };
