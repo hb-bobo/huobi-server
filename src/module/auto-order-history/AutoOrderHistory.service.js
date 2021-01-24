@@ -19,7 +19,7 @@ const utils_1 = require("../../utils");
 exports.find = async function (query = {}, paginationOption) {
     const { skip, take, current } = pagination_1.default(paginationOption);
     const [list, total] = await typeorm_1.getRepository(AutoOrderHistory_entity_1.default)
-        .createQueryBuilder("FeedbackEntity")
+        .createQueryBuilder()
         .where({ userId: query.userId })
         .orderBy('datetime', 'DESC')
         .skip(skip)
