@@ -25,7 +25,6 @@ class StatisticalTrade extends events_1.default {
     }
     /**
      * 按时间合并交易数据
-     * @param {{ts: number, data: {amount: number, ts: number, price: number, direction: 'buy' | 'sell'}[]}} trade
      */
     merge(trade) {
         const symbol = this.symbol;
@@ -52,7 +51,9 @@ class StatisticalTrade extends events_1.default {
                 this._mergeData.buy = utils_1.autoToFixed(this._mergeData.buy, 2);
                 this._mergeData.sell = utils_1.autoToFixed(this._mergeData.sell, 2);
                 // this._mergeData.amount = this._tempData.amount;
-                this._mergeData.usdtPrice = tradeData.price;
+                if (tradeData[0]) {
+                    this._mergeData.usdtPrice = tradeData[0].price;
+                }
                 delete this._mergeData._time;
                 this.emit('merge', symbol, this._mergeData);
                 // mysqlModel.insert('HUOBI_TRADE', tempTradeData);
@@ -75,6 +76,7 @@ class StatisticalTrade extends events_1.default {
                 this._mergeData.buy += _tempData.buy;
                 this._mergeData.sell += _tempData.sell;
                 this._mergeData.amount += _tempData.amount;
+                this._mergeData.usdtPrice = _tempData.usdtPrice;
             }
         }
     }
