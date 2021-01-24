@@ -19,6 +19,15 @@ class Trainer {
         });
         return sortedList[0];
     }
+    getConfig() {
+        const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.quant.config;
+        return {
+            symbol: this.quant.config.symbol,
+            quoteCurrencyBalance: (!quoteCurrencyBalance || quoteCurrencyBalance < 100) ? 600 : quoteCurrencyBalance,
+            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 50) ? minVolume * 100 : baseCurrencyBalance,
+            minVolume: minVolume,
+        };
+    }
     /**
      * 训练
      */
@@ -26,14 +35,11 @@ class Trainer {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
         const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
         logger_1.outLogger.info('Training complete:', this.quant.config.symbol, overRatio, amountRatio);
-        const config = {
-            ...overRatio,
-            ...amountRatio
-        };
-        if (overRatio.return > 10) {
+        const config = {};
+        if (overRatio.return > 1) {
             Object.assign(config, overRatio);
         }
-        if (amountRatio.return > 10) {
+        if (amountRatio.return > 1) {
             Object.assign(config, amountRatio);
         }
         delete config.return;
@@ -47,16 +53,16 @@ class Trainer {
         if (!history.length) {
             return [];
         }
+        const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.getConfig();
         const quant = new quant_1.Quant({
             symbol: this.quant.config.symbol,
             price: history[history.length - 1].close,
-            quoteCurrencyBalance: (!this.quant.config.quoteCurrencyBalance || this.quant.config.quoteCurrencyBalance < 100) ? 600 : this.quant.config.quoteCurrencyBalance,
-            baseCurrencyBalance: (this.quant.config.baseCurrencyBalance < this.quant.config.minVolume * 50) ? this.quant.config.minVolume * 200 : this.quant.config.baseCurrencyBalance,
+            quoteCurrencyBalance: quoteCurrencyBalance,
+            baseCurrencyBalance: baseCurrencyBalance,
             maxs: [history[history.length - 1].close * 1.04],
             mins: [history[history.length - 1].close * 0.96],
-            minVolume: this.quant.config.minVolume,
+            minVolume: minVolume,
         });
-        console.log(quant.config);
         quant.analysis(history);
         const result = [];
         for (let oversoldRatio = 0.01; oversoldRatio < 0.09; oversoldRatio = oversoldRatio + 0.002) {
@@ -72,15 +78,11 @@ class Trainer {
                     if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
-                    if (row.MA5 > row.MA30) {
-                        if (row["close/MA60"] > oversoldRatio) {
-                            bt.sell(row.close);
-                        }
+                    if (row["close/MA60"] > oversoldRatio) {
+                        bt.sell(row.close);
                     }
-                    if (row.MA5 < row.MA30) {
-                        if (row["close/MA60"] < overboughtRatio) {
-                            bt.buy(row.close);
-                        }
+                    if (row["close/MA60"] < overboughtRatio) {
+                        bt.buy(row.close);
                     }
                 });
                 result.push({
@@ -101,14 +103,15 @@ class Trainer {
             const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 500);
             history = data.reverse();
         }
+        const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.getConfig();
         const quant = new quant_1.Quant({
             symbol: this.quant.config.symbol,
             price: history[history.length - 1].close,
-            quoteCurrencyBalance: (!this.quant.config.quoteCurrencyBalance || this.quant.config.quoteCurrencyBalance < 10) ? 600 : this.quant.config.quoteCurrencyBalance,
-            baseCurrencyBalance: this.quant.config.baseCurrencyBalance || this.quant.config.minVolume * 100,
+            quoteCurrencyBalance: quoteCurrencyBalance,
+            baseCurrencyBalance: baseCurrencyBalance,
             maxs: [history[history.length - 1].close * 1.04],
             mins: [history[history.length - 1].close * 0.96],
-            minVolume: this.quant.config.minVolume,
+            minVolume: minVolume,
         });
         quant.analysis(history);
         const result = [];

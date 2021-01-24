@@ -116,8 +116,8 @@ let Trader = /** @class */ (() => {
                     disTime: period * 60 * 1000,
                 }),
                 quant: quant,
-                oversoldRatio: 0.016,
-                overboughtRatio: -0.016,
+                oversoldRatio: 0.02,
+                overboughtRatio: -0.034,
                 sellAmountRatio: 2.4,
                 buyAmountRatio: 2.1,
                 price: 0,
@@ -142,7 +142,7 @@ let Trader = /** @class */ (() => {
                     asksList: asksList,
                 };
             }, 10000, { leading: true }));
-            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 500);
+            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 480);
             const rData = data.reverse();
             quant.analysis(rData);
             this.orderConfigMap[symbol].trainer.run(rData).then((config) => {
@@ -160,6 +160,7 @@ let Trader = /** @class */ (() => {
                     const tradingAdvice = quant.safeTrade(row.close);
                     this.orderConfigMap[symbol].trainer.run().then((config) => {
                         Object.assign(this.orderConfigMap[symbol], config);
+                        logger_1.outLogger.info('Merge trainer config:', this.orderConfigMap[symbol], config);
                     });
                     const pricePoolFormDepth = util_1.getTracePrice(this.orderConfigMap[symbol].depth);
                     const amount = sell_usdt / row.close;

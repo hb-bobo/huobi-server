@@ -113,7 +113,6 @@ async function handleTrade(data) {
             });
         });
     }
-    console.log('list', list);
     tradeHandles[symbol].merge(list);
 }
 exports.handleTrade = handleTrade;
