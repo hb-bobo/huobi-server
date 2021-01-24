@@ -12,7 +12,7 @@ import Backtest from './Backtest';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'ethusdt-5min-2021-01-18'
+const fileName = 'btcusdt-5min-2021-01-18'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
@@ -89,7 +89,7 @@ async function tranSafeTrade() {
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
 
-    const history = JSON.parse(data);
+    const history = JSON.parse(data).splice(0, 500);
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -117,19 +117,14 @@ async function tran2() {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
-                    console.log(row)
+
                     bt.sell(row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
-                    console.log(row)
+  
                     bt.buy(row.close);
                 }
-                // if (row.MA5 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
 
-                // }
-                // if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
-
-                // }
             });
 
             result.push({
@@ -153,9 +148,9 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-// tran2();
+tran2();
 
-async function tran3() {
+async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
 
     const history = JSON.parse(data);
@@ -172,8 +167,8 @@ async function tran3() {
     const result: any[] = []
     const bt = new Backtest({
         symbol: 'btcusdt',
-        buyAmount: 0.01,
-        sellAmount: 0.01,
+        buyAmount: 0.001,
+        sellAmount: 0.001,
         quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
         baseCurrencyBalance: quant.config.baseCurrencyBalance,
     })
@@ -182,28 +177,16 @@ async function tran3() {
         if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
             return;
         }
-        if (row["close/MA60"] > 0.068) {
+
+        if (row.MA5 > row.MA10 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
 
             bt.sell(row.close);
-            result.push({
-                action: 'sell',
-                ...row,
-            });
         }
-        if (row["close/MA60"] < -0.01) {
+        if (row.MA5 < row.MA10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
 
             bt.buy(row.close);
-            result.push({
-                action: 'buy',
-                ...row,
-            });
         }
-        // if (row.MA5 && row.MA10 > row.MA30 && row.MA30 > row.MA60) {
 
-        // }
-        // if (row.close < row.M10 && row.MA10 < row.MA30 && row.MA30 < row.MA60) {
-
-        // }
     });
     console.log(
         `
@@ -220,9 +203,9 @@ async function tran3() {
         },
     }
 
-    xlsx.writeFile(workbook, join(publicPath, '/download/tran3.xlsx'));
+    xlsx.writeFile(workbook, join(publicPath, '/download/tran_MA.xlsx'));
 }
-tran3();
+// tranMA();
 
 
 async function tranAmount() {

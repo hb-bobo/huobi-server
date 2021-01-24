@@ -159,7 +159,7 @@ export class Trader {
         }, 10000, {leading: true}));
 
 
-        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 1500);
+        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 500);
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
@@ -183,16 +183,6 @@ export class Trader {
                     Object.assign(this.orderConfigMap[symbol], config);
                 });
                 const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
-                // if (false) {
-                //     this.order(
-                //         symbol,
-                //         tradingAdvice.action,
-                //         tradingAdvice.volume,
-                //         tradingAdvice.price
-                //     );
-                // } else {
-
-                // }
                 const amount = sell_usdt / row.close;
                 const price =  pricePoolFormDepth.sell[0] || row.close * 1.02;
                 this.order(
@@ -208,7 +198,8 @@ export class Trader {
                         price,
                         amount,
                         userId,
-                        type: 'sell'
+                        type: 'sell',
+                        row: JSON.stringify(row)
                     }).catch(errLogger.error);
                 }
             }
@@ -223,14 +214,6 @@ export class Trader {
                     Object.assign(this.orderConfigMap[symbol], config);
                 });
                 const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
-                // if (false) {
-                //     this.order(
-                //         symbol,
-                //         tradingAdvice.action,
-                //         tradingAdvice.volume,
-                //         tradingAdvice.price
-                //     );
-                // }
                 const amount = buy_usdt / row.close;
                 const price =  pricePoolFormDepth.buy[0] || row.close *  0.98;
                 this.order(
@@ -246,7 +229,8 @@ export class Trader {
                         price,
                         amount,
                         userId,
-                        type: 'buy'
+                        type: 'buy',
+                        row: JSON.stringify(row)
                     }).catch(errLogger.error);
                 }
             }

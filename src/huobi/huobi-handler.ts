@@ -18,9 +18,9 @@ const minute = 1000 * 60
 let watchSymbols: string[] = [];
 
 // 每一个币都存一个throttle包裹的handleDepth方法
-const depthHandles = {};
+const depthHandles: Record<string, typeof analyseAndWriteDepth> = {};
 // 交易数据处理方法
-const tradeHandles = {};
+const tradeHandles: Record<string, StatisticalTrade> = {};
 
 async function getWatchSymbols() {
     if (watchSymbols.length === 0) {
@@ -100,7 +100,7 @@ export async function handleTrade(data) {
             });
         });
     }
-
+    console.log('list', list)
     tradeHandles[symbol].merge(list);
 }
 

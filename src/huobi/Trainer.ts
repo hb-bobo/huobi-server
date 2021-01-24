@@ -42,7 +42,7 @@ export class Trainer {
     async trainOverRatio(history?: any[]) {
 
         if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 1000);
+            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 500);
             history = data ? data.reverse() : [];
         }
         if (!history.length) {
@@ -51,12 +51,13 @@ export class Trainer {
         const quant = new Quant({
             symbol: this.quant.config.symbol,
             price: history[history.length - 1].close,
-            quoteCurrencyBalance: (!this.quant.config.quoteCurrencyBalance || this.quant.config.quoteCurrencyBalance < 10) ? 600 : this.quant.config.quoteCurrencyBalance,
-            baseCurrencyBalance: this.quant.config.baseCurrencyBalance || this.quant.config.minVolume * 100,
+            quoteCurrencyBalance: (!this.quant.config.quoteCurrencyBalance || this.quant.config.quoteCurrencyBalance < 100) ? 600 : this.quant.config.quoteCurrencyBalance,
+            baseCurrencyBalance: (this.quant.config.baseCurrencyBalance < this.quant.config.minVolume * 50) ? this.quant.config.minVolume * 200 : this.quant.config.baseCurrencyBalance,
             maxs: [history[history.length - 1].close * 1.04],
             mins: [history[history.length - 1].close * 0.96],
             minVolume: this.quant.config.minVolume,
         });
+        console.log(quant.config)
         quant.analysis(history);
         const result: ({
             oversoldRatio: number;
@@ -105,7 +106,7 @@ export class Trainer {
     }
     async trainAmountRatio(history?: any[]) {
         if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 1000);
+            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 500);
             history = data.reverse();
         }
         const quant = new Quant({

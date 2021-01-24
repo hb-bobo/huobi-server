@@ -4,7 +4,14 @@ import { errLogger } from 'ROOT/common/logger';
 import { autoToFixed } from 'ROOT/utils';
 import { getPriceIndex } from './util';
 
-
+interface TradeData {
+    id: number,
+    ts: number,
+    tradeId: number,
+    amount: number,
+    price: number,
+    direction: 'sell' | 'buy'
+}
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
  */
@@ -37,9 +44,8 @@ export default class StatisticalTrade extends Emitter{
     }
     /**
      * 按时间合并交易数据
-     * @param {{ts: number, data: {amount: number, ts: number, price: number, direction: 'buy' | 'sell'}[]}} trade
      */
-    merge(trade) {
+    merge(trade: {ts: number, data: TradeData[]}) {
         const symbol = this.symbol;
         const ts = trade.ts;
         const tradeData = trade.data;
@@ -65,7 +71,9 @@ export default class StatisticalTrade extends Emitter{
                 this._mergeData.buy = autoToFixed(this._mergeData.buy, 2);
                 this._mergeData.sell = autoToFixed(this._mergeData.sell, 2);
                 // this._mergeData.amount = this._tempData.amount;
-                this._mergeData.usdtPrice = tradeData.price
+                if (tradeData[0]) {
+                    this._mergeData.usdtPrice = tradeData[0].price
+                }
                 delete this._mergeData._time;
                 this.emit('merge', symbol, this._mergeData);
                 // mysqlModel.insert('HUOBI_TRADE', tempTradeData);
@@ -87,6 +95,7 @@ export default class StatisticalTrade extends Emitter{
                 this._mergeData.buy += _tempData.buy;
                 this._mergeData.sell += _tempData.sell;
                 this._mergeData.amount += _tempData.amount;
+                this._mergeData.usdtPrice = _tempData.usdtPrice;
             }
         }
     }
@@ -96,7 +105,7 @@ export default class StatisticalTrade extends Emitter{
  * 合并一个时间点的买卖交易量
  * @return {Array<Object>}
  */
-function mergeTradeData(tradeData: Record<string, any>, _time: string, _priceIndex: number, symbol: string) {
+function mergeTradeData(tradeData: TradeData[], _time: number, _priceIndex: number, symbol: string) {
     const _tempData = {
         symbol: symbol,
         buy: 0,

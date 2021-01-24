@@ -10,8 +10,8 @@ export default function pagination({
 }: Pagination = {} as Pagination) {
     return {
         skip: pageSize * (current - 1),
-        take: Number(pageSize),
-        current: Number(current),
-        pageSize: Number(pageSize),
+        take: pageSize,
+        current: current,
+        pageSize: pageSize,
     }
 }
