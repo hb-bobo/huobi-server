@@ -128,8 +128,8 @@ export class Trader {
                 disTime: period * 60 * 1000,
             }),
             quant: quant,
-            oversoldRatio: 0.016,
-            overboughtRatio: -0.016,
+            oversoldRatio: 0.02,
+            overboughtRatio: -0.034,
             sellAmountRatio: 2.4,
             buyAmountRatio: 2.1,
             price: 0,
@@ -159,7 +159,7 @@ export class Trader {
         }, 10000, {leading: true}));
 
 
-        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 500);
+        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 480);
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
@@ -180,7 +180,9 @@ export class Trader {
             ) {
                 const tradingAdvice = quant.safeTrade(row.close);
                 this.orderConfigMap[symbol].trainer.run().then((config) => {
+                    
                     Object.assign(this.orderConfigMap[symbol], config);
+                    outLogger.info('Merge trainer config:',this.orderConfigMap[symbol],  config);
                 });
                 const pricePoolFormDepth = getTracePrice(this.orderConfigMap[symbol].depth);
                 const amount = sell_usdt / row.close;
