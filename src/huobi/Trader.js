@@ -142,7 +142,7 @@ let Trader = /** @class */ (() => {
                     asksList: asksList,
                 };
             }, 10000, { leading: true }));
-            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 1500);
+            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 500);
             const rData = data.reverse();
             quant.analysis(rData);
             this.orderConfigMap[symbol].trainer.run(rData).then((config) => {
