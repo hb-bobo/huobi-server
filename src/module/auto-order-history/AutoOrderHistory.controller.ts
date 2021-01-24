@@ -8,7 +8,7 @@ import * as AutoOrderHistoryService from './AutoOrderHistory.service';
 
 export default class AutoOrderController {
     public static index = async (ctx: AppContext) => {
-        const { id } = ctx.request.query;
+        const { id, current, pageSize } = ctx.request.query;
         const userId = ctx.state.user && ctx.state.user.id;
         try {
             let res;
@@ -22,7 +22,7 @@ export default class AutoOrderController {
                     data: res
                 });
             } else {
-                res = await AutoOrderHistoryService.find({userId: userId});
+                res = await AutoOrderHistoryService.find({userId: userId}, {current, pageSize});
                 ctx.sendSuccess({data: res});
             }
         } catch (error) {

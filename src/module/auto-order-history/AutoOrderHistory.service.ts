@@ -5,6 +5,7 @@ import { getRepository, SaveOptions } from "typeorm";
 import { TRADE_STATUS } from "ROOT/constants/huobi";
 import pagination from "ROOT/common/pagination";
 import { Pagination } from "ROOT/interface/List";
+import { autoToFixed } from "ROOT/utils";
 
 // export class AutoOrderHistoryService extends CrudService<AutoOrderHistory>{
 
@@ -17,9 +18,9 @@ import { Pagination } from "ROOT/interface/List";
 export const find = async function(query: Partial<AutoOrderHistory> = {}, paginationOption?: Pagination) {
     const {skip, take, current} = pagination(paginationOption);
     const [list, total] = await getRepository(AutoOrderHistory)
-    .createQueryBuilder("FeedbackEntity")
+    .createQueryBuilder()
     .where({userId: query.userId})
-    .orderBy('datetime')
+    .orderBy('datetime', 'DESC')
     .skip(skip)
     .take(take)
     .getManyAndCount();
@@ -55,6 +56,8 @@ export const updateOne = async function(query: Partial<AutoOrderHistory>, newDat
  */
 export const create = async function(data: Partial<AutoOrderHistory>) {
     data.status = TRADE_STATUS.wait;
+    data.amount = autoToFixed(data.amount);
+    data.price = autoToFixed(data.price);
     const Doc = AutoOrderHistory.create(data)
     return Doc.save();
 }
