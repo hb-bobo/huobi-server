@@ -206,17 +206,15 @@ export class Trader {
                 price,
                 amount
             );
-            if (userId) {
-                AutoOrderHistoryService.create({
-                    datetime: new Date(),
-                    symbol,
-                    price,
-                    amount,
-                    userId,
-                    type: action,
-                    row: JSON.stringify(row)
-                }).catch(errLogger.error);
-            }
+            AutoOrderHistoryService.create({
+                datetime: new Date(),
+                symbol,
+                price,
+                amount,
+                userId: userId || 1,
+                type: action,
+                row: JSON.stringify(row)
+            }).catch(errLogger.error);
             orderConfig.trainer.run().then((config) => {
                 Object.assign(orderConfig, config);
             });
@@ -247,11 +245,11 @@ export class Trader {
         const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
 
-        if (!hasEnoughBalance) {
+        if (!hasEnoughBalance && type === 'buy') {
             const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`
             outLogger.info(msg);
             return Promise.reject(msg);
-        } else if (!hasEnoughAmount) {
+        } else if (!hasEnoughAmount && type === 'sell') {
             const msg = `base-currency( ${symbolInfo['base-currency']} ) not enough`
             outLogger.info(msg);
             return Promise.reject(msg);
