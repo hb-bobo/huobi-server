@@ -106,6 +106,9 @@ export default class Analyser {
         }
         return autoToFixed((close - ma) / ma);
     }
+    getLast = (n: number) => {
+        return this.result.slice(this.result.length - n - 1, this.result.length - 1);
+    }
     /**
      * 添加中间件
      * @param middleware

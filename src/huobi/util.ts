@@ -17,7 +17,7 @@ export const getSymbolInfo = async function (symbol: string) {
         return _SYMBOL_INFO_MAP[symbol];
     }
     const symbolsList = await hbsdk.getSymbols();
-    console.log('symbolsList', Array.isArray(symbolsList))
+
     if (!symbolsList) {
         return;
     }
@@ -37,7 +37,6 @@ export const getSameAmount = function (data, {
 	type = '',
 	symbol = '',
 	sortBy = 'sumMoneny',
-    priceInfo = {btc: 0, eth: 0},
     minSumPrice = 100,
     minPrice = 1000,
 } = {}) {
@@ -81,15 +80,11 @@ export const getSameAmount = function (data, {
 		// 总量 = 次数 * 单个挂单量
 		const sum = count * Number(key);
 		// 总价
-		const sumPrice = sum * price;
-		let sumDollar = sumPrice;
+        const sumPrice = sum * price;
 
-		// 转换成美元价格
-		if (symbol.endsWith('btc')) {
-			sumDollar = sumPrice * priceInfo.btc;
-		} else if (symbol.endsWith('eth')) {
-			sumDollar = sumPrice * priceInfo.eth;
-		}
+        // 转换成usdt价格(对币可能是eth, btc)
+		const sumDollar = sumPrice * getPriceIndex(symbol);
+
 		if ((count > 1 && sumDollar > minSumPrice) //机器人
 			|| (sumDollar > minPrice) // 大户
 			|| count > 10 //机器人
@@ -211,5 +206,5 @@ export function getPriceIndex (symbol: string) {
             break;
         }
     }
-    return _price - 0;
+    return _price;
 }
