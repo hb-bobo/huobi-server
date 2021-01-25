@@ -20,7 +20,6 @@ exports.getSymbolInfo = async function (symbol) {
         return exports._SYMBOL_INFO_MAP[symbol];
     }
     const symbolsList = await hbsdk_1.hbsdk.getSymbols();
-    console.log('symbolsList', Array.isArray(symbolsList));
     if (!symbolsList) {
         return;
     }
@@ -34,7 +33,7 @@ exports.getSymbolInfo = async function (symbol) {
  * 合并相同的价格统计次数并排序(价格为usdt)
  * @param {Array<Array<number>>} data
  */
-exports.getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumMoneny', priceInfo = { btc: 0, eth: 0 }, minSumPrice = 100, minPrice = 1000, } = {}) {
+exports.getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumMoneny', minSumPrice = 100, minPrice = 1000, } = {}) {
     const countTemp = {};
     // 统计重复次数
     for (let i = 0; i < data.length; i++) {
@@ -66,14 +65,8 @@ exports.getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumM
         const sum = count * Number(key);
         // 总价
         const sumPrice = sum * price;
-        let sumDollar = sumPrice;
-        // 转换成美元价格
-        if (symbol.endsWith('btc')) {
-            sumDollar = sumPrice * priceInfo.btc;
-        }
-        else if (symbol.endsWith('eth')) {
-            sumDollar = sumPrice * priceInfo.eth;
-        }
+        // 转换成usdt价格(对币可能是eth, btc)
+        const sumDollar = sumPrice * getPriceIndex(symbol);
         if ((count > 1 && sumDollar > minSumPrice) //机器人
             || (sumDollar > minPrice) // 大户
             || count > 10 //机器人
@@ -179,6 +172,6 @@ function getPriceIndex(symbol) {
             break;
         }
     }
-    return _price - 0;
+    return _price;
 }
 exports.getPriceIndex = getPriceIndex;

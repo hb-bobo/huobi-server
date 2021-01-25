@@ -22,6 +22,9 @@ class Analyser {
         this.MA30 = new indicators_1.MA(30);
         this.MA60 = new indicators_1.MA(60);
         this.amountMA20 = new indicators_1.MA(20);
+        this.getLast = (n) => {
+            return this.result.slice(this.result.length - n - 1, this.result.length - 1);
+        };
         //
     }
     analysis(data) {

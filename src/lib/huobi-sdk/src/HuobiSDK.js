@@ -21,9 +21,9 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
                     const market_ws = this.createMarketWS();
                     if (this.market_cache_ws == undefined) {
                         this.market_cache_ws = new CacheSockett_1.CacheSockett(market_ws);
-                        this.market_cache_ws.ws.on('error', () => {
-                            this.market_cache_ws.reStart();
-                        });
+                        // this.market_cache_ws.ws.on('error', () => {
+                        //     (this.market_cache_ws as any).reStart();
+                        // });
                         this.market_cache_ws.ws.on('close', () => {
                             this.market_cache_ws.reStart();
                         });

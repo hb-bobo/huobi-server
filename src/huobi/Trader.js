@@ -18,15 +18,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trader = void 0;
 // import { outLogger } from "../common/logger";
 const lodash_1 = require("lodash");
 const logger_1 = require("../common/logger");
-const StatisticalTradeData_1 = __importDefault(require("./StatisticalTradeData"));
 const quant_1 = require("../lib/quant");
 const utils_1 = require("../utils");
 const node_huobi_sdk_1 = require("node-huobi-sdk");
@@ -110,11 +106,6 @@ let Trader = /** @class */ (() => {
                 buy_usdt,
                 sell_usdt,
                 period,
-                // forceTrade,
-                tradeHandle: new StatisticalTradeData_1.default({
-                    symbol,
-                    disTime: period * 60 * 1000,
-                }),
                 quant: quant,
                 oversoldRatio: 0.02,
                 overboughtRatio: -0.034,
@@ -127,6 +118,7 @@ let Trader = /** @class */ (() => {
                 },
                 trainer: new Trainer_1.Trainer(quant, this.sdk)
             };
+            const orderConfig = this.orderConfigMap[symbol];
             this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
                 // 处理数据
                 const bidsList = util_1.getSameAmount(data.data.bids, {
@@ -137,7 +129,7 @@ let Trader = /** @class */ (() => {
                     type: 'asks',
                     symbol: symbol,
                 });
-                this.orderConfigMap[symbol].depth = {
+                orderConfig.depth = {
                     bidsList: bidsList,
                     asksList: asksList,
                 };
@@ -145,71 +137,65 @@ let Trader = /** @class */ (() => {
             const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 480);
             const rData = data.reverse();
             quant.analysis(rData);
-            this.orderConfigMap[symbol].trainer.run(rData).then((config) => {
-                Object.assign(this.orderConfigMap[symbol], config);
+            orderConfig.trainer.run(rData).then((config) => {
+                Object.assign(orderConfig, config);
             });
             quant.use((row) => {
-                this.orderConfigMap[symbol].price = row.close;
+                orderConfig.price = row.close;
                 if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                     return;
                 }
-                // 卖
-                if (row["close/MA60"] > this.orderConfigMap[symbol].oversoldRatio
-                // || row['amount/amountMA20'] > this.orderConfigMap[symbol].sellAmountRatio
+                let action;
+                let amount = 0;
+                let price = 0;
+                if (row["close/MA60"] > orderConfig.oversoldRatio
+                // || row['amount/amountMA20'] > config.sellAmountRatio
                 ) {
-                    const tradingAdvice = quant.safeTrade(row.close);
-                    this.orderConfigMap[symbol].trainer.run().then((config) => {
-                        Object.assign(this.orderConfigMap[symbol], config);
-                        logger_1.outLogger.info('Merge trainer config:', this.orderConfigMap[symbol], config);
-                    });
-                    const pricePoolFormDepth = util_1.getTracePrice(this.orderConfigMap[symbol].depth);
-                    const amount = sell_usdt / row.close;
-                    const price = pricePoolFormDepth.sell[0] || row.close * 1.02;
-                    this.order(symbol, 'sell', price, amount);
-                    if (userId) {
-                        AutoOrderHistoryService.create({
-                            datetime: new Date(),
-                            symbol,
-                            price,
-                            amount,
-                            userId,
-                            type: 'sell',
-                            row: JSON.stringify(row)
-                        }).catch(logger_1.errLogger.error);
-                    }
+                    action = 'sell';
+                    const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
+                    amount = sell_usdt / row.close;
+                    price = pricePoolFormDepth.sell[0] || row.close * 1.02;
                 }
                 // 买
-                if (row["close/MA60"] < this.orderConfigMap[symbol].overboughtRatio
-                // || row['amount/amountMA20'] > this.orderConfigMap[symbol].buyAmountRatio
+                if (row["close/MA60"] < orderConfig.overboughtRatio
+                // || row['amount/amountMA20'] > config.buyAmountRatio
                 ) {
-                    const tradingAdvice = quant.safeTrade(row.close);
-                    this.orderConfigMap[symbol].trainer.run().then((config) => {
-                        Object.assign(this.orderConfigMap[symbol], config);
-                    });
-                    const pricePoolFormDepth = util_1.getTracePrice(this.orderConfigMap[symbol].depth);
-                    const amount = buy_usdt / row.close;
-                    const price = pricePoolFormDepth.buy[0] || row.close * 0.98;
-                    this.order(symbol, 'buy', price, amount);
-                    if (userId) {
-                        AutoOrderHistoryService.create({
-                            datetime: new Date(),
-                            symbol,
-                            price,
-                            amount,
-                            userId,
-                            type: 'buy',
-                            row: JSON.stringify(row)
-                        }).catch(logger_1.errLogger.error);
-                    }
+                    action = 'buy';
+                    const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
+                    amount = buy_usdt / row.close;
+                    price = pricePoolFormDepth.buy[0] || row.close * 0.98;
                 }
+                if (!action) {
+                    return;
+                }
+                // const tradingAdvice = quant.safeTrade(row.close);
+                orderConfig.trainer.run().then((config) => {
+                    Object.assign(orderConfig, config);
+                });
+                this.order(symbol, action, price, amount);
+                if (userId) {
+                    AutoOrderHistoryService.create({
+                        datetime: new Date(),
+                        symbol,
+                        price,
+                        amount,
+                        userId,
+                        type: action,
+                        row: JSON.stringify(row)
+                    }).catch(logger_1.errLogger.error);
+                }
+                orderConfig.trainer.run().then((config) => {
+                    Object.assign(orderConfig, config);
+                });
             });
             this.sdk.subMarketKline({ symbol, period: node_huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, (data) => {
-                this.orderConfigMap[symbol].price = data.data.close;
-                if (this.orderConfigMap[symbol].id !== data.data.id && data.symbol === symbol) {
-                    logger_1.outLogger.info('subMarketKline', data.symbol, this.orderConfigMap[symbol].id);
-                    this.orderConfigMap[symbol].id = data.data.id;
-                    quant.analysis(data.data);
+                orderConfig.price = data.data.close;
+                const kline = this.orderConfigMap[symbol].kline;
+                if (kline && kline.id !== data.data.id && data.symbol === symbol) {
+                    // outLogger.info('subMarketKline', data.symbol, kline.id)
+                    orderConfig.quant.analysis(kline);
                 }
+                this.orderConfigMap[symbol].kline = data.data;
             });
         }
         async order(symbol, type, amount, price) {
