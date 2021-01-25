@@ -173,17 +173,15 @@ let Trader = /** @class */ (() => {
                     Object.assign(orderConfig, config);
                 });
                 this.order(symbol, action, price, amount);
-                if (userId) {
-                    AutoOrderHistoryService.create({
-                        datetime: new Date(),
-                        symbol,
-                        price,
-                        amount,
-                        userId,
-                        type: action,
-                        row: JSON.stringify(row)
-                    }).catch(logger_1.errLogger.error);
-                }
+                AutoOrderHistoryService.create({
+                    datetime: new Date(),
+                    symbol,
+                    price,
+                    amount,
+                    userId: userId || 1,
+                    type: action,
+                    row: JSON.stringify(row)
+                }).catch(logger_1.errLogger.error);
                 orderConfig.trainer.run().then((config) => {
                     Object.assign(orderConfig, config);
                 });
@@ -209,12 +207,12 @@ let Trader = /** @class */ (() => {
             const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
             const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
             const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
-            if (!hasEnoughBalance) {
+            if (!hasEnoughBalance && type === 'buy') {
                 const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`;
                 logger_1.outLogger.info(msg);
                 return Promise.reject(msg);
             }
-            else if (!hasEnoughAmount) {
+            else if (!hasEnoughAmount && type === 'sell') {
                 const msg = `base-currency( ${symbolInfo['base-currency']} ) not enough`;
                 logger_1.outLogger.info(msg);
                 return Promise.reject(msg);
