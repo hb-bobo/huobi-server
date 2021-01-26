@@ -1,6 +1,6 @@
 import { isNumber, omit, toNumber } from "lodash";
 import dayjs from 'dayjs';
-import { autoToFixed } from "../util";
+import { autoToFixed, keepDecimalFixed } from "../util";
 import { MA } from "../indicators";
 
 export interface DataItem {
@@ -86,11 +86,18 @@ export default class Analyser {
         /**
          * 买盘力量大
          */
-        row['low-close/close'] = autoToFixed((row.low - row.close) / row.close);
+        row['low-close/close'] = autoToFixed((row.low - row.close) / Math.abs(row.low - row.high));
         /**
          * 卖盘力量大
          */
-        row['high-close/close'] = autoToFixed((row.high - row.close) / row.close);
+        row['high-close/close'] = autoToFixed((row.high - row.close) / Math.abs(row.low - row.high));
+
+        if (this.result[this.result.length - 1]) {
+            row.amplitude = keepDecimalFixed((row.high - row.close) / this.result[this.result.length - 1].close, 3) * 100;
+        } else {
+            row.amplitude = 0;
+        }
+
 
         this.middlewares.forEach((callback) => {
             callback(row);

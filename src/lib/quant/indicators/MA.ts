@@ -51,8 +51,8 @@ export default class MA {
         this.checkMax();
 
     }
-    public last() {
-        return this.result[this.result.length - 1];
+    public last(n = 1) {
+        return this.result[this.result.length - n];
     }
     private checkMax() {
         if (this.result.length > (this.option.max as number)) {

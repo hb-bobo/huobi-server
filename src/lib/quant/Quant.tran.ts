@@ -32,11 +32,11 @@ async function download() {
     xlsx.writeFile(workbook, join(publicPath, `/download/${fileName}.xlsx`)); //将数据写入文件
 }
 
-// download();
+download();
 
 async function tranSafeTrade() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    const history = JSON.parse(data);
+    const history = JSON.parse(data).splice(0, 640);
 
 
     const quant = new Quant({
@@ -44,8 +44,8 @@ async function tranSafeTrade() {
         price: history[history.length - 1].close,
         quoteCurrencyBalance: 400,
         baseCurrencyBalance: 0,
-        maxs: [history[history.length - 1].close * 1.12],
-        mins: [history[history.length - 1].close * 0.88],
+        maxs: [history[history.length - 1].close * 1.10],
+        mins: [history[history.length - 1].close * 0.90],
         minVolume: 0.00001,
     });
 
@@ -55,8 +55,10 @@ async function tranSafeTrade() {
         baseCurrencyBalance: quant.config.baseCurrencyBalance,
     });
     quant.analysis(history);
+
     quant.mockUse(function(row) {
         const tradingAdvice = quant.safeTrade(row.close);
+
         if (tradingAdvice) {
             const time = dayjs(row.time).format("YYYY/MM/DD H:mm:ss");
 
@@ -65,12 +67,7 @@ async function tranSafeTrade() {
             } else if (tradingAdvice.action === 'sell') {
                 bt.sell(row.close, tradingAdvice.volume);
             }
-            console.log(tradingAdvice)
         }
-        // quant.dc.updateConfig({
-        //     maxs: [row.close * 1.1],
-        //     mins: [row.close * 0.9],
-        // });
     })
 
 
@@ -89,7 +86,7 @@ async function tranSafeTrade() {
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
 
-    const history = JSON.parse(data).splice(0, 500);
+    const history = JSON.parse(data).splice(0, 120);
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -121,7 +118,7 @@ async function tran2() {
                     bt.sell(row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
-  
+
                     bt.buy(row.close);
                 }
 
@@ -148,7 +145,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-tran2();
+// tran2();
 
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });

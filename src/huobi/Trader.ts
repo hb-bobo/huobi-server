@@ -194,10 +194,18 @@ export class Trader {
             }
 
             if (!action) {
+                const tradingAdvice = quant.safeTrade(row.close);
+                if (tradingAdvice) {
+                    action = tradingAdvice.action;
+                    amount = tradingAdvice.volume;
+                    price = tradingAdvice.price;
+                    outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice));
+                }
+            }
+
+            if (!action) {
                 return;
             }
-            // const tradingAdvice = quant.safeTrade(row.close);
-
             this.order(
                 symbol,
                 action,
