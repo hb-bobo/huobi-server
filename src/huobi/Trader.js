@@ -169,19 +169,18 @@ let Trader = /** @class */ (() => {
                     return;
                 }
                 // const tradingAdvice = quant.safeTrade(row.close);
-                orderConfig.trainer.run().then((config) => {
-                    Object.assign(orderConfig, config);
-                });
                 this.order(symbol, action, price, amount);
                 AutoOrderHistoryService.create({
                     datetime: new Date(),
                     symbol,
-                    price,
-                    amount,
+                    price: price || 0,
+                    amount: amount || 0,
                     userId: userId || 1,
-                    type: action,
-                    row: JSON.stringify(row)
-                }).catch(logger_1.errLogger.error);
+                    type: action || 'buy',
+                    row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
+                }).catch((err) => {
+                    logger_1.outLogger.error(err);
+                });
                 orderConfig.trainer.run().then((config) => {
                     Object.assign(orderConfig, config);
                 });
