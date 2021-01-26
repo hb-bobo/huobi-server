@@ -10,22 +10,35 @@ const utils_1 = require("../utils");
 const basePath = path_1.default.resolve(__dirname, "../../logs");
 const errorPath = path_1.default.resolve(basePath, "err");
 const outPath = path_1.default.resolve(basePath, "out");
+const layout = {
+    type: 'pattern',
+    pattern: '%[ [%d{yyyy-MM-dd hh:mm:ss}] [%p] %c %]- %m%n',
+    tokens: {
+        customDate: function (logEvent) {
+            // modify as you want the timestamp for example getting it in the local time zone
+            return logEvent.startTime.toLocaleString();
+        }
+    }
+};
 log4js_1.default.configure({
     appenders: {
         stdout: {
-            type: 'console'
+            type: 'console',
+            layout
         },
         error: {
             type: "dateFile",
             filename: path_1.default.resolve(errorPath, "app-err"),
             alwaysIncludePattern: true,
-            pattern: "yyyy-MM-dd.log" // 后缀，每小时创建一个新的日志文件
+            pattern: "yyyy-MM-dd.log",
+            layout
         },
         out: {
             type: "dateFile",
             filename: path_1.default.resolve(outPath, "app-out"),
             alwaysIncludePattern: true,
-            pattern: "yyyy-MM-dd.log"
+            pattern: "yyyy-MM-dd.log",
+            layout
         }
     },
     categories: {

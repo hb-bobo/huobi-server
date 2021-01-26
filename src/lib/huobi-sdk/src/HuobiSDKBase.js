@@ -41,15 +41,15 @@ class HuobiSDKBase extends events_1.EventEmitter {
                         return json.data || json;
                     }
                     else {
-                        this.errLogger(options.method, "-", path, "服务错误", json['err-msg']);
+                        this.errLogger(options.method, "-", path, json['err-msg']);
                     }
                 }
                 catch (error) {
-                    this.errLogger(options.method, "-", path, "解析异常", error);
+                    this.errLogger(options.method, "-", path, "Parse Error", error);
                 }
             })
                 .catch(err => {
-                this.errLogger(options.method, "-", path, "异常", err);
+                this.errLogger(options.method, "-", path, err);
             });
         };
         this.request = (path, options) => {
