@@ -64,11 +64,17 @@ class Analyser {
         /**
          * 买盘力量大
          */
-        row['low-close/close'] = util_1.autoToFixed((row.low - row.close) / row.close);
+        row['low-close/close'] = util_1.autoToFixed((row.low - row.close) / Math.abs(row.low - row.high));
         /**
          * 卖盘力量大
          */
-        row['high-close/close'] = util_1.autoToFixed((row.high - row.close) / row.close);
+        row['high-close/close'] = util_1.autoToFixed((row.high - row.close) / Math.abs(row.low - row.high));
+        if (this.result[this.result.length - 1]) {
+            row.amplitude = util_1.keepDecimalFixed((row.high - row.close) / this.result[this.result.length - 1].close, 3) * 100;
+        }
+        else {
+            row.amplitude = 0;
+        }
         this.middlewares.forEach((callback) => {
             callback(row);
         });

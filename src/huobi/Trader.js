@@ -166,9 +166,17 @@ let Trader = /** @class */ (() => {
                     price = pricePoolFormDepth.buy[0] || row.close * 0.98;
                 }
                 if (!action) {
+                    const tradingAdvice = quant.safeTrade(row.close);
+                    if (tradingAdvice) {
+                        action = tradingAdvice.action;
+                        amount = tradingAdvice.volume;
+                        price = tradingAdvice.price;
+                        logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice));
+                    }
+                }
+                if (!action) {
                     return;
                 }
-                // const tradingAdvice = quant.safeTrade(row.close);
                 this.order(symbol, action, price, amount);
                 AutoOrderHistoryService.create({
                     datetime: new Date(),

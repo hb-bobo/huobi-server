@@ -39,8 +39,8 @@ class MA {
         }
         this.checkMax();
     }
-    last() {
-        return this.result[this.result.length - 1];
+    last(n = 1) {
+        return this.result[this.result.length - n];
     }
     checkMax() {
         if (this.result.length > this.option.max) {

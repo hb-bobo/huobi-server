@@ -30,17 +30,17 @@ async function download() {
     };
     xlsx_1.default.writeFile(workbook, path_1.join(publicPath, `/download/${fileName}.xlsx`)); //将数据写入文件
 }
-// download();
+download();
 async function tranSafeTrade() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    const history = JSON.parse(data);
+    const history = JSON.parse(data).splice(0, 640);
     const quant = new _1.Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
         quoteCurrencyBalance: 400,
         baseCurrencyBalance: 0,
-        maxs: [history[history.length - 1].close * 1.12],
-        mins: [history[history.length - 1].close * 0.88],
+        maxs: [history[history.length - 1].close * 1.10],
+        mins: [history[history.length - 1].close * 0.90],
         minVolume: 0.00001,
     });
     const bt = new Backtest_1.default({
@@ -59,12 +59,7 @@ async function tranSafeTrade() {
             else if (tradingAdvice.action === 'sell') {
                 bt.sell(row.close, tradingAdvice.volume);
             }
-            console.log(tradingAdvice);
         }
-        // quant.dc.updateConfig({
-        //     maxs: [row.close * 1.1],
-        //     mins: [row.close * 0.9],
-        // });
     });
     console.log(`
         quoteCurrencyBalance: ${bt.quoteCurrencyBalance}
@@ -75,7 +70,7 @@ async function tranSafeTrade() {
 // tranSafeTrade();
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    const history = JSON.parse(data).splice(0, 500);
+    const history = JSON.parse(data).splice(0, 120);
     const quant = new _1.Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -127,7 +122,7 @@ async function tran2() {
     console.log(sortedList[0]);
     xlsx_1.default.writeFile(workbook, path_1.join(publicPath, '/download/tran2.xlsx'));
 }
-tran2();
+// tran2();
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
     const history = JSON.parse(data);

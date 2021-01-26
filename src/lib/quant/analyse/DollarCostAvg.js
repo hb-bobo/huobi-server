@@ -27,6 +27,7 @@ class DollarCostAvg {
          * 将单子分割
          */
         this.splitBill = () => {
+            // console.log('splitBill')
             const max = Math.max(...this.maxs);
             const min = Math.max(...this.mins);
             if (!this.option.balance) {
@@ -93,7 +94,8 @@ class DollarCostAvg {
                 if (this.buyList[i - 1] && close < this.buyList[i - 1].price) {
                     continue;
                 }
-                element.invalid = true;
+                // console.log(element)
+                this.buyList[i].invalid = true;
                 return {
                     ...element,
                     action: 'buy'
@@ -114,10 +116,16 @@ class DollarCostAvg {
             }
         }
     }
+    validList(list) {
+        return list.some(item => !item.invalid);
+    }
     updateConfig(config) {
         Object.assign(this.option, config);
         this.init();
-        this.splitBill();
+        if (Number(this.option.balance) > 10 && !this.validList(this.buyList) && !this.validList(this.sellList)) {
+            this.splitBill();
+            console.log('更新');
+        }
     }
 }
 exports.default = DollarCostAvg;

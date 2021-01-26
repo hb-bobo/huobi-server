@@ -12,7 +12,7 @@ class Quant {
         this.config = {};
         this.analyser = new analyse_1.Analyser();
         Object.assign(this.config, option);
-        if (option.maxs && option.mins && option.minVolume) {
+        if (option.maxs && option.mins && option.maxs.length > 0 && option.minVolume) {
             this.dc = new analyse_1.DollarCostAvg({
                 maxs: option.maxs,
                 mins: option.mins,
