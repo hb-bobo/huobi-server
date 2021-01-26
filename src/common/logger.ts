@@ -1,27 +1,34 @@
+import dayjs from "dayjs";
 import log4js from "log4js";
+import utc from "dayjs/plugin/utc";
 import path from "path";
+import config from 'config';
 import { mkdir } from "ROOT/utils";
 
+dayjs.extend(utc);
 
+// const isDev = config.get('env') === 'dev';
 const basePath = path.resolve(__dirname, "../../logs");
 const errorPath = path.resolve(basePath, "err");
 const outPath = path.resolve(basePath, "out");
 
 const layout = {
     type: 'pattern',
-    pattern: '[%d{yyyy-MM-dd hh:mm:ss}] [%p] %c - %m%n',
+    pattern: '[%x{customDate}] [%p] %c - %m%n',
     tokens: {
         customDate: function (logEvent) {
             // modify as you want the timestamp for example getting it in the local time zone
-            return logEvent.startTime.toLocaleString();
+            // return logEvent.startTime.toLocaleString();
+            return dayjs(logEvent.startTime).utcOffset(8).format("YYYY-MM-DD HH:mm:ss");
         }
     }
 }
+
 log4js.configure({
     appenders: {
         stdout: {
             type: 'console',
-            // layout
+            // layout: isDev ? layout : undefined
         },
         error: {
             type: "dateFile", // 日志类型

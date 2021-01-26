@@ -16,6 +16,7 @@ import routes from 'ROOT/routes';
 import { socketIO } from 'ROOT/ws/socketIO';
 import './db/orm';
 import './huobi/start';
+
 // const debug = require('debug')('koa2:server')
 
 const app = new Koa();
