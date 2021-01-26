@@ -1,5 +1,5 @@
 // import { outLogger } from "ROOT/common/logger";
-import { throttle, toNumber } from "lodash";
+import { omit, throttle, toNumber } from "lodash";
 import xlsx from 'xlsx';
 import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
@@ -197,24 +197,25 @@ export class Trader {
                 return;
             }
             // const tradingAdvice = quant.safeTrade(row.close);
-            orderConfig.trainer.run().then((config) => {
-                Object.assign(orderConfig, config);
-            });
+
             this.order(
                 symbol,
                 action,
                 price,
                 amount
             );
+
             AutoOrderHistoryService.create({
                 datetime: new Date(),
                 symbol,
-                price,
-                amount,
+                price: price || 0,
+                amount: amount || 0,
                 userId: userId || 1,
-                type: action,
-                row: JSON.stringify(row)
-            }).catch(errLogger.error);
+                type: action || 'buy',
+                row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
+            }).catch((err) => {
+                outLogger.error(err)
+            });
             orderConfig.trainer.run().then((config) => {
                 Object.assign(orderConfig, config);
             });
