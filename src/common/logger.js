@@ -4,19 +4,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.errLogger = exports.outLogger = void 0;
+const dayjs_1 = __importDefault(require("dayjs"));
 const log4js_1 = __importDefault(require("log4js"));
+const utc_1 = __importDefault(require("dayjs/plugin/utc"));
 const path_1 = __importDefault(require("path"));
 const utils_1 = require("../utils");
+dayjs_1.default.extend(utc_1.default);
+// const isDev = config.get('env') === 'dev';
 const basePath = path_1.default.resolve(__dirname, "../../logs");
 const errorPath = path_1.default.resolve(basePath, "err");
 const outPath = path_1.default.resolve(basePath, "out");
 const layout = {
     type: 'pattern',
-    pattern: '[%d{yyyy-MM-dd hh:mm:ss}] [%p] %c - %m%n',
+    pattern: '[%x{customDate}] [%p] %c - %m%n',
     tokens: {
         customDate: function (logEvent) {
             // modify as you want the timestamp for example getting it in the local time zone
-            return logEvent.startTime.toLocaleString();
+            // return logEvent.startTime.toLocaleString();
+            return dayjs_1.default(logEvent.startTime).utcOffset(8).format("YYYY-MM-DD HH:mm:ss");
         }
     }
 };

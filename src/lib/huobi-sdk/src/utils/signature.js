@@ -6,9 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signature_V2 = exports.signature = exports.signatureSHA = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const dayjs_1 = __importDefault(require("dayjs"));
-const utc_1 = __importDefault(require("dayjs/plugin/utc"));
 const url_1 = __importDefault(require("url"));
-dayjs_1.default.extend(utc_1.default);
 /**
  * 签名计算
  * @param method
