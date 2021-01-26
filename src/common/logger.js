@@ -12,7 +12,7 @@ const errorPath = path_1.default.resolve(basePath, "err");
 const outPath = path_1.default.resolve(basePath, "out");
 const layout = {
     type: 'pattern',
-    pattern: '%[ [%d{yyyy-MM-dd hh:mm:ss}] [%p] %c %]- %m%n',
+    pattern: '%[[%d{yyyy-MM-dd hh:mm:ss}] [%p] %c%]- %m%n',
     tokens: {
         customDate: function (logEvent) {
             // modify as you want the timestamp for example getting it in the local time zone
