@@ -9,7 +9,7 @@ const outPath = path.resolve(basePath, "out");
 
 const layout = {
     type: 'pattern',
-    pattern: '%[ [%d{yyyy-MM-dd hh:mm:ss}] [%p] %c %]- %m%n',
+    pattern: '[%d{yyyy-MM-dd hh:mm:ss}] [%p] %c - %m%n',
     tokens: {
         customDate: function (logEvent) {
             // modify as you want the timestamp for example getting it in the local time zone
@@ -21,7 +21,7 @@ log4js.configure({
     appenders: {
         stdout: {
             type: 'console',
-            layout
+            // layout
         },
         error: {
             type: "dateFile", // 日志类型
@@ -45,7 +45,7 @@ log4js.configure({
     },
     pm2: true,
     pm2InstanceVar: 'INSTANCE_ID',
-    disableClustering: true
+    disableClustering: true,
 });
 // 创建log的根目录'logs'
 if (basePath) {
