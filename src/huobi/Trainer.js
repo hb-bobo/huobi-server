@@ -69,8 +69,8 @@ class Trainer {
             for (let overboughtRatio = -0.01; overboughtRatio > -0.09; overboughtRatio = overboughtRatio - 0.002) {
                 const bt = new Backtest_1.default({
                     symbol: quant.config.symbol,
-                    buyAmount: this.quant.config.minVolume * 100,
-                    sellAmount: this.quant.config.minVolume * 100,
+                    buyAmount: this.quant.config.minVolume * 10,
+                    sellAmount: this.quant.config.minVolume * 10,
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
@@ -119,8 +119,8 @@ class Trainer {
             for (let buyAmountRatio = 1; buyAmountRatio < 8; buyAmountRatio = buyAmountRatio + 0.1) {
                 const bt = new Backtest_1.default({
                     symbol: quant.config.symbol,
-                    buyAmount: this.quant.config.minVolume * 100,
-                    sellAmount: this.quant.config.minVolume * 100,
+                    buyAmount: this.quant.config.minVolume * 10,
+                    sellAmount: this.quant.config.minVolume * 10,
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
