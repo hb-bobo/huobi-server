@@ -96,10 +96,10 @@ async function tran2() {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
-                    bt.sell(row.close);
+                    bt.sell(row.close, 10 / row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
-                    bt.buy(row.close);
+                    bt.buy(row.close), 10 / row.close;
                 }
             });
             result.push({

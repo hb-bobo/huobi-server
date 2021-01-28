@@ -9,9 +9,13 @@ const quant_1 = require("../lib/quant");
 const Backtest_1 = __importDefault(require("../lib/quant/Backtest"));
 const utils_1 = require("../utils");
 class Trainer {
-    constructor(quant, sdk) {
+    constructor(quant, sdk, { buy_usdt, sell_usdt }) {
+        this.buy_usdt = 10;
+        this.sell_usdt = 10;
         this.quant = quant;
         this.sdk = sdk;
+        this.buy_usdt = buy_usdt;
+        this.sell_usdt = sell_usdt;
     }
     getTop(result) {
         const sortedList = result.sort((a, b) => {
@@ -74,15 +78,15 @@ class Trainer {
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
-                quant.mockUse(function (row) {
+                quant.mockUse((row) => {
                     if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
                     if (row["close/MA60"] > oversoldRatio) {
-                        bt.sell(row.close);
+                        bt.sell(row.close, this.sell_usdt / row.close);
                     }
                     if (row["close/MA60"] < overboughtRatio) {
-                        bt.buy(row.close);
+                        bt.buy(row.close, this.buy_usdt / row.close);
                     }
                 });
                 result.push({
@@ -131,13 +135,13 @@ class Trainer {
                     // 卖
                     if (row.close > row.MA60) {
                         if (row['amount/amountMA20'] > sellAmountRatio) {
-                            bt.sell(row.close);
+                            bt.sell(row.close, this.sell_usdt / row.close);
                         }
                     }
                     // 买
                     if (row.close < row.MA60) {
                         if (row['amount/amountMA20'] > buyAmountRatio) {
-                            bt.buy(row.close);
+                            bt.buy(row.close, this.sell_usdt / row.close);
                         }
                     }
                 });

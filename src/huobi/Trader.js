@@ -116,7 +116,10 @@ let Trader = /** @class */ (() => {
                     bidsList: [],
                     asksList: [],
                 },
-                trainer: new Trainer_1.Trainer(quant, this.sdk)
+                trainer: new Trainer_1.Trainer(quant, this.sdk, {
+                    buy_usdt,
+                    sell_usdt,
+                })
             };
             const orderConfig = this.orderConfigMap[symbol];
             this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
