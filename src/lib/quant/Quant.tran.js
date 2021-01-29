@@ -92,7 +92,7 @@ async function tran2() {
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             });
             quant.mockUse(function (row) {
-                if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+                if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {

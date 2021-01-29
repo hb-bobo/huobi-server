@@ -21,6 +21,7 @@ class Analyser {
         this.MA10 = new indicators_1.MA(10);
         this.MA30 = new indicators_1.MA(30);
         this.MA60 = new indicators_1.MA(60);
+        this.MA120 = new indicators_1.MA(120);
         this.amountMA20 = new indicators_1.MA(20);
         this.getLast = (n) => {
             return this.result.slice(this.result.length - n - 1, this.result.length - 1);
@@ -42,6 +43,7 @@ class Analyser {
         this.MA10.push(data.close);
         this.MA30.push(data.close);
         this.MA60.push(data.close);
+        this.MA120.push(data.close);
         const newData = lodash_1.omit(data, 'id');
         const row = {
             ...newData,
@@ -50,6 +52,7 @@ class Analyser {
             MA10: util_1.autoToFixed(this.MA10.last()) || null,
             MA30: util_1.autoToFixed(this.MA30.last()) || null,
             MA60: util_1.autoToFixed(this.MA60.last()) || null,
+            MA120: util_1.autoToFixed(this.MA120.last()) || null,
         };
         if (data.amount !== undefined) {
             this.amountMA20.push(lodash_1.toNumber(data.amount));
@@ -60,7 +63,7 @@ class Analyser {
          * 超跌 < 0
          * 超买 > 0
          */
-        row['close/MA60'] = this.getGain(row.close, row.MA60);
+        row['close/MA120'] = this.getGain(row.close, row.MA120);
         /**
          * 买盘力量大
          */
@@ -69,8 +72,10 @@ class Analyser {
          * 卖盘力量大
          */
         row['high-close/close'] = util_1.autoToFixed((row.high - row.close) / Math.abs(row.low - row.high));
-        if (this.result[this.result.length - 1]) {
-            row.amplitude = util_1.keepDecimalFixed((row.high - row.close) / this.result[this.result.length - 1].close, 3) * 100;
+        const preRow = this.result[this.result.length - 1];
+        if (preRow) {
+            row.amplitude = util_1.keepDecimalFixed((row.high - row.low) / preRow.close, 3) * 100;
+            row.changepercent = util_1.keepDecimalFixed(row.close / preRow.close, 3) * 100;
         }
         else {
             row.amplitude = 0;

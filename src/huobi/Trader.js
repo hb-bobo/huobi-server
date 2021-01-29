@@ -91,7 +91,7 @@ let Trader = /** @class */ (() => {
             }
             return symbolInfo;
         }
-        async autoTrader({ symbol, buy_usdt, sell_usdt, period = 5, }, userId) {
+        async autoTrader({ symbol, buy_usdt, sell_usdt, period = node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, }, userId) {
             await this.getSymbolInfo(symbol);
             await this.getBalance(symbol);
             const quant = new quant_1.Quant({
@@ -137,7 +137,7 @@ let Trader = /** @class */ (() => {
                     asksList: asksList,
                 };
             }, 10000, { leading: true }));
-            const data = await this.sdk.getMarketHistoryKline(symbol, node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, 480);
+            const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 1200);
             const rData = data.reverse();
             quant.analysis(rData);
             orderConfig.trainer.run(rData).then((config) => {
@@ -145,13 +145,14 @@ let Trader = /** @class */ (() => {
             });
             quant.use((row) => {
                 orderConfig.price = row.close;
-                if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+                if (!row.MA120 || !row.MA5 || !row.MA10) {
                     return;
                 }
                 let action;
                 let amount = 0;
                 let price = 0;
-                if (row["close/MA60"] > orderConfig.oversoldRatio
+                if (row.MA5 > row.MA10 &&
+                    row["close/MA120"] > orderConfig.oversoldRatio
                 // || row['amount/amountMA20'] > config.sellAmountRatio
                 ) {
                     action = 'sell';
@@ -160,7 +161,8 @@ let Trader = /** @class */ (() => {
                     price = pricePoolFormDepth.sell[0] || row.close * 1.02;
                 }
                 // 买
-                if (row["close/MA60"] < orderConfig.overboughtRatio
+                if (row.MA5 < row.MA10 &&
+                    row["close/MA120"] < orderConfig.overboughtRatio
                 // || row['amount/amountMA20'] > config.buyAmountRatio
                 ) {
                     action = 'buy';
@@ -196,7 +198,7 @@ let Trader = /** @class */ (() => {
                     Object.assign(orderConfig, config);
                 });
             });
-            this.sdk.subMarketKline({ symbol, period: node_huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, (data) => {
+            this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
                 orderConfig.price = data.data.close;
                 const kline = this.orderConfigMap[symbol].kline;
                 if (kline && kline.id !== data.data.id && data.symbol === symbol) {
@@ -205,6 +207,9 @@ let Trader = /** @class */ (() => {
                 }
                 this.orderConfigMap[symbol].kline = data.data;
             });
+        }
+        cancelAutoTrader(userId, symbol) {
+            delete this.orderConfigMap[symbol];
         }
         async order(symbol, type, amount, price) {
             logger_1.outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);

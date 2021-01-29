@@ -28,7 +28,7 @@ class Trainer {
         return {
             symbol: this.quant.config.symbol,
             quoteCurrencyBalance: (!quoteCurrencyBalance || quoteCurrencyBalance < 100) ? 600 : quoteCurrencyBalance,
-            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 50) ? minVolume * 100 : baseCurrencyBalance,
+            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 20) ? minVolume * 100 : baseCurrencyBalance,
             minVolume: minVolume,
         };
     }
@@ -69,8 +69,8 @@ class Trainer {
         });
         quant.analysis(history);
         const result = [];
-        for (let oversoldRatio = 0.01; oversoldRatio < 0.09; oversoldRatio = oversoldRatio + 0.002) {
-            for (let overboughtRatio = -0.01; overboughtRatio > -0.09; overboughtRatio = overboughtRatio - 0.002) {
+        for (let oversoldRatio = 0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.002) {
+            for (let overboughtRatio = -0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.002) {
                 const bt = new Backtest_1.default({
                     symbol: quant.config.symbol,
                     buyAmount: this.quant.config.minVolume * 10,
@@ -79,13 +79,13 @@ class Trainer {
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
                 quant.mockUse((row) => {
-                    if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+                    if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
                         return;
                     }
-                    if (row["close/MA60"] > oversoldRatio) {
+                    if (row["close/MA120"] > oversoldRatio) {
                         bt.sell(row.close, this.sell_usdt / row.close);
                     }
-                    if (row["close/MA60"] < overboughtRatio) {
+                    if (row["close/MA120"] < overboughtRatio) {
                         bt.buy(row.close, this.buy_usdt / row.close);
                     }
                 });
@@ -119,8 +119,8 @@ class Trainer {
         });
         quant.analysis(history);
         const result = [];
-        for (let sellAmountRatio = 1; sellAmountRatio < 8; sellAmountRatio = sellAmountRatio + 0.1) {
-            for (let buyAmountRatio = 1; buyAmountRatio < 8; buyAmountRatio = buyAmountRatio + 0.1) {
+        for (let sellAmountRatio = 0.5; sellAmountRatio < 10; sellAmountRatio = sellAmountRatio + 0.2) {
+            for (let buyAmountRatio = 0.5; buyAmountRatio < 10; buyAmountRatio = buyAmountRatio + 0.2) {
                 const bt = new Backtest_1.default({
                     symbol: quant.config.symbol,
                     buyAmount: this.quant.config.minVolume * 10,
@@ -128,21 +128,17 @@ class Trainer {
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
-                quant.mockUse(function (row) {
+                quant.mockUse((row) => {
                     if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
                     // 卖
-                    if (row.close > row.MA60) {
-                        if (row['amount/amountMA20'] > sellAmountRatio) {
-                            bt.sell(row.close, this.sell_usdt / row.close);
-                        }
+                    if (row.MA10 > row.MA60 && row.changepercent > sellAmountRatio) {
+                        bt.sell(row.close, this.sell_usdt / row.close);
                     }
                     // 买
-                    if (row.close < row.MA60) {
-                        if (row['amount/amountMA20'] > buyAmountRatio) {
-                            bt.buy(row.close, this.sell_usdt / row.close);
-                        }
+                    if (row.MA10 < row.MA60 && row.changepercent > buyAmountRatio) {
+                        bt.buy(row.close, this.sell_usdt / row.close);
                     }
                 });
                 result.push({
