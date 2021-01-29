@@ -27,8 +27,10 @@ class Trainer {
         const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.quant.config;
         return {
             symbol: this.quant.config.symbol,
-            quoteCurrencyBalance: (!quoteCurrencyBalance || quoteCurrencyBalance < 100) ? 600 : quoteCurrencyBalance,
-            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 20) ? minVolume * 100 : baseCurrencyBalance,
+            quoteCurrencyBalance,
+            baseCurrencyBalance,
+            // quoteCurrencyBalance: (!quoteCurrencyBalance || quoteCurrencyBalance < 100) ? 600 : quoteCurrencyBalance,
+            // baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 20) ? minVolume * 100 : baseCurrencyBalance,
             minVolume: minVolume,
         };
     }
