@@ -32,7 +32,7 @@ async function download() {
     xlsx.writeFile(workbook, join(publicPath, `/download/${fileName}.xlsx`)); //将数据写入文件
 }
 
-download();
+// download();
 
 async function tranSafeTrade() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -86,11 +86,11 @@ async function tranSafeTrade() {
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
 
-    const history = JSON.parse(data).splice(0, 120);
+    const history = JSON.parse(data).splice(0, 640);
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
-        quoteCurrencyBalance: 300,
+        quoteCurrencyBalance: 600,
         baseCurrencyBalance: 0,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
@@ -110,16 +110,16 @@ async function tran2() {
             })
 
             quant.mockUse(function (row) {
-                if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+                if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
 
-                    bt.sell(row.close);
+                    bt.sell(row.close, 10 / row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
 
-                    bt.buy(row.close);
+                    bt.buy(row.close), 10 / row.close;
                 }
 
             });
@@ -145,7 +145,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-// tran2();
+tran2();
 
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });

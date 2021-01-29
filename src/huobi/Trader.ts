@@ -10,14 +10,13 @@ import { Period } from "./interface";
 import { getPriceIndex, getSameAmount, getSymbolInfo, getTracePrice, _SYMBOL_INFO_MAP } from "./util";
 import { Trainer } from "./Trainer";
 import * as AutoOrderHistoryService from 'ROOT/module/auto-order-history/AutoOrderHistory.service';
-import { join } from "path";
 
 interface SymbolConfig{
     kline?: Record<string, any>;
     price: number;
     buy_usdt: number;
     sell_usdt: number;
-    period?: number;
+    period: Period | CandlestickIntervalEnum;
     quant: Quant;
     oversoldRatio: number;
     overboughtRatio: number;
@@ -103,7 +102,7 @@ export class Trader {
         symbol,
         buy_usdt,
         sell_usdt,
-        period = 5,
+        period = CandlestickIntervalEnum.MIN5,
         // forceTrade,
     }, userId?: number) {
         await this.getSymbolInfo(symbol);
@@ -132,7 +131,10 @@ export class Trader {
                 bidsList: [],
                 asksList: [],
             },
-            trainer: new Trainer(quant, this.sdk)
+            trainer: new Trainer(quant, this.sdk, {
+                buy_usdt,
+                sell_usdt,
+            })
         }
         const orderConfig = this.orderConfigMap[symbol];
 
@@ -155,7 +157,7 @@ export class Trader {
         }, 10000, {leading: true}));
 
 
-        const data = await this.sdk.getMarketHistoryKline(symbol, CandlestickIntervalEnum.MIN5, 480);
+        const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 1200);
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
@@ -164,7 +166,7 @@ export class Trader {
         });
         quant.use((row) => {
             orderConfig.price = row.close;
-            if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+            if (!row.MA120 || !row.MA5 || !row.MA10) {
                 return;
             }
 
@@ -173,7 +175,8 @@ export class Trader {
             let amount = 0;
             let price =  0;
             if (
-                row["close/MA60"] > orderConfig.oversoldRatio
+                row.MA5 > row.MA10 &&
+                row["close/MA120"] > orderConfig.oversoldRatio
                 // || row['amount/amountMA20'] > config.sellAmountRatio
             ) {
                 action = 'sell';
@@ -184,7 +187,8 @@ export class Trader {
 
             // 买
             if (
-                row["close/MA60"] < orderConfig.overboughtRatio
+                row.MA5 < row.MA10 &&
+                row["close/MA120"] < orderConfig.overboughtRatio
                 // || row['amount/amountMA20'] > config.buyAmountRatio
             ) {
                 action = 'buy';
@@ -229,7 +233,7 @@ export class Trader {
             });
         });
 
-        this.sdk.subMarketKline({symbol, period: CandlestickIntervalEnum.MIN5}, (data) => {
+        this.sdk.subMarketKline({symbol, period: orderConfig.period}, (data) => {
             orderConfig.price = data.data.close;
             const kline = this.orderConfigMap[symbol].kline;
 
@@ -239,6 +243,9 @@ export class Trader {
             }
             this.orderConfigMap[symbol].kline = data.data;
         })
+    }
+    cancelAutoTrader(userId, symbol) {
+        delete this.orderConfigMap[symbol];
     }
     async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number) {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);

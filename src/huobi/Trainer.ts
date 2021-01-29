@@ -8,9 +8,13 @@ import { keepDecimalFixed } from "ROOT/utils";
 export class Trainer {
     quant: Quant;
     sdk: HuobiSDK;
-    constructor(quant: Quant, sdk: HuobiSDK) {
+    buy_usdt = 10;
+    sell_usdt = 10;
+    constructor(quant: Quant, sdk: HuobiSDK, {buy_usdt, sell_usdt}) {
         this.quant = quant;
         this.sdk = sdk;
+        this.buy_usdt = buy_usdt;
+        this.sell_usdt = sell_usdt;
     }
     getTop(result: any[]) {
         const sortedList = result.sort((a, b) => {
@@ -23,7 +27,7 @@ export class Trainer {
         return {
             symbol: this.quant.config.symbol,
             quoteCurrencyBalance: (!quoteCurrencyBalance || quoteCurrencyBalance < 100) ? 600 : quoteCurrencyBalance,
-            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 50) ? minVolume * 100 : baseCurrencyBalance,
+            baseCurrencyBalance: (!baseCurrencyBalance || baseCurrencyBalance < minVolume * 20) ? minVolume * 100 : baseCurrencyBalance,
             minVolume: minVolume,
         }
     }
@@ -72,8 +76,9 @@ export class Trainer {
             overboughtRatio: number;
             return: number
         })[] = [];
-        for (let oversoldRatio = 0.01; oversoldRatio < 0.09; oversoldRatio = oversoldRatio + 0.002) {
-            for (let overboughtRatio = -0.01; overboughtRatio > -0.09; overboughtRatio = overboughtRatio - 0.002) {
+
+        for (let oversoldRatio = 0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.002) {
+            for (let overboughtRatio = -0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.002) {
 
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
@@ -83,15 +88,15 @@ export class Trainer {
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
 
-                quant.mockUse(function (row) {
-                    if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
+                quant.mockUse((row) => {
+                    if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
                         return;
                     }
-                    if (row["close/MA60"] > oversoldRatio) {
-                        bt.sell(row.close);
+                    if (row["close/MA120"] > oversoldRatio) {
+                        bt.sell(row.close, this.sell_usdt / row.close);
                     }
-                    if (row["close/MA60"] < overboughtRatio) {
-                        bt.buy(row.close);
+                    if (row["close/MA120"] < overboughtRatio) {
+                        bt.buy(row.close, this.buy_usdt / row.close);
                     }
                 });
 
@@ -129,8 +134,8 @@ export class Trainer {
             buyAmountRatio: number;
             return: number
         })[] = [];
-        for (let sellAmountRatio = 1; sellAmountRatio < 8; sellAmountRatio = sellAmountRatio + 0.1) {
-            for (let buyAmountRatio = 1; buyAmountRatio < 8; buyAmountRatio = buyAmountRatio + 0.1) {
+        for (let sellAmountRatio = 0.5; sellAmountRatio < 10; sellAmountRatio = sellAmountRatio + 0.2) {
+            for (let buyAmountRatio = 0.5; buyAmountRatio < 10; buyAmountRatio = buyAmountRatio + 0.2) {
 
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
@@ -140,21 +145,17 @@ export class Trainer {
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });
 
-                quant.mockUse(function (row) {
+                quant.mockUse((row) => {
                     if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
                    // 卖
-                    if (row.close > row.MA60) {
-                        if (row['amount/amountMA20'] > sellAmountRatio) {
-                            bt.sell(row.close);
-                        }
+                    if (row.MA10 > row.MA60 && row.changepercent > sellAmountRatio) {
+                        bt.sell(row.close, this.sell_usdt / row.close);
                     }
                     // 买
-                    if (row.close < row.MA60) {
-                        if (row['amount/amountMA20'] > buyAmountRatio) {
-                            bt.buy(row.close);
-                        }
+                    if (row.MA10 < row.MA60 && row.changepercent > buyAmountRatio) {
+                        bt.buy(row.close, this.sell_usdt / row.close);
                     }
                 });
 

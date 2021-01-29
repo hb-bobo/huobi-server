@@ -26,6 +26,14 @@ export interface AnalyserDataItem extends DataItem{
      */
     "close/MA60": number;
     "amount/amountMA20": number;
+    /**
+     * 振幅
+     */
+    amplitude: number;
+    /**
+     * 涨跌幅
+     */
+    changepercent: number;
     [x: string]: any;
 }
 /**
@@ -38,6 +46,7 @@ export default class Analyser {
     private MA10 = new MA(10);
     private MA30 = new MA(30);
     private MA60 = new MA(60);
+    private MA120 = new MA(120);
     private amountMA20 = new MA(20);
     /**
      * 量化指标分析
@@ -57,10 +66,11 @@ export default class Analyser {
     }
     public _analysis<T extends Record<string, any>>(data: T){
 
-        this.MA5.push(data.close)
-        this.MA10.push(data.close)
-        this.MA30.push(data.close)
-        this.MA60.push(data.close)
+        this.MA5.push(data.close);
+        this.MA10.push(data.close);
+        this.MA30.push(data.close);
+        this.MA60.push(data.close);
+        this.MA120.push(data.close);
         const newData = omit(data, 'id');
         const row: Record<string, any> = {
             ...newData,
@@ -69,6 +79,7 @@ export default class Analyser {
             MA10: autoToFixed(this.MA10.last()) || null,
             MA30: autoToFixed(this.MA30.last()) || null,
             MA60: autoToFixed(this.MA60.last()) || null,
+            MA120: autoToFixed(this.MA120.last()) || null,
         }
 
 
@@ -81,7 +92,7 @@ export default class Analyser {
          * 超跌 < 0
          * 超买 > 0
          */
-        row['close/MA60'] = this.getGain(row.close, row.MA60);
+        row['close/MA120'] = this.getGain(row.close, row.MA120);
 
         /**
          * 买盘力量大
@@ -91,9 +102,10 @@ export default class Analyser {
          * 卖盘力量大
          */
         row['high-close/close'] = autoToFixed((row.high - row.close) / Math.abs(row.low - row.high));
-
-        if (this.result[this.result.length - 1]) {
-            row.amplitude = keepDecimalFixed((row.high - row.close) / this.result[this.result.length - 1].close, 3) * 100;
+        const preRow = this.result[this.result.length - 1];
+        if (preRow) {
+            row.amplitude = keepDecimalFixed((row.high - row.low) / preRow.close, 3) * 100;
+            row.changepercent = keepDecimalFixed(row.close / preRow.close, 3) * 100;
         } else {
             row.amplitude = 0;
         }

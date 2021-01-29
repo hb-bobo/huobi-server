@@ -85,8 +85,14 @@ export default class AutoOrderConfigLogController {
      */
     public static  removeOne = async (ctx: AppContext) => {
         const data = ctx.request.body;
+        const userId = ctx.state.user && ctx.state.user.id;
+        const id = data.id || data._id;
+
         try {
-            const res = await AutoOrderConfigService.deleteOne({id: data._id});
+            const res = await AutoOrderConfigService.deleteOne({id: id});
+            if (userId) {
+                trader.cancelAutoTrader(userId, data.symbol);
+            }
             ctx.sendSuccess({
                 data: res
             });

@@ -15,4 +15,7 @@ export default class AutoOrderConfigEntity extends BaseEntity{
     public buy_usdt!: number;
     @Column({type: 'float'})
     public sell_usdt!: number;
+
+    @Column({type: 'varchar', length: 10})
+    public period!: string;
 }
