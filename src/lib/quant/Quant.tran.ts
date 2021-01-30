@@ -12,7 +12,7 @@ import Backtest from './Backtest';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'btcusdt-5min-2021-01-18'
+const fileName = 'btcusdt-5min-2021-01-31'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
@@ -32,7 +32,7 @@ async function download() {
     xlsx.writeFile(workbook, join(publicPath, `/download/${fileName}.xlsx`)); //将数据写入文件
 }
 
-download();
+// download();
 
 async function tranSafeTrade() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -86,7 +86,7 @@ async function tranSafeTrade() {
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
 
-    const history = JSON.parse(data).splice(0, 640);
+    const history = JSON.parse(data);
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -98,8 +98,8 @@ async function tran2() {
     });
     quant.analysis(history);
     const result: any[] = []
-    for (let oversoldRatio = 0.01; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.001) {
-        for (let overboughtRatio = -0.01; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.001) {
+    for (let oversoldRatio = 0.01; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.001) {
+        for (let overboughtRatio = -0.01; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.001) {
 
             const bt = new Backtest({
                 symbol: 'btcusdt',
@@ -110,7 +110,7 @@ async function tran2() {
             })
 
             quant.mockUse(function (row) {
-                if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
+                if (!row.MA5 || !row.MA30 || !row.MA10) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
@@ -145,7 +145,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-// tran2();
+tran2();
 
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });

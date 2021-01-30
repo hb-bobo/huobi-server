@@ -92,7 +92,7 @@ export default class Analyser {
          * 超跌 < 0
          * 超买 > 0
          */
-        row['close/MA120'] = this.getGain(row.close, row.MA120);
+        row['close/MA60'] = this.getGain(row.close, row.MA60);
 
         /**
          * 买盘力量大
@@ -115,7 +115,13 @@ export default class Analyser {
         this.middlewares.forEach((callback) => {
             callback(row);
         })
-        this.result.push(row)
+        this.result.push(row);
+        this.checkMax();
+    }
+    private checkMax() {
+        if (this.result.length > 600) {
+            this.result.shift();
+        }
     }
     /**
      * 获取涨跌幅

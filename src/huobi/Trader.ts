@@ -114,6 +114,7 @@ export class Trader {
         if (!this._balanceMap) {
             return errLogger.error('_balanceMap', this.sdk.spot_account_id);
         }
+
         const quant = new Quant({
             symbol: symbol,
             quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
@@ -130,8 +131,8 @@ export class Trader {
             quant: quant,
             oversoldRatio: 0.02,
             overboughtRatio: -0.034,
-            sellAmountRatio: 2.4,
-            buyAmountRatio: 2.1,
+            sellAmountRatio: 1.1,
+            buyAmountRatio: 1.1,
             price: 0,
             depth: {
                 bidsList: [],
@@ -172,7 +173,7 @@ export class Trader {
         });
         quant.use((row) => {
             orderConfig.price = row.close;
-            if (!row.MA120 || !row.MA5 || !row.MA10) {
+            if (!row.MA120 || !row.MA5 || !row.MA10 || !row.MA30 || !row.MA60) {
                 return;
             }
 
@@ -181,9 +182,10 @@ export class Trader {
             let amount = 0;
             let price =  0;
             if (
-                row.MA5 > row.MA10 &&
-                row["close/MA120"] > orderConfig.oversoldRatio
-                // || row['amount/amountMA20'] > config.sellAmountRatio
+                row.MA5 > row.MA10
+                //  && row.MA10 > row.MA30 && row.MA30 > row.MA60 && row.MA60 > row.MA120
+                && row["close/MA60"] > orderConfig.oversoldRatio
+                && row['amount/amountMA20'] > orderConfig.sellAmountRatio
             ) {
                 action = 'sell';
                 const pricePoolFormDepth = getTracePrice(orderConfig.depth);
@@ -194,8 +196,8 @@ export class Trader {
             // 买
             if (
                 row.MA5 < row.MA10 &&
-                row["close/MA120"] < orderConfig.overboughtRatio
-                // || row['amount/amountMA20'] > config.buyAmountRatio
+                row["close/MA60"] < orderConfig.overboughtRatio
+                && row['amount/amountMA20'] > orderConfig.buyAmountRatio
             ) {
                 action = 'buy';
                 const pricePoolFormDepth = getTracePrice(orderConfig.depth);
@@ -203,17 +205,17 @@ export class Trader {
                 price =  pricePoolFormDepth.buy[0] || row.close *  0.98;
             }
 
-            if (!action) {
+            if (!action && (row['amount/amountMA20'] > 2 || row.amplitude > 2)) {
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (tradingAdvice) {
                     action = tradingAdvice.action;
                     amount = tradingAdvice.volume;
                     price = tradingAdvice.price;
-                    outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice));
+                    outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, ${row.amplitude}: row.amplitude,`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
                 }
             }
 
-            if (!action) {
+            if (!action || amount < Number.MIN_SAFE_INTEGER) {
                 return;
             }
             this.order(

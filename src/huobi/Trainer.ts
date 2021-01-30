@@ -79,7 +79,7 @@ export class Trainer {
             buyCount: number;
             sellCount: number;
         })[] = [];
-
+        console.log(quant.config, quoteCurrencyBalance)
         for (let oversoldRatio = 0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.002) {
             for (let overboughtRatio = -0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.002) {
 
@@ -137,6 +137,7 @@ export class Trainer {
             minVolume: minVolume,
         });
         quant.analysis(history);
+
         const result: ({
             sell_changepercent: number;
             buy_changepercent: number;
@@ -151,8 +152,8 @@ export class Trainer {
                     symbol: quant.config.symbol,
                     buyAmount: this.quant.config.minVolume * 10,
                     sellAmount: this.quant.config.minVolume * 10,
-                    quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
-                    baseCurrencyBalance: quant.config.baseCurrencyBalance,
+                    quoteCurrencyBalance: quoteCurrencyBalance,
+                    baseCurrencyBalance: baseCurrencyBalance,
                 });
                 let buyCount = 0;
                 let sellCount = 0;
@@ -162,12 +163,12 @@ export class Trainer {
                     }
 
                    // 卖
-                    if (row.MA10 > row.MA60 && row.changepercent > sellAmountRatio) {
+                    if (row.MA10 > row.MA30 && row.amplitude > sellAmountRatio) {
                         bt.sell(row.close, this.sell_usdt / row.close);
                         sellCount++;
                     }
                     // 买
-                    if (row.MA10 < row.MA60 && row.changepercent < buyAmountRatio) {
+                    if (row.MA10 < row.MA30 && row.amplitude < buyAmountRatio) {
                         bt.buy(row.close, this.sell_usdt / row.close);
                         buyCount++;
                     }
