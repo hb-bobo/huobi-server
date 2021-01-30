@@ -103,9 +103,10 @@ export default class Analyser {
          */
         row['high-close/close'] = autoToFixed((row.high - row.close) / Math.abs(row.low - row.high));
         const preRow = this.result[this.result.length - 1];
+
         if (preRow) {
             row.amplitude = keepDecimalFixed((row.high - row.low) / preRow.close, 3) * 100;
-            row.changepercent = keepDecimalFixed(row.close / preRow.close, 3) * 100;
+            row.changepercent = keepDecimalFixed((row.close - preRow.close) / preRow.close, 3) * 100;
         } else {
             row.amplitude = 0;
         }

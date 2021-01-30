@@ -77,16 +77,18 @@ export class Trader {
      */
     getBalance = (symbol?: string) => {
         if (this._balanceMap && symbol) {
-            return this._balanceMap[symbol]
+            return Promise.resolve(this._balanceMap[symbol]);
         }
-        this.sdk.getAccountBalance().then((data) => {
-            if (!data) {
+        return this.sdk.getAccountBalance().then((data) => {
+            if (!Array.isArray(data.list)) {
                 return;
             }
 
             data.list.forEach((item) => {
+
                 this._balanceMap[item.currency] = toNumber(item.balance);
             });
+            return this._balanceMap;
         });
     }
     async getSymbolInfo(symbol: string) {
@@ -106,8 +108,12 @@ export class Trader {
         // forceTrade,
     }, userId?: number) {
         await this.getSymbolInfo(symbol);
+        await this.sdk.getAccountId();
         await this.getBalance(symbol);
 
+        if (!this._balanceMap) {
+            return errLogger.error('_balanceMap', this.sdk.spot_account_id);
+        }
         const quant = new Quant({
             symbol: symbol,
             quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
@@ -157,7 +163,7 @@ export class Trader {
         }, 10000, {leading: true}));
 
 
-        const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 1200);
+        const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 600);
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
