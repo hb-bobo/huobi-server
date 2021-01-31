@@ -19,7 +19,7 @@ export const find = async function(query: Partial<AutoOrderHistory> = {}, pagina
     const {skip, take, current} = pagination(paginationOption);
     const [list, total] = await getRepository(AutoOrderHistory)
     .createQueryBuilder()
-    .where({userId: query.userId})
+    .where(query)
     .orderBy('datetime', 'DESC')
     .skip(skip)
     .take(take)

@@ -2,9 +2,9 @@
 import config from 'config';
 import schema from 'async-validator';
 import { AppContext } from 'ROOT/interface/App';
+import { trader } from 'ROOT/huobi/start';
 import TradeAccountEntity from './TradeAccount.entity';
 import * as TradeAccountService from './TradeAccount.service';
-
 /**
  * 查询单个或者多个
  */
@@ -88,6 +88,12 @@ export const updateOne = async (ctx: AppContext) => {
         let res;
         if (ID) {
             res = await TradeAccountService.updateOne({id: ID}, DATA);
+            if (DATA.access_key) {
+                trader.sdk.setOptions({
+                    accessKey: DATA.access_key,
+                    secretKey: DATA.secret_key,
+                });
+            }
             ctx.sendSuccess();
         } else {
             res = await TradeAccountService.create({
