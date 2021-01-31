@@ -225,7 +225,7 @@ export class Trader {
                 }
             }
 
-            if (!action || amount < Number.MIN_SAFE_INTEGER) {
+            if (!action) {
                 return;
             }
             if (amount < Number.MIN_SAFE_INTEGER) {
