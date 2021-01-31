@@ -49,7 +49,7 @@
     "log4js": "^6.3.0",
     "module-alias": "^2.2.2",
     "mysql": "^2.18.1",
-    "node-huobi-sdk": "^1.0.7",
+    "node-huobi-sdk": "^1.0.9",
     "nodemailer": "^4.7.0",
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
@@ -94,6 +94,6 @@
     "prettier": "^1.18.2",
     "ts-jest": "^25.4.0",
     "ts-node": "^8.4.1",
-    "typescript": "^3.6.4"
+    "typescript": "^4.1.3"
   }
 }
