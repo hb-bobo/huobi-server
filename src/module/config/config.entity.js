@@ -10,24 +10,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let ConfigEntity = /** @class */ (() => {
-    let ConfigEntity = class ConfigEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], ConfigEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], ConfigEntity.prototype, "type", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], ConfigEntity.prototype, "content", void 0);
-    ConfigEntity = __decorate([
-        typeorm_1.Entity()
-    ], ConfigEntity);
-    return ConfigEntity;
-})();
+let ConfigEntity = class ConfigEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], ConfigEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], ConfigEntity.prototype, "type", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], ConfigEntity.prototype, "content", void 0);
+ConfigEntity = __decorate([
+    typeorm_1.Entity()
+], ConfigEntity);
 exports.default = ConfigEntity;

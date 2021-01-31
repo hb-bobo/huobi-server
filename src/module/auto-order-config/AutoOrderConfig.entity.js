@@ -10,36 +10,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let AutoOrderConfigEntity = /** @class */ (() => {
-    let AutoOrderConfigEntity = class AutoOrderConfigEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "userId", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "symbol", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'float' }),
-        __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "buy_usdt", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'float' }),
-        __metadata("design:type", Number)
-    ], AutoOrderConfigEntity.prototype, "sell_usdt", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], AutoOrderConfigEntity.prototype, "period", void 0);
-    AutoOrderConfigEntity = __decorate([
-        typeorm_1.Entity()
-    ], AutoOrderConfigEntity);
-    return AutoOrderConfigEntity;
-})();
+let AutoOrderConfigEntity = class AutoOrderConfigEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "userId", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar', length: 10 }),
+    __metadata("design:type", String)
+], AutoOrderConfigEntity.prototype, "symbol", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "buy_usdt", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "sell_usdt", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar', length: 10 }),
+    __metadata("design:type", String)
+], AutoOrderConfigEntity.prototype, "period", void 0);
+AutoOrderConfigEntity = __decorate([
+    typeorm_1.Entity()
+], AutoOrderConfigEntity);
 exports.default = AutoOrderConfigEntity;

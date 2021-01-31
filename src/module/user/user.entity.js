@@ -10,28 +10,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let UserEntity = /** @class */ (() => {
-    let UserEntity = class UserEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], UserEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], UserEntity.prototype, "user", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], UserEntity.prototype, "password", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", Number)
-    ], UserEntity.prototype, "role", void 0);
-    UserEntity = __decorate([
-        typeorm_1.Entity()
-    ], UserEntity);
-    return UserEntity;
-})();
+let UserEntity = class UserEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], UserEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], UserEntity.prototype, "user", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], UserEntity.prototype, "password", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], UserEntity.prototype, "role", void 0);
+UserEntity = __decorate([
+    typeorm_1.Entity()
+], UserEntity);
 exports.default = UserEntity;

@@ -10,48 +10,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let AutoOrderHistoryEntity = /** @class */ (() => {
-    let AutoOrderHistoryEntity = class AutoOrderHistoryEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], AutoOrderHistoryEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", Number)
-    ], AutoOrderHistoryEntity.prototype, "userId", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 10 }),
-        __metadata("design:type", String)
-    ], AutoOrderHistoryEntity.prototype, "symbol", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'float' }),
-        __metadata("design:type", Number)
-    ], AutoOrderHistoryEntity.prototype, "price", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'float' }),
-        __metadata("design:type", Number)
-    ], AutoOrderHistoryEntity.prototype, "amount", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar', length: 4 }),
-        __metadata("design:type", String)
-    ], AutoOrderHistoryEntity.prototype, "type", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'datetime' }),
-        __metadata("design:type", Date)
-    ], AutoOrderHistoryEntity.prototype, "datetime", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'int' }),
-        __metadata("design:type", Number)
-    ], AutoOrderHistoryEntity.prototype, "status", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'text' }),
-        __metadata("design:type", String)
-    ], AutoOrderHistoryEntity.prototype, "row", void 0);
-    AutoOrderHistoryEntity = __decorate([
-        typeorm_1.Entity()
-    ], AutoOrderHistoryEntity);
-    return AutoOrderHistoryEntity;
-})();
+let AutoOrderHistoryEntity = class AutoOrderHistoryEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], AutoOrderHistoryEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], AutoOrderHistoryEntity.prototype, "userId", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar', length: 10 }),
+    __metadata("design:type", String)
+], AutoOrderHistoryEntity.prototype, "symbol", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderHistoryEntity.prototype, "price", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderHistoryEntity.prototype, "amount", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar', length: 4 }),
+    __metadata("design:type", String)
+], AutoOrderHistoryEntity.prototype, "type", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'datetime' }),
+    __metadata("design:type", Date)
+], AutoOrderHistoryEntity.prototype, "datetime", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'int' }),
+    __metadata("design:type", Number)
+], AutoOrderHistoryEntity.prototype, "status", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'text' }),
+    __metadata("design:type", String)
+], AutoOrderHistoryEntity.prototype, "row", void 0);
+AutoOrderHistoryEntity = __decorate([
+    typeorm_1.Entity()
+], AutoOrderHistoryEntity);
 exports.default = AutoOrderHistoryEntity;

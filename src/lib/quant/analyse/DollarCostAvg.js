@@ -96,6 +96,7 @@ class DollarCostAvg {
                 }
                 // console.log(element)
                 this.buyList[i].invalid = true;
+                this.sellList[i].invalid = false;
                 return {
                     ...element,
                     action: 'buy'
@@ -109,6 +110,7 @@ class DollarCostAvg {
                     continue;
                 }
                 element.invalid = true;
+                this.buyList[i].invalid = false;
                 return {
                     ...element,
                     action: 'sell'

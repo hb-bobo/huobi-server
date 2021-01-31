@@ -14,6 +14,7 @@ class CacheSockett {
             list.forEach((str) => {
                 this.ws.json(JSON.parse(str));
             });
+            // this.cache = {};
         });
     }
     checkCache() {

@@ -24,7 +24,7 @@ initdir();
 /**
  * 下载数据
  */
-exports.download = async (ctx) => {
+const download = async (ctx) => {
     const body = ctx.request.body;
     const validator = new async_validator_1.default({
         symbol: {
@@ -64,10 +64,11 @@ exports.download = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.download = download;
 /**
  * 回测
  */
-exports.Backtest = async (ctx) => {
+const Backtest = async (ctx) => {
     const body = ctx.request.body;
     const validator = new async_validator_1.default({
         fileName: {
@@ -102,3 +103,4 @@ exports.Backtest = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.Backtest = Backtest;

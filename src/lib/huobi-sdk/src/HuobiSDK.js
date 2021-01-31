@@ -190,7 +190,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(`market.depth.${symbol}`, subscription);
+        this.addEvent(subMessage.sub, subscription);
     }
     async subMarketKline({ symbol, period, id }, subscription) {
         const subMessage = ws_cmd_1.WS_SUB.kline(symbol, period);
@@ -198,7 +198,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(`market.kline.${symbol}`, subscription);
+        this.addEvent(subMessage.sub, subscription);
     }
     async subMarketTrade({ symbol, id }, subscription) {
         const subMessage = ws_cmd_1.WS_SUB.tradeDetail(symbol);
@@ -206,7 +206,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(`market.trade.${symbol}`, subscription);
+        this.addEvent(subMessage.sub, subscription);
     }
     async subAuth(subscription) {
         const account_ws = await this.getSocket('account_ws');

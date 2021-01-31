@@ -6,7 +6,7 @@ exports.getRepeatCount = void 0;
  * @param {Array<number & string>} arr
  * @return { object }
  */
-exports.getRepeatCount = function (arr) {
+const getRepeatCount = function (arr) {
     const res = {};
     arr.forEach(item => {
         if (res[item] === undefined) {
@@ -18,3 +18,4 @@ exports.getRepeatCount = function (arr) {
     });
     return res;
 };
+exports.getRepeatCount = getRepeatCount;

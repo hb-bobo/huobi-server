@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -24,7 +24,7 @@ const WatchEntityService = __importStar(require("./watch.service"));
 /**
  * 查询单个或者多个
  */
-exports.get = async (ctx) => {
+const get = async (ctx) => {
     const { id } = ctx.request.query;
     try {
         let res;
@@ -47,10 +47,11 @@ exports.get = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.get = get;
 /**
  * 更新或者新建
  */
-exports.updateOne = async (ctx) => {
+const updateOne = async (ctx) => {
     const data = ctx.request.body;
     try {
         let res;
@@ -76,10 +77,11 @@ exports.updateOne = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.updateOne = updateOne;
 /**
  * 删除单个
  */
-exports.removeOne = async (ctx) => {
+const removeOne = async (ctx) => {
     const data = ctx.request.body;
     const id = data.id || data._id;
     if (!id) {
@@ -100,3 +102,4 @@ exports.removeOne = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.removeOne = removeOne;

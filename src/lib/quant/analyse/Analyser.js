@@ -63,7 +63,7 @@ class Analyser {
          * 超跌 < 0
          * 超买 > 0
          */
-        row['close/MA120'] = this.getGain(row.close, row.MA120);
+        row['close/MA60'] = this.getGain(row.close, row.MA60);
         /**
          * 买盘力量大
          */
@@ -75,7 +75,7 @@ class Analyser {
         const preRow = this.result[this.result.length - 1];
         if (preRow) {
             row.amplitude = util_1.keepDecimalFixed((row.high - row.low) / preRow.close, 3) * 100;
-            row.changepercent = util_1.keepDecimalFixed(row.close / preRow.close, 3) * 100;
+            row.changepercent = util_1.keepDecimalFixed((row.close - preRow.close) / preRow.close, 3) * 100;
         }
         else {
             row.amplitude = 0;
@@ -84,6 +84,12 @@ class Analyser {
             callback(row);
         });
         this.result.push(row);
+        this.checkMax();
+    }
+    checkMax() {
+        if (this.result.length > 600) {
+            this.result.shift();
+        }
     }
     /**
      * 获取涨跌幅

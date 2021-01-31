@@ -6,11 +6,12 @@ exports.autoToFixed = exports.keepDecimalFixed = void 0;
  * @param value 待处理的数值
  * @param digits 保留位数
  */
-exports.keepDecimalFixed = (value, digits = 2) => {
+const keepDecimalFixed = (value, digits = 2) => {
     const unit = Math.pow(10, digits);
     const val = typeof value === 'number' ? value : Number(value);
     return Math.trunc(val * unit) / unit;
 };
+exports.keepDecimalFixed = keepDecimalFixed;
 const decimalZeroDigitsReg = /^-?(\d+)\.?([0]*)/;
 /**
  * 根据小数有效值自动保留小数位数

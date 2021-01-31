@@ -12,7 +12,7 @@ const DEFAULT_HEADER = {
 };
 const keepAliveAgent = new http_1.default.Agent({ keepAlive: true, maxSockets: 256 });
 const keepAliveAgent2 = new https_1.default.Agent({ keepAlive: true, maxSockets: 256 });
-exports.request = async function (url, options = {}) {
+const request = async function (url, options = {}) {
     const response = await got_1.default(url, {
         method: options.method,
         timeout: options.timeout || 6000,
@@ -31,3 +31,4 @@ exports.request = async function (url, options = {}) {
         throw Error(response.statusMessage);
     }
 };
+exports.request = request;

@@ -10,20 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let WatchEntity = /** @class */ (() => {
-    let WatchEntity = class WatchEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], WatchEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column({ type: 'varchar' }),
-        __metadata("design:type", String)
-    ], WatchEntity.prototype, "symbol", void 0);
-    WatchEntity = __decorate([
-        typeorm_1.Entity()
-    ], WatchEntity);
-    return WatchEntity;
-})();
+let WatchEntity = class WatchEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], WatchEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar' }),
+    __metadata("design:type", String)
+], WatchEntity.prototype, "symbol", void 0);
+WatchEntity = __decorate([
+    typeorm_1.Entity()
+], WatchEntity);
 exports.default = WatchEntity;

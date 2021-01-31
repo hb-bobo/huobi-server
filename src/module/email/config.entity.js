@@ -10,20 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
-let MailEntity = /** @class */ (() => {
-    let MailEntity = class MailEntity extends typeorm_1.BaseEntity {
-    };
-    __decorate([
-        typeorm_1.PrimaryGeneratedColumn(),
-        __metadata("design:type", Number)
-    ], MailEntity.prototype, "id", void 0);
-    __decorate([
-        typeorm_1.Column(),
-        __metadata("design:type", String)
-    ], MailEntity.prototype, "mail", void 0);
-    MailEntity = __decorate([
-        typeorm_1.Entity()
-    ], MailEntity);
-    return MailEntity;
-})();
+let MailEntity = class MailEntity extends typeorm_1.BaseEntity {
+};
+__decorate([
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], MailEntity.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], MailEntity.prototype, "mail", void 0);
+MailEntity = __decorate([
+    typeorm_1.Entity()
+], MailEntity);
 exports.default = MailEntity;

@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -28,7 +28,7 @@ const TradeService = __importStar(require("./TradeHistory.service"));
 /**
  * 查询单个或者多个
  */
-exports.get = async (ctx) => {
+const get = async (ctx) => {
     const { start, end, symbol } = ctx.request.query;
     const validator = new async_validator_1.default({
         start: {
@@ -63,10 +63,11 @@ exports.get = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.get = get;
 /**
  * 新建
  */
-exports.create = async (ctx) => {
+const create = async (ctx) => {
     const data = ctx.request.body;
     const validator = new async_validator_1.default({
         buy: {
@@ -110,3 +111,4 @@ exports.create = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.create = create;

@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -49,7 +49,7 @@ exports.get = get;
  * @param {Koa.Context} ctx
  * @param {Function} next
  */
-exports.login = async (ctx) => {
+const login = async (ctx) => {
     const { userName, password } = ctx.request.body;
     try {
         await userValidator.validate({ userName, password });
@@ -84,12 +84,13 @@ exports.login = async (ctx) => {
         }
     });
 };
+exports.login = login;
 /**
  *
  * @param {Koa.Context} ctx
  * @param {Function} next
  */
-exports.createUser = async (ctx) => {
+const createUser = async (ctx) => {
     const { userName, password } = ctx.request.body;
     try {
         await userValidator.validate({ userName, password });
@@ -113,12 +114,13 @@ exports.createUser = async (ctx) => {
         ctx.sendError({ message: err });
     }
 };
+exports.createUser = createUser;
 /**
  * 创建第一个用户
  * @param {Koa.Context} ctx
  * @param {Function} next
  */
-exports.createFirstUser = async (ctx) => {
+const createFirstUser = async (ctx) => {
     const { userName, password } = ctx.query;
     try {
         await userValidator.validate({ userName, password });
@@ -137,12 +139,13 @@ exports.createFirstUser = async (ctx) => {
         ctx.sendSuccess();
     }
 };
+exports.createFirstUser = createFirstUser;
 /**
  *
  * @param {Koa.Context} ctx
  * @param {Function} next
  */
-exports.userInfo = async (ctx) => {
+const userInfo = async (ctx) => {
     if (!ctx.state.user) {
         ctx.sendError({ message: '没有权限' });
         return;
@@ -159,3 +162,4 @@ exports.userInfo = async (ctx) => {
     }
     ctx.sendError({ message: 'Unlogin' });
 };
+exports.userInfo = userInfo;

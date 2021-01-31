@@ -158,7 +158,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
                 this.errLogger(`market_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`market_ws closed:`, e.reason);
+                this.errLogger(`market_ws closed:`, e.reason || e);
             }
         });
         HuobiSDKBase.market_ws.on('error', (e) => {
@@ -170,7 +170,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
         if (!msg.ch) {
             return;
         }
-        const [type, symbol, channel] = msg.ch.split('.');
+        const [type, symbol, channel, other] = msg.ch.split('.');
         const commonData = {
             data: {
                 ...msg.tick,
@@ -181,13 +181,13 @@ class HuobiSDKBase extends events_1.EventEmitter {
         };
         switch (channel) {
             case 'depth':
-                this.emit(`market.depth.${symbol}`, commonData);
+                this.emit(`market.${symbol}.depth.${other}`, commonData);
                 break;
             case 'kline':
-                this.emit(`market.kline.${symbol}`, commonData);
+                this.emit(`market.${symbol}.kline.${other}`, commonData);
                 break;
             case 'trade':
-                this.emit(`market.trade.${symbol}`, commonData);
+                this.emit(`market.${symbol}.trade.${other}`, commonData);
                 break;
             default: return;
         }

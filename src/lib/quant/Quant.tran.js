@@ -15,7 +15,7 @@ const Backtest_1 = __importDefault(require("./Backtest"));
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const readFilePromisify = util_1.promisify(fs_1.readFile);
 const publicPath = config_1.default.get('publicPath');
-const fileName = 'btcusdt-5min-2021-01-18';
+const fileName = 'btcusdt-5min-2021-01-31';
 const jsonFilePath = path_1.join(publicPath, `/download/history-data/${fileName}.json`);
 async function download() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -70,7 +70,7 @@ async function tranSafeTrade() {
 // tranSafeTrade();
 async function tran2() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    const history = JSON.parse(data).splice(0, 640);
+    const history = JSON.parse(data);
     const quant = new _1.Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
@@ -82,8 +82,8 @@ async function tran2() {
     });
     quant.analysis(history);
     const result = [];
-    for (let oversoldRatio = 0.01; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.001) {
-        for (let overboughtRatio = -0.01; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.001) {
+    for (let oversoldRatio = 0.01; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.001) {
+        for (let overboughtRatio = -0.01; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.001) {
             const bt = new Backtest_1.default({
                 symbol: 'btcusdt',
                 buyAmount: 0.001,
@@ -92,7 +92,7 @@ async function tran2() {
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             });
             quant.mockUse(function (row) {
-                if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
+                if (!row.MA5 || !row.MA30 || !row.MA10) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {

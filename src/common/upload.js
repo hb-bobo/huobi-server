@@ -20,7 +20,7 @@ fs_2.mkdir(path_1.default.join(publicPath, '/upload/'));
  * @param {{headers: object}} requestOption
  * @return {Promise<string>}
  */
-exports.uploadFromNetWork = (url, writePath, requestOption) => {
+const uploadFromNetWork = (url, writePath, requestOption) => {
     return new Promise(function (resolve, reject) {
         if (!validator_1.default.isURL(url)) {
             reject('url Invalid');
@@ -40,6 +40,7 @@ exports.uploadFromNetWork = (url, writePath, requestOption) => {
             .pipe(fs_1.default.createWriteStream(writePath));
     });
 };
+exports.uploadFromNetWork = uploadFromNetWork;
 // 图片上传目录相对路径
 // const relativePath = `/upload/network`;
 // // 图片上传目录绝对路径
@@ -51,7 +52,7 @@ fs_2.mkdir(path_1.default.join(publicPath, '/upload/files/'));
  * @param {string} host
  * @param {string} relativePath
  */
-exports.uploadFiles = async (files, host, relativePath) => {
+const uploadFiles = async (files, host, relativePath) => {
     // 上传目录绝对路径
     const uploadPath = path_1.default.join(publicPath, relativePath);
     // 没有上传的路径则创建
@@ -88,3 +89,4 @@ exports.uploadFiles = async (files, host, relativePath) => {
         throw Error(error);
     }
 };
+exports.uploadFiles = uploadFiles;

@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -25,7 +25,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.remove = exports.create = exports.index = void 0;
 const async_validator_1 = __importDefault(require("async-validator"));
 const ConfigService = __importStar(require("./config.service"));
-exports.index = async (ctx) => {
+const index = async (ctx) => {
     const { mail } = ctx.request.query;
     try {
         const list = await ConfigService.findOne({ mail });
@@ -36,7 +36,8 @@ exports.index = async (ctx) => {
         return;
     }
 };
-exports.create = async (ctx) => {
+exports.index = index;
+const create = async (ctx) => {
     const { mail } = ctx.request.body;
     const validator = new async_validator_1.default({
         mail: {
@@ -61,7 +62,8 @@ exports.create = async (ctx) => {
         ctx.sendError({ message: error.message });
     }
 };
-exports.remove = async (ctx) => {
+exports.create = create;
+const remove = async (ctx) => {
     const { id } = ctx.request.body;
     const validator = new async_validator_1.default({
         id: {
@@ -84,3 +86,4 @@ exports.remove = async (ctx) => {
         ctx.sendError({ message: error });
     }
 };
+exports.remove = remove;

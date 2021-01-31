@@ -11,7 +11,7 @@ const TradeHistory_entity_1 = require("./TradeHistory.entity");
  * 查询
  * @param {object} query
  */
-exports.find = async function ({ start, end, symbol }) {
+const find = async function ({ start, end, symbol }) {
     const tableNames = TradeHistory_entity_1.tableNameFactory.queryWidthIntervalTime(start, end);
     const query = tableNames.map((name) => {
         return `
@@ -43,10 +43,12 @@ exports.find = async function ({ start, end, symbol }) {
     // }
     return res;
 };
+exports.find = find;
 /**
  * 新增
  */
-exports.create = async function (data) {
+const create = async function (data) {
     const repository = await typeorm_1.getRepository(TradeHistory_entity_1.entitysMap[TradeHistory_entity_1.tableNameFactory.getTableName()]);
     return repository.save(data);
 };
+exports.create = create;

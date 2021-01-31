@@ -15,7 +15,7 @@ exports._SYMBOL_INFO_MAP = {};
  * 根据symbol获取精度，base-currency, quote-currency
  * @param {string} symbol
  */
-exports.getSymbolInfo = async function (symbol) {
+const getSymbolInfo = async function (symbol) {
     if (symbol && exports._SYMBOL_INFO_MAP[symbol]) {
         return exports._SYMBOL_INFO_MAP[symbol];
     }
@@ -29,11 +29,12 @@ exports.getSymbolInfo = async function (symbol) {
     }
     return exports._SYMBOL_INFO_MAP[symbol];
 };
+exports.getSymbolInfo = getSymbolInfo;
 /**
  * 合并相同的价格统计次数并排序(价格为usdt)
  * @param {Array<Array<number>>} data
  */
-exports.getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumMoneny', minSumPrice = 100, minPrice = 1000, } = {}) {
+const getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumMoneny', minSumPrice = 100, minPrice = 1000, } = {}) {
     const countTemp = {};
     // 统计重复次数
     for (let i = 0; i < data.length; i++) {
@@ -93,6 +94,7 @@ exports.getSameAmount = function (data, { type = '', symbol = '', sortBy = 'sumM
         return b[sortBy] - a[sortBy];
     });
 };
+exports.getSameAmount = getSameAmount;
 /**
  *  amount:"141940.65"
     count:1
@@ -114,7 +116,7 @@ exports.getTop = getTop;
  *
  * 根据买卖压力推荐价格
  */
-exports.getTracePrice = function ({ bidsList, asksList, }) {
+const getTracePrice = function ({ bidsList, asksList, }) {
     /* 交易数据 */
     const prices = {
         sell: [],
@@ -151,6 +153,7 @@ exports.getTracePrice = function ({ bidsList, asksList, }) {
     prices.sell.push(Number(utils_1.autoToFixed(Math.max(...prices.sell) * (1 + 0.008))));
     return prices;
 };
+exports.getTracePrice = getTracePrice;
 /**
  * 获取btc eth对usdt的系数
  * @param {string} symbol

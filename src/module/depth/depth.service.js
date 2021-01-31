@@ -10,7 +10,7 @@ const depth_entity_1 = require("./depth.entity");
 /**
  * 查询
  */
-exports.find = async function ({ start, end, symbol }) {
+const find = async function ({ start, end, symbol }) {
     const tableNames = depth_entity_1.tableNameFactory.queryWidthIntervalTime(start, end);
     const query = tableNames.map((name) => {
         return `
@@ -25,10 +25,12 @@ exports.find = async function ({ start, end, symbol }) {
         .query(query.join('UNION ALL\n'));
     return res;
 };
+exports.find = find;
 /**
  * 新增
  */
-exports.create = async function (data) {
+const create = async function (data) {
     const repository = await typeorm_1.getRepository(depth_entity_1.entitysMap[depth_entity_1.tableNameFactory.getTableName()]);
     return repository.save(data);
 };
+exports.create = create;
