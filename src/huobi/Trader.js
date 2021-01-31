@@ -145,7 +145,12 @@ class Trader {
         const rData = data.reverse();
         quant.analysis(rData);
         orderConfig.trainer.run(rData).then((config) => {
-            Object.assign(orderConfig, config);
+            Object.assign(orderConfig, lodash_1.pick(config, [
+                'oversoldRatio',
+                'overboughtRatio',
+                'sellAmountRatio',
+                'buyAmountRatio',
+            ]));
         });
         quant.use((row) => {
             orderConfig.price = row.close;
@@ -185,6 +190,13 @@ class Trader {
             if (!action || amount < Number.MIN_SAFE_INTEGER) {
                 return;
             }
+            if (amount < Number.MIN_SAFE_INTEGER) {
+                amount = buy_usdt / row.close;
+            }
+            if (!lodash_1.isNumber(price) || price < Number.MIN_SAFE_INTEGER) {
+                const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
+                price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0];
+            }
             this.order(symbol, action, price, amount, userId);
             AutoOrderHistoryService.create({
                 datetime: new Date(),
@@ -199,7 +211,12 @@ class Trader {
                 logger_1.outLogger.error(err);
             });
             orderConfig.trainer.run().then((config) => {
-                Object.assign(orderConfig, config);
+                Object.assign(orderConfig, lodash_1.pick(config, [
+                    'oversoldRatio',
+                    'overboughtRatio',
+                    'sellAmountRatio',
+                    'buyAmountRatio',
+                ]));
             });
         });
         this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
