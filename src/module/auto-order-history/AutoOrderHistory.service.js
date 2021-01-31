@@ -20,7 +20,7 @@ const find = async function (query = {}, paginationOption) {
     const { skip, take, current } = pagination_1.default(paginationOption);
     const [list, total] = await typeorm_1.getRepository(AutoOrderHistory_entity_1.default)
         .createQueryBuilder()
-        .where({ userId: query.userId })
+        .where(query)
         .orderBy('datetime', 'DESC')
         .skip(skip)
         .take(take)

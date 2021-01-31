@@ -185,7 +185,7 @@ class Trader {
             if (!action || amount < Number.MIN_SAFE_INTEGER) {
                 return;
             }
-            this.order(symbol, action, price, amount);
+            this.order(symbol, action, price, amount, userId);
             AutoOrderHistoryService.create({
                 datetime: new Date(),
                 symbol,
@@ -193,6 +193,7 @@ class Trader {
                 amount: amount || 0,
                 userId: userId || 1,
                 type: action || 'buy',
+                status: -1,
                 row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
             }).catch((err) => {
                 logger_1.outLogger.error(err);
@@ -214,12 +215,12 @@ class Trader {
     cancelAutoTrader(userId, symbol) {
         delete this.orderConfigMap[symbol];
     }
-    async order(symbol, type, amount, price) {
+    async order(symbol, type, amount, price, userId) {
         logger_1.outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
         const priceIndex = util_1.getPriceIndex(symbol);
         const symbolInfo = await this.getSymbolInfo(symbol);
         if (!symbolInfo) {
-            return await this.order(symbol, type, amount, price);
+            return await this.order(symbol, type, amount, price, userId);
         }
         const quoteCurrencyBalance = this._balanceMap[symbolInfo['quote-currency']];
         const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
@@ -254,7 +255,21 @@ class Trader {
                 // }
             }
         }
-        await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
+        const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
+        if (data) {
+            logger_1.outLogger.info(data);
+            AutoOrderHistoryService.create({
+                datetime: new Date(),
+                symbol,
+                price: this.priceToFixed(symbol, price),
+                amount: this.amountToFixed(symbol, amount),
+                userId: userId || 1,
+                type: type,
+                status: 1,
+            }).catch((err) => {
+                logger_1.outLogger.error(err);
+            });
+        }
     }
     cancelOrder(id) {
         return this.sdk.cancelOrder(id);

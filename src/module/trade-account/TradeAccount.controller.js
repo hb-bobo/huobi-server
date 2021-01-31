@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeOne = exports.updateOne = exports.get = void 0;
 const async_validator_1 = __importDefault(require("async-validator"));
+const start_1 = require("../../huobi/start");
 const TradeAccountService = __importStar(require("./TradeAccount.service"));
 /**
  * 查询单个或者多个
@@ -102,6 +103,12 @@ const updateOne = async (ctx) => {
         let res;
         if (ID) {
             res = await TradeAccountService.updateOne({ id: ID }, DATA);
+            if (DATA.access_key) {
+                start_1.trader.sdk.setOptions({
+                    accessKey: DATA.access_key,
+                    secretKey: DATA.secret_key,
+                });
+            }
             ctx.sendSuccess();
         }
         else {
