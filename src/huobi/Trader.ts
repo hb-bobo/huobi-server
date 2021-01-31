@@ -1,5 +1,5 @@
 // import { outLogger } from "ROOT/common/logger";
-import { omit, throttle, toNumber } from "lodash";
+import { omit, pick, throttle, toNumber } from "lodash";
 import xlsx from 'xlsx';
 import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
@@ -169,7 +169,17 @@ export class Trader {
 
         quant.analysis(rData as any[]);
         orderConfig.trainer.run(rData).then((config) => {
-            Object.assign(orderConfig, config);
+            Object.assign(orderConfig,
+                pick(
+                    config, 
+                    [
+                        'oversoldRatio',
+                        'overboughtRatio',
+                        'sellAmountRatio',
+                        'buyAmountRatio',
+                    ]
+                )
+            );
         });
         quant.use((row) => {
             orderConfig.price = row.close;
@@ -239,7 +249,17 @@ export class Trader {
                 outLogger.error(err)
             });
             orderConfig.trainer.run().then((config) => {
-                Object.assign(orderConfig, config);
+                Object.assign(orderConfig,
+                    pick(
+                        config, 
+                        [
+                            'oversoldRatio',
+                            'overboughtRatio',
+                            'sellAmountRatio',
+                            'buyAmountRatio',
+                        ]
+                    )
+                );
             });
         });
 
