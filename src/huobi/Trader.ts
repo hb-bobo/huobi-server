@@ -106,7 +106,7 @@ export class Trader {
         sell_usdt,
         period = CandlestickIntervalEnum.MIN5,
         // forceTrade,
-    }, userId?: number) {
+    }, userId: number) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance(symbol);
@@ -129,7 +129,7 @@ export class Trader {
             sell_usdt,
             period,
             quant: quant,
-            oversoldRatio: 0.02,
+            oversoldRatio: 0.03,
             overboughtRatio: -0.034,
             sellAmountRatio: 1.1,
             buyAmountRatio: 1.1,
@@ -222,7 +222,8 @@ export class Trader {
                 symbol,
                 action,
                 price,
-                amount
+                amount,
+                userId,
             );
 
             AutoOrderHistoryService.create({
@@ -232,6 +233,7 @@ export class Trader {
                 amount: amount || 0,
                 userId: userId || 1,
                 type: action || 'buy',
+                status: -1,
                 row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
             }).catch((err) => {
                 outLogger.error(err)
@@ -245,9 +247,9 @@ export class Trader {
             orderConfig.price = data.data.close;
             const kline = this.orderConfigMap[symbol].kline;
 
-            if (kline && kline.id !== data.data.id && data.symbol === symbol) {
-                // outLogger.info('subMarketKline', data.symbol, kline.id)
+            if (kline && kline.id !== data.data.id) {
                 orderConfig.quant.analysis(kline);
+                outLogger.info('subMarketKline', data.data.id);
             }
             this.orderConfigMap[symbol].kline = data.data;
         })
@@ -255,13 +257,13 @@ export class Trader {
     cancelAutoTrader(userId, symbol) {
         delete this.orderConfigMap[symbol];
     }
-    async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number) {
+    async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number) {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
 
         const priceIndex = getPriceIndex(symbol);
         const symbolInfo = await this.getSymbolInfo(symbol);
         if (!symbolInfo) {
-            return await this.order(symbol, type, amount, price);
+            return await this.order(symbol, type, amount, price, userId);
         }
         const quoteCurrencyBalance = this._balanceMap[symbolInfo['quote-currency']];
         const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
@@ -290,14 +292,29 @@ export class Trader {
                     return Promise.reject(msg);
                 }
                 // 挂单价与当前价是否失效
-                const gain2 = Math.abs((oriderInfo.price - this.orderConfigMap[symbol].price) / this.orderConfigMap[symbol].price);
-                if (gain2 > 0.4) {
-                    outLogger.info(`gain: symbol(${gain2})`);
-                    this.cancelOrder(oriderInfo.id)
-                }
+                // const gain2 = Math.abs((oriderInfo.price - this.orderConfigMap[symbol].price) / this.orderConfigMap[symbol].price);
+                // if (gain2 > 0.4) {
+                //     outLogger.info(`gain: symbol(${gain2})`);
+                //     this.cancelOrder(oriderInfo.id)
+                // }
             }
         }
-        await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
+        const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
+
+        if (data) {
+            outLogger.info(data);
+            AutoOrderHistoryService.create({
+                datetime: new Date(),
+                symbol,
+                price: this.priceToFixed(symbol, price),
+                amount: this.amountToFixed(symbol, amount),
+                userId: userId || 1,
+                type: type,
+                status: 1,
+            }).catch((err) => {
+                outLogger.error(err)
+            });
+        }
     }
     cancelOrder(id: string) {
         return this.sdk.cancelOrder(id);

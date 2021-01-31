@@ -41,7 +41,7 @@ export async function start() {
             market_ws: MARKET_WS,
             account_ws: ACCOUNT_WS,
         }
-    })
+    });
     trader.init();
 
     const WatchEntityList = await WatchService.find();
@@ -53,6 +53,7 @@ export async function start() {
                 symbol: atoOrderConfigEntity.symbol,
                 buy_usdt: atoOrderConfigEntity.buy_usdt,
                 sell_usdt: atoOrderConfigEntity.sell_usdt,
+                period: atoOrderConfigEntity.period as any,
             }, atoOrderConfigEntity.userId)
         });
     }

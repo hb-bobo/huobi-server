@@ -147,6 +147,7 @@ export default class DollarCostAvg {
                 }
                 // console.log(element)
                 this.buyList[i].invalid = true;
+                this.sellList[i].invalid = false;
                 return {
                     ...element,
                     action: 'buy' as const
@@ -162,6 +163,7 @@ export default class DollarCostAvg {
                     continue;
                 }
                 element.invalid = true;
+                this.buyList[i].invalid = false;
                 return {
                     ...element,
                     action: 'sell' as const
