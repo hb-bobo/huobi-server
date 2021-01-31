@@ -1,5 +1,5 @@
 // import { outLogger } from "ROOT/common/logger";
-import { omit, pick, throttle, toNumber } from "lodash";
+import { isNumber, omit, pick, throttle, toNumber } from "lodash";
 import xlsx from 'xlsx';
 import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
@@ -227,6 +227,13 @@ export class Trader {
 
             if (!action || amount < Number.MIN_SAFE_INTEGER) {
                 return;
+            }
+            if (amount < Number.MIN_SAFE_INTEGER) {
+                amount = buy_usdt / row.close;
+            }
+            if (!isNumber(price) || price < Number.MIN_SAFE_INTEGER) {
+                const pricePoolFormDepth = getTracePrice(orderConfig.depth);
+                price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0]
             }
             this.order(
                 symbol,
