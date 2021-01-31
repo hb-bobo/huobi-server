@@ -187,7 +187,7 @@ class Trader {
                     logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, ${row.amplitude}: row.amplitude,`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
                 }
             }
-            if (!action || amount < Number.MIN_SAFE_INTEGER) {
+            if (!action) {
                 return;
             }
             if (amount < Number.MIN_SAFE_INTEGER) {
