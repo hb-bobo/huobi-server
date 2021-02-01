@@ -93,14 +93,14 @@ export class Trainer {
                 let buyCount = 0;
                 let sellCount = 0;
                 quant.mockUse((row) => {
-                    if (!row.MA5 || !row.MA120 || !row.MA30 || !row.MA10) {
+                    if (!row.MA5  || !row.MA30 || !row.MA10) {
                         return;
                     }
-                    if (row["close/MA120"] > oversoldRatio) {
+                    if (row["close/MA60"] > oversoldRatio) {
                         sellCount++;
                         bt.sell(row.close, this.sell_usdt / row.close);
                     }
-                    if (row["close/MA120"] < overboughtRatio) {
+                    if (row["close/MA60"] < overboughtRatio) {
                         buyCount++;
                         bt.buy(row.close, this.buy_usdt / row.close);
                     }
@@ -163,12 +163,12 @@ export class Trainer {
                     }
 
                    // 卖
-                    if (row.MA10 > row.MA30 && row.amplitude > sellAmountRatio) {
+                    if (row.MA5 > row.MA30 && row.amplitude > sellAmountRatio) {
                         bt.sell(row.close, this.sell_usdt / row.close);
                         sellCount++;
                     }
                     // 买
-                    if (row.MA10 < row.MA30 && row.amplitude < buyAmountRatio) {
+                    if (row.MA5 < row.MA30 && row.amplitude < buyAmountRatio) {
                         bt.buy(row.close, this.sell_usdt / row.close);
                         buyCount++;
                     }

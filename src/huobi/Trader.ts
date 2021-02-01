@@ -165,13 +165,17 @@ export class Trader {
 
 
         const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 600);
+        if (!data) {
+            errLogger.error('getMarketHistoryKline', data);
+            return;
+        }
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
         orderConfig.trainer.run(rData).then((config) => {
             Object.assign(orderConfig,
                 pick(
-                    config, 
+                    config,
                     [
                         'oversoldRatio',
                         'overboughtRatio',
@@ -258,7 +262,7 @@ export class Trader {
             orderConfig.trainer.run().then((config) => {
                 Object.assign(orderConfig,
                     pick(
-                        config, 
+                        config,
                         [
                             'oversoldRatio',
                             'overboughtRatio',
