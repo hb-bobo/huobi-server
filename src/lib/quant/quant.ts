@@ -26,7 +26,7 @@ interface Options {
  */
 export default class Quant {
     config: Options = {} as Options;
-    analyser = new Analyser();
+    analyser = new Analyser({maxResult: 800});
     dc: DollarCostAvg;
     /**
      * 量化交易

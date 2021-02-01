@@ -85,8 +85,9 @@ export class Trader {
             }
 
             data.list.forEach((item) => {
-
-                this._balanceMap[item.currency] = toNumber(item.balance);
+                if (item.type === 'trade') {
+                    this._balanceMap[item.currency] = toNumber(item.balance);
+                }
             });
             return this._balanceMap;
         });
@@ -131,8 +132,8 @@ export class Trader {
             quant: quant,
             oversoldRatio: 0.03,
             overboughtRatio: -0.034,
-            sellAmountRatio: 1.1,
-            buyAmountRatio: 1.1,
+            sellAmountRatio: 1.2,
+            buyAmountRatio: 1.2,
             price: 0,
             depth: {
                 bidsList: [],

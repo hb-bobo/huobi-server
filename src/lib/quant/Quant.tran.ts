@@ -7,18 +7,19 @@ import { promisify } from 'util';
 import { DollarCostAvg, Analyser } from './analyse';
 import dayjs from 'dayjs';
 import Backtest from './Backtest';
+import got from 'got/dist/source';
 
 
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'btcusdt-5min-2021-01-31'
+const fileName = 'btcusdt-5min-2021-02-01'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' })
 
-    const analyser = new Analyser()
+    const analyser = new Analyser({maxResult: 800})
     analyser.analysis(JSON.parse(data))
 
     const sheet = xlsx.utils.json_to_sheet(analyser.result);
@@ -96,10 +97,10 @@ async function tran2() {
         mins: [history[history.length - 1].close * 0.96],
         minVolume: 0.00001,
     });
-    quant.analysis(history);
+
     const result: any[] = []
-    for (let oversoldRatio = 0.01; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.001) {
-        for (let overboughtRatio = -0.01; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.001) {
+    for (let oversoldRatio = 0.012; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
+        for (let overboughtRatio = -0.012; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
 
             const bt = new Backtest({
                 symbol: 'btcusdt',
@@ -108,26 +109,30 @@ async function tran2() {
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             })
-
-            quant.mockUse(function (row) {
+            let buyCount = 0;
+            let sellCount = 0;
+            quant.analyser.result = [];
+            quant.use(function (row) {
                 if (!row.MA5 || !row.MA30 || !row.MA10) {
                     return;
                 }
                 if (row["close/MA60"] > oversoldRatio) {
-
+                    sellCount++;
                     bt.sell(row.close, 10 / row.close);
                 }
                 if (row["close/MA60"] < overboughtRatio) {
-
+                    buyCount++;
                     bt.buy(row.close), 10 / row.close;
                 }
 
             });
-
+            quant.analysis(history);
             result.push({
                 oversoldRatio: oversoldRatio,
                 overboughtRatio: overboughtRatio,
                 return: bt.getReturn() * 100,
+                buyCount,
+                sellCount
             })
         }
     }
@@ -145,7 +150,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-tran2();
+// tran2();
 
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -218,7 +223,7 @@ async function tranAmount() {
         mins: [history[history.length - 1].close * 0.96],
         minVolume: 0.00001,
     });
-    quant.analysis(history);
+
 
     const result: any[] = []
     for (let sellAmountRatio = 1.4; sellAmountRatio < 8; sellAmountRatio = sellAmountRatio + 0.2) {
@@ -231,14 +236,14 @@ async function tranAmount() {
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             })
-
-            quant.mockUse(function (row) {
+            quant.analyser.result = [];
+            quant.use(function (row) {
 
                 if (!row.MA5 || !row.MA10 || !row.MA60 || !row.MA30) {
                     return;
                 }
                   // 卖
-                  if (row.close > row.MA10 && row.MA10> row.MA60) {
+                  if (row.close > row.MA10 && row.MA10> row.MA30) {
                     if (row['amount/amountMA20'] > sellAmountRatio) {
                         bt.sell(row.close);
                     }
@@ -262,7 +267,7 @@ async function tranAmount() {
             //         }
             //     }
             });
-
+            quant.analysis(history);
             result.push({
                 sellAmountRatio,
                 buyAmountRatio,
@@ -285,4 +290,5 @@ async function tranAmount() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran-amount.xlsx'));
 }
-// tranAmount();
+tranAmount();
+

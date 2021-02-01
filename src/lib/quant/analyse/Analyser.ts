@@ -36,12 +36,20 @@ export interface AnalyserDataItem extends DataItem{
     changepercent: number;
     [x: string]: any;
 }
+
+interface Options {
+    /**
+     * 分析结果最长记录，超出会删除
+     */
+    maxResult: number;
+}
 /**
  * 量化
  */
 export default class Analyser {
     result: Record<string, any>[] = [];
     middlewares: ((row: Record<string, any>) => void)[] = [];
+    maxResult: number;
     private MA5 = new MA(5);
     private MA10 = new MA(10);
     private MA30 = new MA(30);
@@ -51,7 +59,8 @@ export default class Analyser {
     /**
      * 量化指标分析
      */
-    constructor() {
+    constructor({maxResult} = {} as Options) {
+        this.maxResult = maxResult || -1;
         //
     }
     public analysis<T extends Record<string, any>>(data: T | T[]) {
@@ -119,7 +128,7 @@ export default class Analyser {
         this.checkMax();
     }
     private checkMax() {
-        if (this.result.length > 600) {
+        if (this.result.length > this.maxResult && this.maxResult > 0) {
             this.result.shift();
         }
     }

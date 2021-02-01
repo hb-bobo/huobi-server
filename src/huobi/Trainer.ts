@@ -72,6 +72,7 @@ export class Trainer {
             minVolume: minVolume,
         });
 
+
         const result: ({
             oversoldRatio: number;
             overboughtRatio: number;
@@ -79,9 +80,9 @@ export class Trainer {
             buyCount: number;
             sellCount: number;
         })[] = [];
-        console.log(quant.config, quoteCurrencyBalance)
-        for (let oversoldRatio = 0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.002) {
-            for (let overboughtRatio = -0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.002) {
+
+        for (let oversoldRatio = 0.018; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
+            for (let overboughtRatio = -0.018; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
 
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
@@ -92,20 +93,25 @@ export class Trainer {
                 });
                 let buyCount = 0;
                 let sellCount = 0;
-                quant.mockUse((row) => {
-                    if (!row.MA5  || !row.MA30 || !row.MA10) {
+                quant.analyser.result = [];
+                quant.use((row) => {
+
+                    if (!row.MA5  || !row.MA30 || !row.MA10  || !row.MA60) {
                         return;
                     }
+
                     if (row["close/MA60"] > oversoldRatio) {
                         sellCount++;
+
                         bt.sell(row.close, this.sell_usdt / row.close);
                     }
                     if (row["close/MA60"] < overboughtRatio) {
                         buyCount++;
+
                         bt.buy(row.close, this.buy_usdt / row.close);
                     }
                 });
-
+                quant.analysis(history);
                 result.push({
                     oversoldRatio: keepDecimalFixed(oversoldRatio, 3),
                     overboughtRatio: keepDecimalFixed(overboughtRatio, 3),
@@ -136,7 +142,6 @@ export class Trainer {
             mins: [history[history.length - 1].close * 0.96],
             minVolume: minVolume,
         });
-        quant.analysis(history);
 
         const result: ({
             sell_changepercent: number;
@@ -145,8 +150,8 @@ export class Trainer {
             buyCount: number;
             sellCount: number;
         })[] = [];
-        for (let sellAmountRatio = 0; sellAmountRatio < 8; sellAmountRatio = sellAmountRatio + 0.2) {
-            for (let buyAmountRatio = -0; buyAmountRatio > -8; buyAmountRatio = buyAmountRatio - 0.2) {
+        for (let sellAmountRatio = 0.6; sellAmountRatio < 6; sellAmountRatio = sellAmountRatio + 0.2) {
+            for (let buyAmountRatio = -0.6; buyAmountRatio > -6; buyAmountRatio = buyAmountRatio - 0.2) {
 
                 const bt = new Backtest({
                     symbol: quant.config.symbol,
@@ -157,23 +162,25 @@ export class Trainer {
                 });
                 let buyCount = 0;
                 let sellCount = 0;
-                quant.mockUse((row) => {
+                quant.analyser.result = [];
+
+                quant.use((row) => {
                     if (!row.MA5 || !row.MA60 || !row.MA30 || !row.MA10) {
                         return;
                     }
 
                    // 卖
-                    if (row.MA5 > row.MA30 && row.amplitude > sellAmountRatio) {
+                    if (row.close > row.MA30 && row.amplitude > sellAmountRatio) {
                         bt.sell(row.close, this.sell_usdt / row.close);
                         sellCount++;
                     }
                     // 买
-                    if (row.MA5 < row.MA30 && row.amplitude < buyAmountRatio) {
+                    if (row.close < row.MA30 && row.amplitude < buyAmountRatio) {
                         bt.buy(row.close, this.sell_usdt / row.close);
                         buyCount++;
                     }
                 });
-
+                quant.analysis(history);
                 result.push({
                     sell_changepercent: keepDecimalFixed(sellAmountRatio, 3),
                     buy_changepercent: keepDecimalFixed(buyAmountRatio, 3),

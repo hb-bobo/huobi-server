@@ -1,3 +1,5 @@
+import { toNumber } from "lodash";
+
 /**
  * 保留几位小数
  * @param value 待处理的数值
@@ -5,7 +7,7 @@
  */
 export const keepDecimalFixed = (value: number | string, digits = 2) => {
     const unit = Math.pow(10, digits);
-    const val = typeof value === 'number' ? value : Number(value);
+    const val = typeof value === 'number' ? value : toNumber(value);
     return Math.trunc(val * unit) / unit;
 };
 
