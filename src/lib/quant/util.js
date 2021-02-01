@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.autoToFixed = exports.keepDecimalFixed = void 0;
+const lodash_1 = require("lodash");
 /**
  * 保留几位小数
  * @param value 待处理的数值
@@ -8,7 +9,7 @@ exports.autoToFixed = exports.keepDecimalFixed = void 0;
  */
 const keepDecimalFixed = (value, digits = 2) => {
     const unit = Math.pow(10, digits);
-    const val = typeof value === 'number' ? value : Number(value);
+    const val = typeof value === 'number' ? value : lodash_1.toNumber(value);
     return Math.trunc(val * unit) / unit;
 };
 exports.keepDecimalFixed = keepDecimalFixed;

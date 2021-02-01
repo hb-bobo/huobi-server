@@ -45,11 +45,11 @@ async function start() {
     hbsdk_1.hbsdk.setOptions({
         accessKey: account.access_key,
         secretKey: account.secret_key,
-        errLogger: (msg) => {
-            logger_1.errLogger.error(msg);
+        errLogger: (...msg) => {
+            logger_1.errLogger.error(...msg);
         },
-        outLogger: (msg) => {
-            logger_1.outLogger.info(msg);
+        outLogger: (...msg) => {
+            logger_1.outLogger.info(...msg);
         },
         url: {
             rest: huobi_1.REST_URL,

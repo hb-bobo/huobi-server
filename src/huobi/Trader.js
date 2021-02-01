@@ -53,7 +53,9 @@ class Trader {
                     return;
                 }
                 data.list.forEach((item) => {
-                    this._balanceMap[item.currency] = lodash_1.toNumber(item.balance);
+                    if (item.type === 'trade') {
+                        this._balanceMap[item.currency] = lodash_1.toNumber(item.balance);
+                    }
                 });
                 return this._balanceMap;
             });
@@ -113,8 +115,8 @@ class Trader {
             quant: quant,
             oversoldRatio: 0.03,
             overboughtRatio: -0.034,
-            sellAmountRatio: 1.1,
-            buyAmountRatio: 1.1,
+            sellAmountRatio: 1.2,
+            buyAmountRatio: 1.2,
             price: 0,
             depth: {
                 bidsList: [],
@@ -142,6 +144,10 @@ class Trader {
             };
         }, 10000, { leading: true }));
         const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 600);
+        if (!data) {
+            logger_1.errLogger.error('getMarketHistoryKline', data);
+            return;
+        }
         const rData = data.reverse();
         quant.analysis(rData);
         orderConfig.trainer.run(rData).then((config) => {

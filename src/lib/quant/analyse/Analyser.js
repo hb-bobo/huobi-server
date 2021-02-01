@@ -14,7 +14,7 @@ class Analyser {
     /**
      * 量化指标分析
      */
-    constructor() {
+    constructor({ maxResult } = {}) {
         this.result = [];
         this.middlewares = [];
         this.MA5 = new indicators_1.MA(5);
@@ -26,6 +26,7 @@ class Analyser {
         this.getLast = (n) => {
             return this.result.slice(this.result.length - n - 1, this.result.length - 1);
         };
+        this.maxResult = maxResult || -1;
         //
     }
     analysis(data) {
@@ -87,7 +88,7 @@ class Analyser {
         this.checkMax();
     }
     checkMax() {
-        if (this.result.length > 600) {
+        if (this.result.length > this.maxResult && this.maxResult > 0) {
             this.result.shift();
         }
     }

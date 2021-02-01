@@ -158,7 +158,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
                 this.errLogger(`market_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`market_ws closed:`, e.reason || e);
+                this.errLogger(`market_ws closed:`, e.reason, ` code ${e.code}`);
             }
         });
         HuobiSDKBase.market_ws.on('error', (e) => {
@@ -228,7 +228,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
                 this.errLogger(`account_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`account_ws closed:`, e.reason || e);
+                this.errLogger(`account_ws closed:`, e.reason, ` code ${e.code}`);
             }
         });
         HuobiSDKBase.account_ws.on('error', (e) => {
