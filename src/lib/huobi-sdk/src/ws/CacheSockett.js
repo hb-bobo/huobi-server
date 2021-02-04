@@ -14,8 +14,28 @@ class CacheSockett {
             list.forEach((str) => {
                 this.ws.json(JSON.parse(str));
             });
+            this.checkLive();
             // this.cache = {};
         });
+        ws.on('message', () => {
+            this.id = Date.now();
+        });
+    }
+    checkLive() {
+        if (Date.now() - this.id > 1000 * 60 * 10) {
+            this.ws.emit("error", {
+                error: "error",
+                message: "ws 重启",
+                type: "error",
+                target: this.ws.wss
+            });
+            setTimeout(() => {
+                this.reStart();
+            }, 1000);
+        }
+        setTimeout(() => {
+            this.checkLive();
+        }, 1000 * 30);
     }
     checkCache() {
         if (!this.cache) {
