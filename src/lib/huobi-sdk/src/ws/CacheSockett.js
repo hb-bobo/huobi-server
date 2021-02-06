@@ -5,6 +5,13 @@ class CacheSockett {
     constructor(ws) {
         this.cache = {};
         this.ws = ws;
+        ws.on('open', () => {
+            this.checkLive();
+            // this.cache = {};
+        });
+        ws.on('message', () => {
+            this.id = Date.now();
+        });
     }
     reStart(ws = this.ws) {
         this.ws = ws;
@@ -12,7 +19,7 @@ class CacheSockett {
         ws.on('open', () => {
             const list = Object.keys(this.cache);
             list.forEach((str) => {
-                this.ws.json(JSON.parse(str));
+                this.ws.send(str);
             });
             this.checkLive();
             // this.cache = {};
@@ -22,16 +29,23 @@ class CacheSockett {
         });
     }
     checkLive() {
-        if (Date.now() - this.id > 1000 * 60 * 10) {
+        if (typeof this.id === 'number' && (Date.now() - this.id) > (1000 * 60 * 10)) {
+            const list = Object.keys(this.cache);
+            list.forEach((str) => {
+                this.ws.send(str.replace('sub', 'unsub'));
+            });
+            this.ws.close();
             this.ws.emit("error", {
                 error: "error",
                 message: "ws 重启",
                 type: "error",
                 target: this.ws.wss
             });
-            setTimeout(() => {
-                this.reStart();
-            }, 1000);
+            console.log('died');
+            // setTimeout(() => {
+            //     this.reStart();
+            // }, 1000);
+            return;
         }
         setTimeout(() => {
             this.checkLive();

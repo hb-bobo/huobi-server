@@ -150,14 +150,19 @@ class Trader {
         }
         const rData = data.reverse();
         quant.analysis(rData);
-        orderConfig.trainer.run(rData).then((config) => {
-            Object.assign(orderConfig, lodash_1.pick(config, [
-                'oversoldRatio',
-                'overboughtRatio',
-                'sellAmountRatio',
-                'buyAmountRatio',
-            ]));
-        });
+        // orderConfig.trainer.run(rData).then((config) => {
+        //     Object.assign(orderConfig,
+        //         pick(
+        //             config,
+        //             [
+        //                 'oversoldRatio',
+        //                 'overboughtRatio',
+        //                 'sellAmountRatio',
+        //                 'buyAmountRatio',
+        //             ]
+        //         )
+        //     );
+        // });
         quant.use((row) => {
             orderConfig.price = row.close;
             if (!row.MA120 || !row.MA5 || !row.MA10 || !row.MA30 || !row.MA60) {
