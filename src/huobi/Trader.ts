@@ -312,7 +312,9 @@ export class Trader {
             outLogger.info(msg);
             return Promise.reject(msg);
         }
-        const openOrderRes = await this.sdk.getOpenOrders(symbol, null, 10);
+        const openOrderRes = await this.sdk.getOpenOrders(symbol, {
+            size: 10,
+        });
         for (let i = 0; i < openOrderRes.length; i++) {
             const oriderInfo = openOrderRes[i];
             if (oriderInfo.source === 'api') {
