@@ -173,6 +173,19 @@ export class Trader {
         const rData = data.reverse();
 
         quant.analysis(rData as any[]);
+
+        this.sdk.subMarketKline({symbol, period: orderConfig.period}, (data) => {
+            orderConfig.price = data.data.close;
+            const kline = this.orderConfigMap[symbol].kline;
+            if (!kline) {
+                outLogger.error('subMarketKline err', kline);
+            }
+            if (kline && kline.id !== data.data.id) {
+                orderConfig.quant.analysis(kline);
+                outLogger.info('subMarketKline', data.data.id);
+            }
+            this.orderConfigMap[symbol].kline = data.data;
+        })
         // orderConfig.trainer.run(rData).then((config) => {
         //     Object.assign(orderConfig,
         //         pick(
@@ -260,31 +273,21 @@ export class Trader {
             }).catch((err) => {
                 outLogger.error(err)
             });
-            orderConfig.trainer.run().then((config) => {
-                Object.assign(orderConfig,
-                    pick(
-                        config,
-                        [
-                            'oversoldRatio',
-                            'overboughtRatio',
-                            'sellAmountRatio',
-                            'buyAmountRatio',
-                        ]
-                    )
-                );
-            });
+            // orderConfig.trainer.run().then((config) => {
+            //     Object.assign(orderConfig,
+            //         pick(
+            //             config,
+            //             [
+            //                 'oversoldRatio',
+            //                 'overboughtRatio',
+            //                 'sellAmountRatio',
+            //                 'buyAmountRatio',
+            //             ]
+            //         )
+            //     );
+            // });
         });
 
-        this.sdk.subMarketKline({symbol, period: orderConfig.period}, (data) => {
-            orderConfig.price = data.data.close;
-            const kline = this.orderConfigMap[symbol].kline;
-
-            if (kline && kline.id !== data.data.id) {
-                orderConfig.quant.analysis(kline);
-                outLogger.info('subMarketKline', data.data.id);
-            }
-            this.orderConfigMap[symbol].kline = data.data;
-        })
     }
     cancelAutoTrader(userId, symbol) {
         delete this.orderConfigMap[symbol];

@@ -44,6 +44,8 @@ router.get(`${apiPrefix}/trade-history`, checkToken, TradeHistoryController.get)
 
 router.get(`${apiPrefix}/depth`, checkToken, DepthController.get);
 
+router.get(`${apiPrefix}/train/analysis`, checkToken, TrainController.AnalysisList);
+router.post(`${apiPrefix}/train/analysis`, checkToken, TrainController.Analysis);
 router.post(`${apiPrefix}/train/download`, checkToken, TrainController.download);
 
 router.get(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.index);

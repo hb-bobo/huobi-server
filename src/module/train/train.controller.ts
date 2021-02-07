@@ -1,5 +1,5 @@
 
-import { writeFile } from 'fs';
+import { writeFile, readdir } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
 import stream from 'stream';
@@ -15,6 +15,7 @@ import { Analyser } from 'ROOT/lib/quant/analyse';
 
 const writeFilePromisify = promisify(writeFile);
 const pipelinePromisify = promisify(stream.pipeline);
+const readdirPromisify = promisify(readdir);
 const publicPath = config.get<string>('publicPath');
 
 const downloadPath = join(publicPath, '/download/history-data/');
@@ -65,6 +66,24 @@ export const download = async (ctx: AppContext) => {
             data: {
                 url: `${ctx.URL.origin}/download/history-data/${fileName}`
             }
+        });
+    } catch (error) {
+        ctx.sendError({ message: error });
+    }
+}
+
+/**
+ * 分析数据列表
+ */
+export const AnalysisList = async (ctx: AppContext) => {
+
+    try {
+        let list = await readdirPromisify(analysisPath)
+        list = list.map((fileName) => {
+            return `${ctx.URL.origin}/download/analysis/${fileName}`
+        })
+        ctx.sendSuccess({
+            data: list
         });
     } catch (error) {
         ctx.sendError({ message: error });
