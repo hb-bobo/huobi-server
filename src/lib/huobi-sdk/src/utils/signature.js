@@ -51,7 +51,7 @@ function signature(method, fullURL, access_key, secretKey, data = {}) {
         SignatureMethod: "HmacSHA256",
         SignatureVersion: "2",
         Timestamp: timestamp,
-        ...data,
+        ...data
     };
     Object.assign(body, {
         Signature: signatureSHA(method, fullURL, secretKey, body),

@@ -115,12 +115,12 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
      * @param side
      * @param size
      */
-    getOpenOrders(symbol, side = null, size) {
+    getOpenOrders(symbol, optional) {
         const path = `/v1/order/openOrders`;
         return this.auth_get(`${path}`, {
+            'account-id': this.spot_account_id,
             symbol,
-            side,
-            size
+            ...optional
         });
     }
     getOrders(symbol, states = 'filled,partial-filled,canceled') {

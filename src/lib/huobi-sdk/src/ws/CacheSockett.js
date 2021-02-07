@@ -15,13 +15,14 @@ class CacheSockett {
     }
     reStart(ws = this.ws) {
         this.ws = ws;
+        ws.close();
         ws.open();
         ws.on('open', () => {
-            const list = Object.keys(this.cache);
-            list.forEach((str) => {
-                this.ws.send(str);
-            });
-            this.checkLive();
+            // const list = Object.keys(this.cache);
+            // list.forEach((str) => {
+            //     this.ws.send(str);
+            // });
+            // this.checkLive();
             // this.cache = {};
         });
         ws.on('message', () => {
@@ -41,7 +42,6 @@ class CacheSockett {
                 type: "error",
                 target: this.ws.wss
             });
-            console.log('died');
             // setTimeout(() => {
             //     this.reStart();
             // }, 1000);
