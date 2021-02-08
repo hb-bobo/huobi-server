@@ -3,13 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StatisticsKline = void 0;
 const events_1 = __importDefault(require("events"));
 const isEmpty_1 = __importDefault(require("lodash/isEmpty"));
-const logger_1 = require("../common/logger");
-const utils_1 = require("../utils");
-const mergeTime_1 = require("./mergeTime");
-const util_1 = require("./util");
+const logger_1 = require("../../common/logger");
+const utils_1 = require("../../utils");
+const util_1 = require("../util");
 /**
  * 按一定时间统计买卖量(buy sell 转换成usdt价格)
  */
@@ -111,22 +109,3 @@ function mergeTradeData(tradeData, _time, _priceIndex, symbol) {
     });
     return _tempData;
 }
-class StatisticsKline extends events_1.default {
-    constructor(disTime) {
-        super();
-        this.mergeHandler = mergeTime_1.mergeTime(() => {
-            this.emit('merge', this.mergeData);
-            this.mergeData = undefined;
-        }, disTime);
-    }
-    merge(data) {
-        if (!this.mergeData) {
-            this.mergeData = data;
-        }
-        else {
-            this.mergeData = data;
-        }
-        this.mergeHandler();
-    }
-}
-exports.StatisticsKline = StatisticsKline;

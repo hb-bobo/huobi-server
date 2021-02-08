@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Analysis = exports.download = void 0;
+exports.Analysis = exports.AnalysisList = exports.download = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const util_1 = require("util");
@@ -17,6 +17,7 @@ const source_1 = __importDefault(require("got/dist/source"));
 const analyse_1 = require("../../lib/quant/analyse");
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const pipelinePromisify = util_1.promisify(stream_1.default.pipeline);
+const readdirPromisify = util_1.promisify(fs_1.readdir);
 const publicPath = config_1.default.get('publicPath');
 const downloadPath = path_1.join(publicPath, '/download/history-data/');
 const analysisPath = path_1.join(publicPath, '/download/analysis/');
@@ -71,6 +72,24 @@ const download = async (ctx) => {
     }
 };
 exports.download = download;
+/**
+ * 分析数据列表
+ */
+const AnalysisList = async (ctx) => {
+    try {
+        let list = await readdirPromisify(analysisPath);
+        list = list.map((fileName) => {
+            return `${ctx.URL.origin}/download/analysis/${fileName}`;
+        });
+        ctx.sendSuccess({
+            data: list
+        });
+    }
+    catch (error) {
+        ctx.sendError({ message: error });
+    }
+};
+exports.AnalysisList = AnalysisList;
 /**
  * 分析数据
  */

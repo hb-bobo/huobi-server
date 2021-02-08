@@ -55,6 +55,8 @@ router.get(`${apiPrefix}/config`, checkToken_1.default, ConfigController.index);
 router.post(`${apiPrefix}/config`, checkToken_1.default, ConfigController.create);
 router.get(`${apiPrefix}/trade-history`, checkToken_1.default, TradeHistoryController.get);
 router.get(`${apiPrefix}/depth`, checkToken_1.default, DepthController.get);
+router.get(`${apiPrefix}/train/analysis`, checkToken_1.default, TrainController.AnalysisList);
+router.post(`${apiPrefix}/train/analysis`, checkToken_1.default, TrainController.Analysis);
 router.post(`${apiPrefix}/train/download`, checkToken_1.default, TrainController.download);
 router.get(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.index);
 router.post(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.updateOne);

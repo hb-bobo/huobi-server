@@ -150,6 +150,18 @@ class Trader {
         }
         const rData = data.reverse();
         quant.analysis(rData);
+        this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
+            orderConfig.price = data.data.close;
+            const kline = this.orderConfigMap[symbol].kline;
+            if (!kline) {
+                logger_1.outLogger.error('subMarketKline err', kline);
+            }
+            if (kline && kline.id !== data.data.id) {
+                orderConfig.quant.analysis(kline);
+                logger_1.outLogger.info('subMarketKline', data.data.id);
+            }
+            this.orderConfigMap[symbol].kline = data.data;
+        });
         // orderConfig.trainer.run(rData).then((config) => {
         //     Object.assign(orderConfig,
         //         pick(
@@ -221,23 +233,19 @@ class Trader {
             }).catch((err) => {
                 logger_1.outLogger.error(err);
             });
-            orderConfig.trainer.run().then((config) => {
-                Object.assign(orderConfig, lodash_1.pick(config, [
-                    'oversoldRatio',
-                    'overboughtRatio',
-                    'sellAmountRatio',
-                    'buyAmountRatio',
-                ]));
-            });
-        });
-        this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
-            orderConfig.price = data.data.close;
-            const kline = this.orderConfigMap[symbol].kline;
-            if (kline && kline.id !== data.data.id) {
-                orderConfig.quant.analysis(kline);
-                logger_1.outLogger.info('subMarketKline', data.data.id);
-            }
-            this.orderConfigMap[symbol].kline = data.data;
+            // orderConfig.trainer.run().then((config) => {
+            //     Object.assign(orderConfig,
+            //         pick(
+            //             config,
+            //             [
+            //                 'oversoldRatio',
+            //                 'overboughtRatio',
+            //                 'sellAmountRatio',
+            //                 'buyAmountRatio',
+            //             ]
+            //         )
+            //     );
+            // });
         });
     }
     cancelAutoTrader(userId, symbol) {
