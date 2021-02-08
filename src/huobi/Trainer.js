@@ -9,11 +9,10 @@ const quant_1 = require("../lib/quant");
 const Backtest_1 = __importDefault(require("../lib/quant/Backtest"));
 const utils_1 = require("../utils");
 class Trainer {
-    constructor(quant, sdk, { buy_usdt, sell_usdt }) {
+    constructor(quant, { buy_usdt, sell_usdt }) {
         this.buy_usdt = 10;
         this.sell_usdt = 10;
         this.quant = quant;
-        this.sdk = sdk;
         this.buy_usdt = buy_usdt;
         this.sell_usdt = sell_usdt;
     }
@@ -52,10 +51,6 @@ class Trainer {
         return config;
     }
     async trainOverRatio(history) {
-        if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 600);
-            history = data ? data.reverse() : [];
-        }
         if (!history.length) {
             return [];
         }
@@ -112,10 +107,6 @@ class Trainer {
         // return sortedList[0];
     }
     async trainAmountRatio(history) {
-        if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 600);
-            history = data.reverse();
-        }
         const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.getConfig();
         const quant = new quant_1.Quant({
             symbol: this.quant.config.symbol,

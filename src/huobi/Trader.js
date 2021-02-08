@@ -18,9 +18,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trader = void 0;
 // import { outLogger } from "../common/logger";
@@ -32,7 +29,6 @@ const node_huobi_sdk_1 = require("node-huobi-sdk");
 const util_1 = require("./util");
 const Trainer_1 = require("./Trainer");
 const AutoOrderHistoryService = __importStar(require("../module/auto-order-history/AutoOrderHistory.service"));
-const dayjs_1 = __importDefault(require("dayjs"));
 class Trader {
     constructor(sdk) {
         this._balanceMap = {};
@@ -97,7 +93,7 @@ class Trader {
         }
         return symbolInfo;
     }
-    async autoTrader({ symbol, buy_usdt, sell_usdt, period = node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, }, userId) {
+    async autoTrader({ symbol, buy_usdt, sell_usdt, period = node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, }, userId) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance(symbol);
@@ -117,16 +113,16 @@ class Trader {
             sell_usdt,
             period,
             quant: quant,
-            oversoldRatio: 0.03,
-            overboughtRatio: -0.034,
-            sellAmountRatio: 1.2,
-            buyAmountRatio: 1.2,
+            oversoldRatio: oversoldRatio || 0.03,
+            overboughtRatio: overboughtRatio || -0.034,
+            sellAmountRatio: sellAmountRatio || 1.2,
+            buyAmountRatio: buyAmountRatio || 1.2,
             price: 0,
             depth: {
                 bidsList: [],
                 asksList: [],
             },
-            trainer: new Trainer_1.Trainer(quant, this.sdk, {
+            trainer: new Trainer_1.Trainer(quant, {
                 buy_usdt,
                 sell_usdt,
             })
@@ -165,8 +161,6 @@ class Trader {
                 logger_1.outLogger.info('subMarketKline', data.data.id);
             }
             this.orderConfigMap[symbol].kline = data.data;
-            const targetTs = new Date(Number(String(data.data.id) + '000'));
-            logger_1.outLogger.info(symbol, dayjs_1.default(targetTs).format('YYYY/MM/DD H:mm:ss'), data.data.id);
         });
         // orderConfig.trainer.run(rData).then((config) => {
         //     Object.assign(orderConfig,

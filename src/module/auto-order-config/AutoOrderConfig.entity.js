@@ -36,6 +36,22 @@ __decorate([
     typeorm_1.Column({ type: 'varchar', length: 10 }),
     __metadata("design:type", String)
 ], AutoOrderConfigEntity.prototype, "period", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "oversoldRatio", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "overboughtRatio", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "sellAmountRatio", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float' }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "buyAmountRatio", void 0);
 AutoOrderConfigEntity = __decorate([
     typeorm_1.Entity()
 ], AutoOrderConfigEntity);

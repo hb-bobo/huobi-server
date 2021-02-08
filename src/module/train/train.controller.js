@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Analysis = exports.AnalysisList = exports.download = void 0;
+exports.Train = exports.Analysis = exports.AnalysisList = exports.download = void 0;
 const fs_1 = require("fs");
 const path_1 = require("path");
 const util_1 = require("util");
@@ -15,6 +15,9 @@ const utils_1 = require("../../utils");
 const hbsdk_1 = require("../../huobi/hbsdk");
 const source_1 = __importDefault(require("got/dist/source"));
 const analyse_1 = require("../../lib/quant/analyse");
+const quant_1 = require("../../lib/quant");
+const Trader_1 = require("../../huobi/Trader");
+const Trainer_1 = require("../../huobi/Trainer");
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const pipelinePromisify = util_1.promisify(stream_1.default.pipeline);
 const readdirPromisify = util_1.promisify(fs_1.readdir);
@@ -131,3 +134,58 @@ const Analysis = async (ctx) => {
     }
 };
 exports.Analysis = Analysis;
+/**
+ * 分析数据
+ */
+const Train = async (ctx) => {
+    const body = ctx.request.body;
+    const validator = new async_validator_1.default({
+        quoteCurrencyBalance: {
+            type: "number",
+        },
+        baseCurrencyBalance: {
+            type: "number",
+        },
+        buy_usdt: {
+            type: 'number'
+        },
+        sell_usdt: {
+            type: 'number'
+        },
+    });
+    try {
+        await validator.validate(body);
+    }
+    catch ({ errors, fields }) {
+        ctx.sendError({ errors });
+        return;
+    }
+    try {
+        const urlArr = body.url.split('/');
+        const fileName = urlArr[urlArr.length - 1];
+        const [symbol] = fileName.split('-');
+        const response = await source_1.default(body.url);
+        const analyser = new analyse_1.Analyser();
+        analyser.analysis(JSON.parse((response.body)));
+        const quant = new quant_1.Quant({
+            symbol: symbol,
+            quoteCurrencyBalance: body.quoteCurrencyBalance || 300,
+            baseCurrencyBalance: body.baseCurrencyBalance || Trader_1.Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'] * 10,
+            mins: [],
+            maxs: [],
+            minVolume: Trader_1.Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
+        });
+        const trainer = new Trainer_1.Trainer(quant, {
+            buy_usdt: body.buy_usdt || 10,
+            sell_usdt: body.sell_usdt || 10,
+        });
+        const result = await trainer.run(analyser.result);
+        ctx.sendSuccess({
+            data: result
+        });
+    }
+    catch (error) {
+        ctx.sendError({ message: error });
+    }
+};
+exports.Train = Train;
