@@ -1,18 +1,15 @@
 
 import { outLogger } from "ROOT/common/logger";
-import { HuobiSDK } from "node-huobi-sdk";
 import { Quant } from "ROOT/lib/quant";
 import Backtest from "ROOT/lib/quant/Backtest";
 import { keepDecimalFixed } from "ROOT/utils";
 
 export class Trainer {
     quant: Quant;
-    sdk: HuobiSDK;
     buy_usdt = 10;
     sell_usdt = 10;
-    constructor(quant: Quant, sdk: HuobiSDK, {buy_usdt, sell_usdt}) {
+    constructor(quant: Quant, {buy_usdt, sell_usdt}) {
         this.quant = quant;
-        this.sdk = sdk;
         this.buy_usdt = buy_usdt;
         this.sell_usdt = sell_usdt;
     }
@@ -36,7 +33,7 @@ export class Trainer {
     /**
      * 训练
      */
-    async run(history?: any[]) {
+    async run(history: any[]) {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
         const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
 
@@ -52,12 +49,7 @@ export class Trainer {
         delete config.return;
         return config;
     }
-    async trainOverRatio(history?: any[]) {
-
-        if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 600);
-            history = data ? data.reverse() : [];
-        }
+    async trainOverRatio(history: any[]) {
         if (!history.length) {
             return [];
         }
@@ -127,11 +119,8 @@ export class Trainer {
         // });
         // return sortedList[0];
     }
-    async trainAmountRatio(history?: any[]) {
-        if (!history) {
-            const data = await this.sdk.getMarketHistoryKline(this.quant.config.symbol, '5min', 600);
-            history = data.reverse();
-        }
+    async trainAmountRatio(history: any[]) {
+
         const { quoteCurrencyBalance, baseCurrencyBalance, minVolume} = this.getConfig();
         const quant = new Quant({
             symbol: this.quant.config.symbol,

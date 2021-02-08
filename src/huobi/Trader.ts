@@ -10,6 +10,7 @@ import { Period } from "./interface";
 import { getPriceIndex, getSameAmount, getSymbolInfo, getTracePrice, _SYMBOL_INFO_MAP } from "./util";
 import { Trainer } from "./Trainer";
 import * as AutoOrderHistoryService from 'ROOT/module/auto-order-history/AutoOrderHistory.service';
+import dayjs from "dayjs";
 
 interface SymbolConfig{
     kline?: Record<string, any>;
@@ -106,6 +107,10 @@ export class Trader {
         buy_usdt,
         sell_usdt,
         period = CandlestickIntervalEnum.MIN5,
+        oversoldRatio,
+        overboughtRatio,
+        sellAmountRatio,
+        buyAmountRatio,
         // forceTrade,
     }, userId: number) {
         await this.getSymbolInfo(symbol);
@@ -130,16 +135,16 @@ export class Trader {
             sell_usdt,
             period,
             quant: quant,
-            oversoldRatio: 0.03,
-            overboughtRatio: -0.034,
-            sellAmountRatio: 1.2,
-            buyAmountRatio: 1.2,
+            oversoldRatio: oversoldRatio || 0.03,
+            overboughtRatio: overboughtRatio || -0.034,
+            sellAmountRatio: sellAmountRatio || 1.2,
+            buyAmountRatio: buyAmountRatio || 1.2,
             price: 0,
             depth: {
                 bidsList: [],
                 asksList: [],
             },
-            trainer: new Trainer(quant, this.sdk, {
+            trainer: new Trainer(quant, {
                 buy_usdt,
                 sell_usdt,
             })

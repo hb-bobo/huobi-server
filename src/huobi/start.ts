@@ -48,13 +48,17 @@ export async function start() {
 
     outLogger.info(`autoOrderList`, autoOrderList.length)
     if (autoOrderList.length > 0) {
-        autoOrderList.forEach((atoOrderConfigEntity) => {
+        autoOrderList.forEach((autoOrderConfigEntity) => {
             trader.autoTrader({
-                symbol: atoOrderConfigEntity.symbol,
-                buy_usdt: atoOrderConfigEntity.buy_usdt,
-                sell_usdt: atoOrderConfigEntity.sell_usdt,
-                period: atoOrderConfigEntity.period as any,
-            }, atoOrderConfigEntity.userId)
+                symbol: autoOrderConfigEntity.symbol,
+                buy_usdt: autoOrderConfigEntity.buy_usdt,
+                sell_usdt: autoOrderConfigEntity.sell_usdt,
+                period: autoOrderConfigEntity.period as any,
+                oversoldRatio: autoOrderConfigEntity.oversoldRatio,
+                overboughtRatio: autoOrderConfigEntity.overboughtRatio,
+                sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
+                buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
+            }, autoOrderConfigEntity.userId)
         });
     }
     if (WatchEntityList.length > 0) {

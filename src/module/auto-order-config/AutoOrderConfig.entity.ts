@@ -18,4 +18,17 @@ export default class AutoOrderConfigEntity extends BaseEntity{
 
     @Column({type: 'varchar', length: 10})
     public period!: string;
+
+    @Column({type: 'float'})
+    public oversoldRatio: number;
+    @Column({type: 'float'})
+    public overboughtRatio: number;
+    @Column({type: 'float'})
+    public sellAmountRatio: number;
+    @Column({type: 'float'})
+    public buyAmountRatio: number;
+
+
+
+
 }

@@ -6,6 +6,7 @@ import { AppContext } from 'ROOT/interface/App';
 import AutoOrderConfigEntity from './AutoOrderConfig.entity';
 import * as AutoOrderConfigService from './AutoOrderConfig.service';
 import { trader } from 'ROOT/huobi/start';
+import { pick } from 'lodash';
 
 export default class AutoOrderConfigLogController {
     public static index = async (ctx: AppContext) => {
@@ -59,6 +60,20 @@ export default class AutoOrderConfigLogController {
 
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
+                const mergeData = pick(data, [
+                    'buy_usdt',
+                    'sell_usdt',
+                    'oversoldRatio',
+                    'overboughtRatio',
+                    'sellAmountRatio',
+                    'buyAmountRatio',
+                ]);
+                Object.assign(trader.orderConfigMap[data.symbol], mergeData);
+                ctx.sendSuccess({
+                    data: mergeData
+                });
+                return;
+
             } else if (data) {
                 const userId = ctx.state.user && ctx.state.user.id;
                 res = await AutoOrderConfigService.create({

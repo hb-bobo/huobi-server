@@ -12,6 +12,9 @@ import { mkdir } from 'ROOT/utils';
 import { hbsdk } from 'ROOT/huobi/hbsdk';
 import got from 'got/dist/source';
 import { Analyser } from 'ROOT/lib/quant/analyse';
+import { Quant } from 'ROOT/lib/quant';
+import { Trader } from 'ROOT/huobi/Trader';
+import { Trainer } from "ROOT/huobi/Trainer";
 
 const writeFilePromisify = promisify(writeFile);
 const pipelinePromisify = promisify(stream.pipeline);
@@ -126,6 +129,65 @@ export const Analysis = async (ctx: AppContext) => {
             data: {
                 url: `${ctx.URL.origin}/download/analysis/${fileName}`
             }
+        });
+    } catch (error) {
+        ctx.sendError({ message: error });
+    }
+}
+
+
+/**
+ * 分析数据
+ */
+export const Train = async (ctx: AppContext) => {
+    const body = ctx.request.body;
+
+    const validator = new schema({
+        quoteCurrencyBalance: {
+            type: "number",
+        },
+        baseCurrencyBalance: {
+            type: "number",
+        },
+        buy_usdt: {
+            type: 'number'
+        },
+        sell_usdt: {
+            type: 'number'
+        },
+    });
+
+    try {
+        await validator.validate(body);
+    } catch ({ errors, fields }) {
+        ctx.sendError({ errors });
+        return;
+    }
+
+    try {
+        const urlArr: string[] = body.url.split('/');
+        const fileName = urlArr[urlArr.length - 1];
+        const [symbol] = fileName.split('-');
+        const response = await got(body.url);
+        const analyser = new Analyser();
+
+        analyser.analysis(JSON.parse((response.body)));
+        const quant = new Quant({
+            symbol: symbol,
+            quoteCurrencyBalance: body.quoteCurrencyBalance || 300,
+            baseCurrencyBalance: body.baseCurrencyBalance || Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'] * 10,
+            mins: [],
+            maxs: [],
+            minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
+        });
+        const trainer = new Trainer(quant, {
+            buy_usdt: body.buy_usdt || 10,
+            sell_usdt: body.sell_usdt || 10,
+        });
+        const result = await trainer.run(analyser.result)
+
+        ctx.sendSuccess({
+            data: result
         });
     } catch (error) {
         ctx.sendError({ message: error });
