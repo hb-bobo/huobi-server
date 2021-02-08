@@ -25,6 +25,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const async_validator_1 = __importDefault(require("async-validator"));
 const AutoOrderConfigService = __importStar(require("./AutoOrderConfig.service"));
 const start_1 = require("../../huobi/start");
+const lodash_1 = require("lodash");
 class AutoOrderConfigLogController {
 }
 exports.default = AutoOrderConfigLogController;
@@ -79,6 +80,19 @@ AutoOrderConfigLogController.updateOne = async (ctx) => {
         let res;
         if (data.id || data._id) {
             res = await AutoOrderConfigService.updateOne({ id: data.id || data._id }, data);
+            const mergeData = lodash_1.pick(data, [
+                'buy_usdt',
+                'sell_usdt',
+                'oversoldRatio',
+                'overboughtRatio',
+                'sellAmountRatio',
+                'buyAmountRatio',
+            ]);
+            Object.assign(start_1.trader.orderConfigMap[data.symbol], mergeData);
+            ctx.sendSuccess({
+                data: mergeData
+            });
+            return;
         }
         else if (data) {
             const userId = ctx.state.user && ctx.state.user.id;
