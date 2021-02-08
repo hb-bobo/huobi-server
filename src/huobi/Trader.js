@@ -166,7 +166,7 @@ class Trader {
             }
             this.orderConfigMap[symbol].kline = data.data;
             const targetTs = new Date(Number(String(data.data.id) + '000'));
-            logger_1.outLogger.info(symbol, dayjs_1.default(targetTs).utc().format('YYYY/MM/DD H:mm:ss'), data.data.id);
+            logger_1.outLogger.info(symbol, dayjs_1.default(targetTs).format('YYYY/MM/DD H:mm:ss'), data.data.id);
         });
         // orderConfig.trainer.run(rData).then((config) => {
         //     Object.assign(orderConfig,
