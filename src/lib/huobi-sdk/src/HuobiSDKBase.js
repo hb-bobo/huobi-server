@@ -155,14 +155,14 @@ class HuobiSDKBase extends events_1.EventEmitter {
         });
         HuobiSDKBase.market_ws.on('close', (e) => {
             if (e.code === 1006) {
-                this.errLogger(`market_ws closed:`, 'connect ECONNREFUSED');
+                this.outLogger(`market_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`market_ws closed:`, e.reason, ` code ${e.code}`);
+                this.outLogger(`market_ws closed:`, e.reason, ` code ${e.code}`);
             }
         });
         HuobiSDKBase.market_ws.on('error', (e) => {
-            this.errLogger(`market_ws  error: `, e.message);
+            this.outLogger(`market_ws  error: `, e.message);
         });
         return HuobiSDKBase.market_ws;
     }
@@ -225,14 +225,14 @@ class HuobiSDKBase extends events_1.EventEmitter {
         });
         HuobiSDKBase.account_ws.on('close', (e) => {
             if (e.code === 1006) {
-                this.errLogger(`account_ws closed:`, 'connect ECONNREFUSED');
+                this.outLogger(`account_ws closed:`, 'connect ECONNREFUSED');
             }
             else {
-                this.errLogger(`account_ws closed:`, e.reason, ` code ${e.code}`);
+                this.outLogger(`account_ws closed:`, e.reason, ` code ${e.code}`);
             }
         });
         HuobiSDKBase.account_ws.on('error', (e) => {
-            this.errLogger(`account_ws  error: `, e.message);
+            this.outLogger(`account_ws  error: `, e.message);
         });
         return HuobiSDKBase.account_ws;
     }

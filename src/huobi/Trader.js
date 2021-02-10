@@ -143,7 +143,7 @@ class Trader {
                 asksList: asksList,
             };
         }, 10000, { leading: true }));
-        const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 600);
+        const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 400);
         if (!data) {
             logger_1.errLogger.error('getMarketHistoryKline', data);
             return;

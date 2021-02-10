@@ -119,6 +119,9 @@ class DollarCostAvg {
         }
     }
     validList(list) {
+        if (!Array.isArray(list)) {
+            return [];
+        }
         return list.some(item => !item.invalid);
     }
     updateConfig(config) {
