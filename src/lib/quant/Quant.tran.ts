@@ -150,7 +150,7 @@ async function tran2() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-// tran2();
+tran2();
 
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -290,5 +290,5 @@ async function tranAmount() {
     console.log(sortedList[0])
     xlsx.writeFile(workbook, join(publicPath, '/download/tran-amount.xlsx'));
 }
-tranAmount();
+// tranAmount();
 

@@ -172,6 +172,9 @@ export default class DollarCostAvg {
         }
     }
     public validList(list: TradeItem[]) {
+        if (!Array.isArray(list)) {
+            return [];
+        }
         return list.some(item => !item.invalid);
     }
     updateConfig(config: Partial<Options>) {
