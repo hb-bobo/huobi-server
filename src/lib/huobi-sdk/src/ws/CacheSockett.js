@@ -17,16 +17,16 @@ class CacheSockett {
         this.ws = ws;
         // ws.close();
         ws.open();
-        ws.on('open', () => {
+        ws.once('open', () => {
             const list = Object.keys(this.cache);
             // list.forEach((str) => {
             //     this.ws.send(str.replace('sub', 'unsub'));
             // });
-            // setTimeout(() => {
-            //     list.forEach((str) => {
-            //         this.ws.send(str);
-            //     });
-            // }, 1000 * 10);
+            setTimeout(() => {
+                list.forEach((str) => {
+                    this.ws.send(str);
+                });
+            }, 1000 * 10);
             // this.checkLive();
             // this.cache = {};
         });
