@@ -38,15 +38,15 @@ class Trainer {
      */
     async run(history) {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
-        const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
+        const amountRatio = {}; // await this.trainAmountRatio(history).then(result => this.getTop(result));
         logger_1.outLogger.info('Training complete:', this.quant.config.symbol, overRatio, amountRatio);
         const config = {};
         if (overRatio.return > 1) {
             Object.assign(config, overRatio);
         }
-        if (amountRatio.return > 1) {
-            Object.assign(config, amountRatio);
-        }
+        // if (amountRatio.return > 1) {
+        //     Object.assign(config, amountRatio);
+        // }
         delete config.return;
         return config;
     }

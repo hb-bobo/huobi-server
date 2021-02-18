@@ -155,7 +155,7 @@ class Trader {
             }
             if (kline && kline.id !== data.data.id) {
                 orderConfig.quant.analysis(kline);
-                logger_1.outLogger.info('subMarketKline', data.data.id);
+                // outLogger.info('subMarketKline', data.data.id);
             }
             this.orderConfigMap[symbol].kline = data.data;
         });
