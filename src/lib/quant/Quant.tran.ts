@@ -13,7 +13,7 @@ import got from 'got/dist/source';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'btcusdt-5min-2021-02-01'
+const fileName = 'btcusdt-5min-2021-02-18'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
@@ -33,7 +33,7 @@ async function download() {
     xlsx.writeFile(workbook, join(publicPath, `/download/${fileName}.xlsx`)); //将数据写入文件
 }
 
-// download();
+download();
 
 async function tranSafeTrade() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });

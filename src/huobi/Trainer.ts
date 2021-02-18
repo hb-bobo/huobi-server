@@ -35,7 +35,7 @@ export class Trainer {
      */
     async run(history: any[]) {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
-        const amountRatio = await this.trainAmountRatio(history).then(result => this.getTop(result));
+        const amountRatio = {};// await this.trainAmountRatio(history).then(result => this.getTop(result));
 
         outLogger.info('Training complete:', this.quant.config.symbol, overRatio, amountRatio);
         const config: Record<string, any> = {
@@ -43,9 +43,9 @@ export class Trainer {
         if (overRatio.return > 1) {
             Object.assign(config, overRatio);
         }
-        if (amountRatio.return > 1) {
-            Object.assign(config, amountRatio);
-        }
+        // if (amountRatio.return > 1) {
+        //     Object.assign(config, amountRatio);
+        // }
         delete config.return;
         return config;
     }
