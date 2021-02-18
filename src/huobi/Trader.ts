@@ -63,7 +63,7 @@ export class Trader {
                         this._balanceMap[item.currency] = toNumber(item.available);
                     });
                 }
-                if( data.currency) {
+                if(data.currency) {
                     if (!this._balanceMap) {
                         this._balanceMap = {}
                     }
@@ -76,10 +76,7 @@ export class Trader {
      * 获取余额
      * @param symbol usdt btc ht
      */
-    getBalance = (symbol?: string) => {
-        if (this._balanceMap && symbol) {
-            return Promise.resolve(this._balanceMap[symbol]);
-        }
+    getBalance = () => {
         return this.sdk.getAccountBalance().then((data) => {
             if (!Array.isArray(data.list)) {
                 return;
@@ -115,7 +112,7 @@ export class Trader {
     }, userId: number) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
-        await this.getBalance(symbol);
+        await this.getBalance();
 
         if (!this._balanceMap) {
             return errLogger.error('_balanceMap', this.sdk.spot_account_id);
@@ -302,6 +299,7 @@ export class Trader {
 
         const priceIndex = getPriceIndex(symbol);
         const symbolInfo = await this.getSymbolInfo(symbol);
+        await this.getBalance();
         if (!symbolInfo) {
             return await this.order(symbol, type, amount, price, userId);
         }
@@ -310,6 +308,8 @@ export class Trader {
 
         const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
+
+        outLogger.info(`quoteCurrencyBalance: ${quoteCurrencyBalance}, baseCurrencyBalance: ${baseCurrencyBalance}`);
 
         if (!hasEnoughBalance && type === 'buy') {
             const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`
