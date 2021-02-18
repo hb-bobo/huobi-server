@@ -44,10 +44,7 @@ class Trader {
          * 获取余额
          * @param symbol usdt btc ht
          */
-        this.getBalance = (symbol) => {
-            if (this._balanceMap && symbol) {
-                return Promise.resolve(this._balanceMap[symbol]);
-            }
+        this.getBalance = () => {
             return this.sdk.getAccountBalance().then((data) => {
                 if (!Array.isArray(data.list)) {
                     return;
@@ -96,7 +93,7 @@ class Trader {
     async autoTrader({ symbol, buy_usdt, sell_usdt, period = node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, }, userId) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
-        await this.getBalance(symbol);
+        await this.getBalance();
         if (!this._balanceMap) {
             return logger_1.errLogger.error('_balanceMap', this.sdk.spot_account_id);
         }
@@ -255,6 +252,7 @@ class Trader {
         logger_1.outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
         const priceIndex = util_1.getPriceIndex(symbol);
         const symbolInfo = await this.getSymbolInfo(symbol);
+        await this.getBalance();
         if (!symbolInfo) {
             return await this.order(symbol, type, amount, price, userId);
         }
@@ -262,6 +260,7 @@ class Trader {
         const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
         const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
+        logger_1.outLogger.info(`quoteCurrencyBalance: ${quoteCurrencyBalance}, baseCurrencyBalance: ${baseCurrencyBalance}`);
         if (!hasEnoughBalance && type === 'buy') {
             const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`;
             logger_1.outLogger.info(msg);
