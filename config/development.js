@@ -2,10 +2,10 @@ module.exports = {
     host: 'localhost',
     env: 'dev',
     dbConfig: {
-        host     : "cdb-rh7sl6qr.gz.tencentcdb.com",
-        port     : 10032,
-        user     : "root",
-        password : "-8590550aA-",
+        host     : "localhost",
+        port     : 3306,
+        user     : "test",
+        password : "test123456",
         database : "huobi",
     },
     redis: {

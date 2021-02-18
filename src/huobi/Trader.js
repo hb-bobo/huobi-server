@@ -260,7 +260,6 @@ class Trader {
         }
         const quoteCurrencyBalance = this._balanceMap[symbolInfo['quote-currency']];
         const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
-        logger_1.outLogger.info(`${symbolInfo['quote-currency']}: ${quoteCurrencyBalance}, ${symbolInfo['base-currency']}: baseCurrencyBalance`);
         const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
         const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
         if (!hasEnoughBalance && type === 'buy') {
