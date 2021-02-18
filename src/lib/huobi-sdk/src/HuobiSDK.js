@@ -30,7 +30,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
                         resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
                     }
                     else {
-                        this.on('market_ws.open', () => {
+                        this.once('market_ws.open', () => {
                             resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
                         });
                     }
@@ -44,7 +44,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
                         resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
                     }
                     else {
-                        this.on('account_ws.open', () => {
+                        this.once('account_ws.open', () => {
                             resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
                         });
                     }
