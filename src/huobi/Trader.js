@@ -228,7 +228,8 @@ class Trader {
                         userId: userId || 1,
                         type: action,
                         status: 1,
-                        clientOrderId: data['client-order-id']
+                        clientOrderId: data['client-order-id'],
+                        row: ''
                     }).catch((err) => {
                         logger_1.outLogger.error(err);
                     });
@@ -242,6 +243,7 @@ class Trader {
                     userId: userId || 1,
                     type: action || 'buy',
                     status: -1,
+                    clientOrderId: '',
                     row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
                 }).catch((err) => {
                     logger_1.outLogger.error(err);
