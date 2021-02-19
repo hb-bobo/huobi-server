@@ -217,7 +217,7 @@ class Trader {
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
                 price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0];
             }
-            this.order(symbol, action, price, amount, userId);
+            this.order(symbol, action, amount, price, userId);
             AutoOrderHistoryService.create({
                 datetime: new Date(),
                 symbol,
@@ -295,17 +295,17 @@ class Trader {
         const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
         if (data) {
             logger_1.outLogger.info(data);
-            AutoOrderHistoryService.create({
-                datetime: new Date(),
-                symbol,
-                price: this.priceToFixed(symbol, price),
-                amount: this.amountToFixed(symbol, amount),
-                userId: userId || 1,
-                type: type,
-                status: 1,
-            }).catch((err) => {
-                logger_1.outLogger.error(err);
-            });
+            // AutoOrderHistoryService.create({
+            //     datetime: new Date(),
+            //     symbol,
+            //     price: this.priceToFixed(symbol, price),
+            //     amount: this.amountToFixed(symbol, amount),
+            //     userId: userId || 1,
+            //     type: type,
+            //     status: 1,
+            // }).catch((err) => {
+            //     outLogger.error(err)
+            // });
         }
     }
     cancelOrder(id) {
