@@ -258,23 +258,44 @@ export class Trader {
             this.order(
                 symbol,
                 action,
-                price,
                 amount,
+                price,
                 userId,
-            );
+            ).then((data) => {
+                if (data) {
+                    outLogger.info(data);
+                    AutoOrderHistoryService.create({
+                        datetime: new Date(),
+                        symbol,
+                        price: this.priceToFixed(symbol, price),
+                        amount: this.amountToFixed(symbol, amount),
+                        userId: userId || 1,
+                        type: action,
+                        status: 1,
+                        clientOrderId: data['client-order-id'],
+                        row: ''
+                    }).catch((err) => {
+                        outLogger.error(err)
+                    });
+                }
 
-            AutoOrderHistoryService.create({
-                datetime: new Date(),
-                symbol,
-                price: price || 0,
-                amount: amount || 0,
-                userId: userId || 1,
-                type: action || 'buy',
-                status: -1,
-                row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
-            }).catch((err) => {
-                outLogger.error(err)
+            }).catch(() => {
+                 AutoOrderHistoryService.create({
+                    datetime: new Date(),
+                    symbol,
+                    price: price || 0,
+                    amount: amount || 0,
+                    userId: userId || 1,
+                    type: action || 'buy',
+                    status: -1,
+                    clientOrderId: '',
+                    row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
+                }).catch((err) => {
+                    outLogger.error(err)
+                });
             });
+
+
             // orderConfig.trainer.run().then((config) => {
             //     Object.assign(orderConfig,
             //         pick(
@@ -342,21 +363,7 @@ export class Trader {
             }
         }
         const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
-
-        if (data) {
-            outLogger.info(data);
-            AutoOrderHistoryService.create({
-                datetime: new Date(),
-                symbol,
-                price: this.priceToFixed(symbol, price),
-                amount: this.amountToFixed(symbol, amount),
-                userId: userId || 1,
-                type: type,
-                status: 1,
-            }).catch((err) => {
-                outLogger.error(err)
-            });
-        }
+        return data;
     }
     cancelOrder(id: string) {
         return this.sdk.cancelOrder(id);
