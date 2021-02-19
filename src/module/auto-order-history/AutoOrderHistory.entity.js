@@ -48,6 +48,10 @@ __decorate([
     typeorm_1.Column({ type: 'text' }),
     __metadata("design:type", String)
 ], AutoOrderHistoryEntity.prototype, "row", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], AutoOrderHistoryEntity.prototype, "clientOrderId", void 0);
 AutoOrderHistoryEntity = __decorate([
     typeorm_1.Entity()
 ], AutoOrderHistoryEntity);

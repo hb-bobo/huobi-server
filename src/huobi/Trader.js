@@ -217,18 +217,35 @@ class Trader {
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
                 price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0];
             }
-            this.order(symbol, action, amount, price, userId);
-            AutoOrderHistoryService.create({
-                datetime: new Date(),
-                symbol,
-                price: price || 0,
-                amount: amount || 0,
-                userId: userId || 1,
-                type: action || 'buy',
-                status: -1,
-                row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
-            }).catch((err) => {
-                logger_1.outLogger.error(err);
+            this.order(symbol, action, amount, price, userId).then((data) => {
+                if (data) {
+                    logger_1.outLogger.info(data);
+                    AutoOrderHistoryService.create({
+                        datetime: new Date(),
+                        symbol,
+                        price: this.priceToFixed(symbol, price),
+                        amount: this.amountToFixed(symbol, amount),
+                        userId: userId || 1,
+                        type: action,
+                        status: 1,
+                        clientOrderId: data['client-order-id']
+                    }).catch((err) => {
+                        logger_1.outLogger.error(err);
+                    });
+                }
+            }).catch(() => {
+                AutoOrderHistoryService.create({
+                    datetime: new Date(),
+                    symbol,
+                    price: price || 0,
+                    amount: amount || 0,
+                    userId: userId || 1,
+                    type: action || 'buy',
+                    status: -1,
+                    row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
+                }).catch((err) => {
+                    logger_1.outLogger.error(err);
+                });
             });
             // orderConfig.trainer.run().then((config) => {
             //     Object.assign(orderConfig,
@@ -293,20 +310,7 @@ class Trader {
             }
         }
         const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
-        if (data) {
-            logger_1.outLogger.info(data);
-            // AutoOrderHistoryService.create({
-            //     datetime: new Date(),
-            //     symbol,
-            //     price: this.priceToFixed(symbol, price),
-            //     amount: this.amountToFixed(symbol, amount),
-            //     userId: userId || 1,
-            //     type: type,
-            //     status: 1,
-            // }).catch((err) => {
-            //     outLogger.error(err)
-            // });
-        }
+        return data;
     }
     cancelOrder(id) {
         return this.sdk.cancelOrder(id);
