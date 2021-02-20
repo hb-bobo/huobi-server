@@ -261,23 +261,20 @@ export class Trader {
                 amount,
                 price,
                 userId,
-            ).then((data) => {
-                if (data) {
-                    outLogger.info(data);
-                    AutoOrderHistoryService.create({
-                        datetime: new Date(),
-                        symbol,
-                        price: this.priceToFixed(symbol, price),
-                        amount: this.amountToFixed(symbol, amount),
-                        userId: userId || 1,
-                        type: action,
-                        status: 1,
-                        clientOrderId: data['client-order-id'],
-                        row: ''
-                    }).catch((err) => {
-                        outLogger.error(err)
-                    });
-                }
+            ).then((orderId) => {
+                AutoOrderHistoryService.create({
+                    datetime: new Date(),
+                    symbol,
+                    price: this.priceToFixed(symbol, price),
+                    amount: this.amountToFixed(symbol, amount),
+                    userId: userId || 1,
+                    type: action,
+                    status: 1,
+                    clientOrderId: orderId,
+                    row: ''
+                }).catch((err) => {
+                    outLogger.error(err)
+                });
 
             }).catch(() => {
                  AutoOrderHistoryService.create({
