@@ -41,9 +41,9 @@ Authorization: test
 content-type: application/json
 
 {
-    "symbol": "btcusdt",
+    "symbol": "htusdt",
     "period": "5min",
-    "size": 800
+    "size": 300
 }
 
 ###
@@ -58,7 +58,7 @@ Authorization: test
 content-type: application/json
 
 {
-    "url": "http://localhost:3003/download/history-data/btcusdt-5min-2021-02-18.json"
+    "url": "http://localhost:3003/download/history-data/htusdt-5min-2021-02-20.json"
 }
 
 ###
