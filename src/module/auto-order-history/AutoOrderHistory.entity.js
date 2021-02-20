@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", Number)
 ], AutoOrderHistoryEntity.prototype, "status", void 0);
 __decorate([
-    typeorm_1.Column({ type: 'text' }),
+    typeorm_1.Column(),
     __metadata("design:type", String)
 ], AutoOrderHistoryEntity.prototype, "row", void 0);
 __decorate([

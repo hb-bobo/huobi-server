@@ -138,6 +138,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
      * @param type
      * @param amount
      * @param price
+     * @return orderId
      */
     order(symbol, type, amount, price) {
         const path = '/v1/order/orders/place';
