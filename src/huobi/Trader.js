@@ -217,7 +217,7 @@ class Trader {
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
                 price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0];
             }
-            this.order(symbol, action, amount, price, userId).then((orderId) => {
+            this.order(symbol, action, amount, price, userId).then(async (orderId) => {
                 AutoOrderHistoryService.create({
                     datetime: new Date(),
                     symbol,
@@ -230,6 +230,21 @@ class Trader {
                     row: ''
                 }).catch((err) => {
                     logger_1.outLogger.error(err);
+                });
+                const historys = await AutoOrderHistoryService.find({}, {
+                    pageSize: 10,
+                    current: 1,
+                });
+                historys.list.forEach(item => {
+                    if (!item.clientOrderId) {
+                        return;
+                    }
+                    this.sdk.getOrder(item.clientOrderId).then((data) => {
+                        if (lodash_1.isObjectLike(data)) {
+                            item.state = data.state;
+                            AutoOrderHistoryService.updateOne({ id: item.id }, item);
+                        }
+                    });
                 });
             }).catch(() => {
                 AutoOrderHistoryService.create({

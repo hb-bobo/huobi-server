@@ -52,6 +52,10 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], AutoOrderHistoryEntity.prototype, "clientOrderId", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'varchar', length: 8 }),
+    __metadata("design:type", String)
+], AutoOrderHistoryEntity.prototype, "state", void 0);
 AutoOrderHistoryEntity = __decorate([
     typeorm_1.Entity()
 ], AutoOrderHistoryEntity);
