@@ -191,6 +191,12 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         }
         this.addEvent(subMessage.sub, subscription);
     }
+    async upMarketDepth({ symbol, step, id }, subscription) {
+        const subMessage = ws_cmd_1.WS_UNSUB.depth(symbol, step);
+        const market_cache_ws = await this.getSocket('market_cache_ws');
+        market_cache_ws.upsub(subMessage, id);
+        // this.once(subMessage.unsub, subscription);
+    }
     async subMarketKline({ symbol, period, id }, subscription) {
         const subMessage = ws_cmd_1.WS_SUB.kline(symbol, period);
         const market_cache_ws = await this.getSocket('market_cache_ws');
@@ -199,6 +205,12 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         }
         this.addEvent(subMessage.sub, subscription);
     }
+    async upMarketKline({ symbol, period, id }, subscription) {
+        const subMessage = ws_cmd_1.WS_UNSUB.kline(symbol, period);
+        const market_cache_ws = await this.getSocket('market_cache_ws');
+        market_cache_ws.upsub(subMessage, id);
+        // this.once(subMessage.unsub, subscription);
+    }
     async subMarketTrade({ symbol, id }, subscription) {
         const subMessage = ws_cmd_1.WS_SUB.tradeDetail(symbol);
         const market_cache_ws = await this.getSocket('market_cache_ws');
@@ -206,6 +218,12 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
             market_cache_ws.sub(subMessage, id);
         }
         this.addEvent(subMessage.sub, subscription);
+    }
+    async upMarketTrade({ symbol, id }, subscription) {
+        const subMessage = ws_cmd_1.WS_UNSUB.tradeDetail(symbol);
+        const market_cache_ws = await this.getSocket('market_cache_ws');
+        market_cache_ws.upsub(subMessage, id);
+        // this.once(subMessage.unsub, subscription);
     }
     async subAuth(subscription) {
         const account_ws = await this.getSocket('account_ws');

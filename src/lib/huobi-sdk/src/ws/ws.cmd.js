@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WS_REQ = exports.WS_SUB = void 0;
+exports.WS_REQ = exports.WS_UNSUB = exports.WS_SUB = void 0;
 const signature_1 = require("../utils/signature");
 exports.WS_SUB = {
     /**
@@ -41,6 +41,49 @@ exports.WS_SUB = {
     tradeDetail(symbol) {
         return {
             "sub": `market.${symbol}.trade.detail`,
+            "id": `sub_${symbol}`
+        };
+    }
+};
+exports.WS_UNSUB = {
+    /**
+     * k线订阅
+     * @param param0
+     */
+    kline(symbol, period) {
+        return {
+            "unsub": `market.${symbol}.kline.${period}`,
+            "id": `sub_${symbol}_${period}`
+        };
+    },
+    /**
+     * 市场深度行情数据
+     * @param symbol
+     * @param step 合并
+     */
+    depth(symbol, step = 'step0') {
+        return {
+            "unsub": `market.${symbol}.depth.${step}`,
+            "id": `sub_${symbol}_${step}`
+        };
+    },
+    /**
+     *  订阅 Market Detail 数据
+     * @param symbol
+     */
+    marketDetail(symbol) {
+        return {
+            "unsub": `market.${symbol}.detail`,
+            "id": `sub_${symbol}`
+        };
+    },
+    /**
+     * 交易数据
+     * @param symbol
+     */
+    tradeDetail(symbol) {
+        return {
+            "unsub": `market.${symbol}.trade.detail`,
             "id": `sub_${symbol}`
         };
     }
