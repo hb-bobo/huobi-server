@@ -1,5 +1,5 @@
 // import { outLogger } from "ROOT/common/logger";
-import { isNumber, omit, pick, throttle, toNumber } from "lodash";
+import { isNumber, isObjectLike, omit, pick, throttle, toNumber } from "lodash";
 import xlsx from 'xlsx';
 import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
@@ -261,7 +261,7 @@ export class Trader {
                 amount,
                 price,
                 userId,
-            ).then((orderId) => {
+            ).then(async (orderId) => {
                 AutoOrderHistoryService.create({
                     datetime: new Date(),
                     symbol,
@@ -275,7 +275,21 @@ export class Trader {
                 }).catch((err) => {
                     outLogger.error(err)
                 });
-
+                const historys = await AutoOrderHistoryService.find({}, {
+                    pageSize: 10,
+                    current: 1,
+                })
+                historys.list.forEach(item => {
+                    if (!item.clientOrderId) {
+                        return;
+                    }
+                    this.sdk.getOrder(item.clientOrderId).then((data) => {
+                        if (isObjectLike(data)) {
+                            item.state = data.state
+                            AutoOrderHistoryService.updateOne({id: item.id}, item);
+                        }
+                    })
+                })
             }).catch(() => {
                  AutoOrderHistoryService.create({
                     datetime: new Date(),

@@ -27,4 +27,7 @@ export default class AutoOrderHistoryEntity extends BaseEntity{
     @Column()
     public clientOrderId: string;
 
+    @Column({type: 'varchar', length: 8})
+    public state: string;
+
 }
