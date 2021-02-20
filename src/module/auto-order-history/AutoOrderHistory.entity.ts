@@ -22,12 +22,12 @@ export default class AutoOrderHistoryEntity extends BaseEntity{
     @Column({type: 'int'})
     public status!: number;
     @Column()
-    public row!: string;
+    public row?: string;
 
     @Column()
-    public clientOrderId: string;
+    public clientOrderId?: string;
 
     @Column({type: 'varchar', length: 8})
-    public state: string;
+    public state?: string;
 
 }
