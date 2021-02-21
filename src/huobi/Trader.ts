@@ -71,6 +71,25 @@ export class Trader {
                 }
             });
         });
+
+
+        setInterval(async () => {
+            const historys = await AutoOrderHistoryService.find({}, {
+                pageSize: 10,
+                current: 1,
+            })
+            historys.list.forEach(item => {
+                if (!item.clientOrderId) {
+                    return;
+                }
+                this.sdk.getOrder(item.clientOrderId).then((data) => {
+                    if (isObjectLike(data)) {
+                        item.state = data.state
+                        AutoOrderHistoryService.updateOne({id: item.id}, item);
+                    }
+                })
+            })
+        }, 1000 * 60 * 30);
     }
     /**
      * 获取余额
@@ -277,21 +296,8 @@ export class Trader {
                 }).catch((err) => {
                     outLogger.error(err)
                 });
-                const historys = await AutoOrderHistoryService.find({}, {
-                    pageSize: 10,
-                    current: 1,
-                })
-                historys.list.forEach(item => {
-                    if (!item.clientOrderId) {
-                        return;
-                    }
-                    this.sdk.getOrder(item.clientOrderId).then((data) => {
-                        if (isObjectLike(data)) {
-                            item.state = data.state
-                            AutoOrderHistoryService.updateOne({id: item.id}, item);
-                        }
-                    })
-                })
+
+
             }).catch(() => {
                  AutoOrderHistoryService.create({
                     datetime: new Date(),
