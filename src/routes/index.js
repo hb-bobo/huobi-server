@@ -58,6 +58,7 @@ router.get(`${apiPrefix}/depth`, checkToken_1.default, DepthController.get);
 router.get(`${apiPrefix}/train/analysis`, checkToken_1.default, TrainController.AnalysisList);
 router.post(`${apiPrefix}/train/analysis`, checkToken_1.default, TrainController.Analysis);
 router.post(`${apiPrefix}/train/download`, checkToken_1.default, TrainController.download);
+router.post(`${apiPrefix}/train/train`, checkToken_1.default, TrainController.Train);
 router.get(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.index);
 router.post(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.updateOne);
 router.delete(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.removeOne);

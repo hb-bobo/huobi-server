@@ -55,6 +55,7 @@ class Trainer {
             return [];
         }
         const { quoteCurrencyBalance, baseCurrencyBalance, minVolume } = this.getConfig();
+        console.log({ quoteCurrencyBalance, baseCurrencyBalance, minVolume });
         const quant = new quant_1.Quant({
             symbol: this.quant.config.symbol,
             price: history[history.length - 1].close,
@@ -65,12 +66,12 @@ class Trainer {
             minVolume: minVolume,
         });
         const result = [];
-        for (let oversoldRatio = 0.018; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
-            for (let overboughtRatio = -0.018; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
+        for (let oversoldRatio = 0.001; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.004) {
+            for (let overboughtRatio = -0.001; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.004) {
                 const bt = new Backtest_1.default({
                     symbol: quant.config.symbol,
-                    buyAmount: this.quant.config.minVolume * 10,
-                    sellAmount: this.quant.config.minVolume * 10,
+                    buyAmount: this.quant.config.minVolume * 50,
+                    sellAmount: this.quant.config.minVolume * 50,
                     quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                     baseCurrencyBalance: quant.config.baseCurrencyBalance,
                 });

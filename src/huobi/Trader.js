@@ -82,6 +82,23 @@ class Trader {
                 }
             });
         });
+        setInterval(async () => {
+            const historys = await AutoOrderHistoryService.find({}, {
+                pageSize: 10,
+                current: 1,
+            });
+            historys.list.forEach(item => {
+                if (!item.clientOrderId) {
+                    return;
+                }
+                this.sdk.getOrder(item.clientOrderId).then((data) => {
+                    if (lodash_1.isObjectLike(data)) {
+                        item.state = data.state;
+                        AutoOrderHistoryService.updateOne({ id: item.id }, item);
+                    }
+                });
+            });
+        }, 1000 * 60 * 30);
     }
     async getSymbolInfo(symbol) {
         const symbolInfo = await util_1.getSymbolInfo(symbol);
@@ -203,9 +220,12 @@ class Trader {
                 if (tradingAdvice) {
                     action = tradingAdvice.action;
                     amount = tradingAdvice.volume;
-                    price = tradingAdvice.price;
-                    logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, ${row.amplitude}: row.amplitude,`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
+                    price = tradingAdvice.price || row.close * 0.9;
+                    logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
                 }
+            }
+            else {
+                logger_1.outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
             }
             if (!action) {
                 return;
@@ -230,21 +250,6 @@ class Trader {
                     row: ''
                 }).catch((err) => {
                     logger_1.outLogger.error(err);
-                });
-                const historys = await AutoOrderHistoryService.find({}, {
-                    pageSize: 10,
-                    current: 1,
-                });
-                historys.list.forEach(item => {
-                    if (!item.clientOrderId) {
-                        return;
-                    }
-                    this.sdk.getOrder(item.clientOrderId).then((data) => {
-                        if (lodash_1.isObjectLike(data)) {
-                            item.state = data.state;
-                            AutoOrderHistoryService.updateOne({ id: item.id }, item);
-                        }
-                    });
                 });
             }).catch(() => {
                 AutoOrderHistoryService.create({

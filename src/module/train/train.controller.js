@@ -16,8 +16,8 @@ const hbsdk_1 = require("../../huobi/hbsdk");
 const source_1 = __importDefault(require("got/dist/source"));
 const analyse_1 = require("../../lib/quant/analyse");
 const quant_1 = require("../../lib/quant");
-const Trader_1 = require("../../huobi/Trader");
 const Trainer_1 = require("../../huobi/Trainer");
+const util_2 = require("../../huobi/util");
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const pipelinePromisify = util_1.promisify(stream_1.default.pipeline);
 const readdirPromisify = util_1.promisify(fs_1.readdir);
@@ -161,19 +161,39 @@ const Train = async (ctx) => {
         return;
     }
     try {
-        const urlArr = body.url.split('/');
-        const fileName = urlArr[urlArr.length - 1];
-        const [symbol] = fileName.split('-');
-        const response = await source_1.default(body.url);
+        let symbol = '';
+        let historyList = [];
+        if (body.symbol && body.period && body.size) {
+            symbol = body.symbol;
+            const data = await hbsdk_1.hbsdk
+                .getMarketHistoryKline(body.symbol, body.period, body.size);
+            if (data === undefined) {
+                ctx.sendError({ message: '数据拉取失败' });
+                return;
+            }
+            historyList = data.reverse();
+        }
+        else {
+            const urlArr = body.url.split('/');
+            const fileName = urlArr[urlArr.length - 1];
+            symbol = fileName.split('-')[0];
+            const response = await source_1.default(body.url);
+            historyList = JSON.parse((response.body));
+        }
+        const symbolInfo = await util_2.getSymbolInfo(symbol);
+        if (!symbolInfo) {
+            ctx.sendError({ message: 'symbol数据拉取失败' });
+            return;
+        }
         const analyser = new analyse_1.Analyser();
-        analyser.analysis(JSON.parse((response.body)));
+        analyser.analysis(historyList);
         const quant = new quant_1.Quant({
             symbol: symbol,
             quoteCurrencyBalance: body.quoteCurrencyBalance || 300,
-            baseCurrencyBalance: body.baseCurrencyBalance || Trader_1.Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'] * 10,
+            baseCurrencyBalance: body.baseCurrencyBalance || symbolInfo['limit-order-min-order-amt'] * 10,
             mins: [],
             maxs: [],
-            minVolume: Trader_1.Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
+            minVolume: symbolInfo['limit-order-min-order-amt'],
         });
         const trainer = new Trainer_1.Trainer(quant, {
             buy_usdt: body.buy_usdt || 10,

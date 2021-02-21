@@ -15,7 +15,7 @@ const Backtest_1 = __importDefault(require("./Backtest"));
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const readFilePromisify = util_1.promisify(fs_1.readFile);
 const publicPath = config_1.default.get('publicPath');
-const fileName = 'htusdt-5min-2021-02-20';
+const fileName = 'htusdt-5min-2021-02-21';
 const jsonFilePath = path_1.join(publicPath, `/download/history-data/${fileName}.json`);
 async function download() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
@@ -81,12 +81,12 @@ async function tran2() {
         minVolume: 0.00001,
     });
     const result = [];
-    for (let oversoldRatio = 0.012; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
-        for (let overboughtRatio = -0.012; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
+    for (let oversoldRatio = -0.00; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.004) {
+        for (let overboughtRatio = -0.000; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.004) {
             const bt = new Backtest_1.default({
                 symbol: 'btcusdt',
-                buyAmount: 0.001,
-                sellAmount: 0.001,
+                buyAmount: 1,
+                sellAmount: 1,
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             });
