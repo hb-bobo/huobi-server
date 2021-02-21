@@ -36,6 +36,7 @@ function start() {
         logger_1.outLogger.info(`MySQL: database ${dbConfig.database} connected`);
     })
         .catch(error => {
+        console.log(error);
         logger_1.errLogger.error(`MySQL: ${String(error)}`);
         setTimeout(() => {
             start();
