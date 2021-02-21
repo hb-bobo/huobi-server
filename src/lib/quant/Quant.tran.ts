@@ -13,7 +13,7 @@ import got from 'got/dist/source';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'htusdt-5min-2021-02-20'
+const fileName = 'htusdt-5min-2021-02-21'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
@@ -99,13 +99,13 @@ async function tran2() {
     });
 
     const result: any[] = []
-    for (let oversoldRatio = 0.012; oversoldRatio < 0.06; oversoldRatio = oversoldRatio + 0.002) {
-        for (let overboughtRatio = -0.012; overboughtRatio > -0.06; overboughtRatio = overboughtRatio - 0.002) {
+    for (let oversoldRatio = -0.00; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.004) {
+        for (let overboughtRatio = -0.000; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.004) {
 
             const bt = new Backtest({
                 symbol: 'btcusdt',
-                buyAmount: 0.001,
-                sellAmount: 0.001,
+                buyAmount: 1,
+                sellAmount: 1,
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             })

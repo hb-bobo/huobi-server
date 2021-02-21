@@ -244,7 +244,7 @@ export class Trader {
                     outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
                 }
             } else {
-                outLogger.info('context',`, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
+                outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
             }
 
             if (!action) {

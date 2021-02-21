@@ -36,12 +36,12 @@ Authorization: test
 
 ###
 # @name 下载测试数据
-POST   {{currentURL}}/train/download?a=1
+POST   {{currentURL}}/train/download
 Authorization: test
 content-type: application/json
 
 {
-    "symbol": "htusdt",
+    "symbol": "eosusdt",
     "period": "5min",
     "size": 300
 }
@@ -58,7 +58,23 @@ Authorization: test
 content-type: application/json
 
 {
-    "url": "http://localhost:3003/download/history-data/htusdt-5min-2021-02-20.json"
+    "url": "http://localhost:3003/download/history-data/htusdt-5min-2021-02-21.json"
+}
+
+###
+# @name 下载并训练数据
+POST   {{currentURL}}/train/train
+Authorization: test
+content-type: application/json
+
+{
+    "symbol": "dogeusdt",
+    "period": "5min",
+    "size": 300,
+    "quoteCurrencyBalance": 600,
+    "baseCurrencyBalance": 0,
+    "buy_usdt": 10,
+    "sell_usdt": 10
 }
 
 ###

@@ -15,6 +15,7 @@ import { Analyser } from 'ROOT/lib/quant/analyse';
 import { Quant } from 'ROOT/lib/quant';
 import { Trader } from 'ROOT/huobi/Trader';
 import { Trainer } from "ROOT/huobi/Trainer";
+import { getSymbolInfo } from 'ROOT/huobi/util';
 
 const writeFilePromisify = promisify(writeFile);
 const pipelinePromisify = promisify(stream.pipeline);
@@ -165,20 +166,40 @@ export const Train = async (ctx: AppContext) => {
     }
 
     try {
-        const urlArr: string[] = body.url.split('/');
-        const fileName = urlArr[urlArr.length - 1];
-        const [symbol] = fileName.split('-');
-        const response = await got(body.url);
+        let symbol = '';
+        let historyList: any[] = [];
+   
+        if (body.symbol && body.period && body.size) {
+            symbol = body.symbol
+            const data = await hbsdk
+            .getMarketHistoryKline( body.symbol, body.period, body.size);
+            if (data === undefined) {
+                ctx.sendError({ message: '数据拉取失败' });
+                return;
+            }
+            historyList = data.reverse();
+        } else {
+            const urlArr: string[] = body.url.split('/');
+            const fileName = urlArr[urlArr.length - 1];
+            symbol = fileName.split('-')[0];
+            const response = await got(body.url);
+            historyList = JSON.parse((response.body));
+        }
+        const symbolInfo = await getSymbolInfo(symbol);
+        if (!symbolInfo) {
+            ctx.sendError({ message: 'symbol数据拉取失败' });
+            return;
+        }
         const analyser = new Analyser();
 
-        analyser.analysis(JSON.parse((response.body)));
+        analyser.analysis(historyList);
         const quant = new Quant({
             symbol: symbol,
             quoteCurrencyBalance: body.quoteCurrencyBalance || 300,
-            baseCurrencyBalance: body.baseCurrencyBalance || Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'] * 10,
+            baseCurrencyBalance: body.baseCurrencyBalance || symbolInfo['limit-order-min-order-amt'] * 10,
             mins: [],
             maxs: [],
-            minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
+            minVolume: symbolInfo['limit-order-min-order-amt'],
         });
         const trainer = new Trainer(quant, {
             buy_usdt: body.buy_usdt || 10,
@@ -193,3 +214,4 @@ export const Train = async (ctx: AppContext) => {
         ctx.sendError({ message: error });
     }
 }
+
