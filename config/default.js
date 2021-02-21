@@ -1,5 +1,5 @@
 const path = require('path');
 module.exports = {
-    port: 3003,
+    port: 3004,
     publicPath: path.join(__dirname, '../public'),
 }

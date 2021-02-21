@@ -224,12 +224,10 @@ class Trader {
                     logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
                 }
             }
-            else {
-                logger_1.outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
-            }
             if (!action) {
                 return;
             }
+            logger_1.outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
             if (amount < Number.MIN_SAFE_INTEGER) {
                 amount = buy_usdt / row.close;
             }
