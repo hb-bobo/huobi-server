@@ -14,7 +14,7 @@ export const get = async (ctx: AppContext) => {
     try {
         let res: WatchEntity | WatchEntity[] | undefined;
         if (id) {
-            res = await WatchEntityService.findOne({id});
+            res = await WatchEntityService.findOne({id: id as any});
             if (!res) {
                 ctx.sendError({message: 'error'});
                 return;

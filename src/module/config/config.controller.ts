@@ -11,7 +11,7 @@ import * as ConfigService from './config.service';
 export const index = async (ctx: AppContext) => {
     const {current = 1, pageSize} = ctx.request.query;
     try {
-        const list = await ConfigService.find({}, {current, pageSize});
+        const list = await ConfigService.find({}, {current: Number(current), pageSize: Number(pageSize)});
         ctx.sendSuccess({
             data: list
         });

@@ -13,7 +13,7 @@ export default class AutoOrderController {
         try {
             let res;
             if (id) {
-                res = await AutoOrderHistoryService.find({id: id});
+                res = await AutoOrderHistoryService.find({id: id as any});
                 if (!res) {
                     ctx.sendError({message: 'error'});
                     return;
@@ -22,7 +22,7 @@ export default class AutoOrderController {
                     data: res
                 });
             } else {
-                res = await AutoOrderHistoryService.find({userId: userId}, {current, pageSize});
+                res = await AutoOrderHistoryService.find({userId: userId}, {current: Number(current), pageSize: Number(pageSize)});
                 ctx.sendSuccess({data: res});
             }
         } catch (error) {

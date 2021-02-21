@@ -13,7 +13,7 @@ export const get = async (ctx: AppContext) => {
     try {
         let res: TradeAccountEntity | TradeAccountEntity[] | undefined;
         if (id) {
-            res = await TradeAccountService.findOne({id});
+            res = await TradeAccountService.findOne({id: id as any});
             if (!res) {
                 ctx.sendError({message: 'error'});
                 return;

@@ -14,7 +14,7 @@ export default class AutoOrderConfigLogController {
         try {
             let res: AutoOrderConfigEntity | AutoOrderConfigEntity[] | undefined;
             if (id) {
-                res = await AutoOrderConfigService.findOne({id});
+                res = await AutoOrderConfigService.findOne({id: id as any});
                 if (!res) {
                     ctx.sendError({message: 'error'});
                     return;

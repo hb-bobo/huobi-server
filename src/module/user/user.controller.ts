@@ -114,7 +114,7 @@ export const createFirstUser = async (ctx: AppContext) => {
         ctx.sendError({message: '写入失败'});
         return;
     }
-    const newUser = UserService.create(userName, password, AUTHORITY.admin);
+    const newUser = UserService.create(userName as string, password as string, AUTHORITY.admin);
     if (newUser) {
         ctx.sendSuccess();
     }

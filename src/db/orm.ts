@@ -39,6 +39,7 @@ function start () {
         );
     })
     .catch(error => {
+        console.log(error)
         errLogger.error(`MySQL: ${String(error)}`);
         setTimeout(() => {
             start();

@@ -31,9 +31,9 @@ export const get = async (ctx: AppContext) => {
         return;
     }
     try {
-        let res = await DepthService.find({
-            start: new Date(start),
-            end: new Date(end), 
+        const res = await DepthService.find({
+            start: new Date(start as string),
+            end: new Date(end as string), 
             symbol: (symbol as string).toLowerCase()}
         );
 
@@ -49,7 +49,7 @@ export const get = async (ctx: AppContext) => {
 export const create = async (ctx: AppContext) => {
     const data = ctx.request.body;
     try {
-        let res = await DepthService.create(data);
+        const res = await DepthService.create(data);
         ctx.sendSuccess({
             data: res
         });

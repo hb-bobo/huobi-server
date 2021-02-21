@@ -21,13 +21,13 @@ export default class AutoOrderHistoryEntity extends BaseEntity{
     public datetime!: Date;
     @Column({type: 'int'})
     public status!: number;
-    @Column()
+    @Column({nullable: true,})
     public row?: string;
 
-    @Column()
+    @Column({nullable: true,})
     public clientOrderId?: string;
 
-    @Column({type: 'varchar', length: 8})
+    @Column({type: 'varchar', length: 8, nullable: true,})
     public state?: string;
 
 }

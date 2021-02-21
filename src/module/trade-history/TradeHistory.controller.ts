@@ -33,8 +33,8 @@ export const get = async (ctx: AppContext) => {
     }
     try {
         const res = await TradeService.find({
-            start: new Date(start),
-            end: new Date(end), symbol: (symbol as string).toLowerCase()}
+            start: new Date(start as string),
+            end: new Date(end as string), symbol: (symbol as string).toLowerCase()}
         );
 
         ctx.sendSuccess({data: res});

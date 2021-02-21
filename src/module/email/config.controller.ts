@@ -11,7 +11,7 @@ import * as ConfigService from './config.service';
 export const index = async (ctx: AppContext) => {
     const {mail} = ctx.request.query;
     try {
-        const list = await ConfigService.findOne({mail});
+        const list = await ConfigService.findOne({mail: mail as string});
         ctx.sendSuccess({message: ''});
     } catch (error) {
         ctx.sendError({message: '已发送'});

@@ -15,11 +15,9 @@ export default async (ctx: AppContext, next: () => Promise<void>) => {
             code: ResponseCodeType.success,
             message,
             status: 'ok',
-        }, otherData)
+        }, otherData);
 
-        if (data !== undefined) {
-            ctx.body.data = data;
-        }
+        (ctx.body as Record<string, any>).data = data;
     }
     /**
      * 失败反馈的数据格式
