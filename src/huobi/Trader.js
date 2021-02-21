@@ -250,21 +250,6 @@ class Trader {
                 }).catch((err) => {
                     logger_1.outLogger.error(err);
                 });
-            }).catch(() => {
-                AutoOrderHistoryService.create({
-                    datetime: new Date(),
-                    symbol,
-                    price: price || 0,
-                    amount: amount || 0,
-                    userId: userId || 1,
-                    type: action || 'buy',
-                    status: -1,
-                    state: '',
-                    clientOrderId: '',
-                    row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
-                }).catch((err) => {
-                    logger_1.outLogger.error(err);
-                });
             });
             // orderConfig.trainer.run().then((config) => {
             //     Object.assign(orderConfig,
