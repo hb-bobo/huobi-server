@@ -54,8 +54,7 @@ const get = async (ctx) => {
     try {
         const res = await TradeService.find({
             start: new Date(start),
-            end: new Date(end),
-            symbol: symbol.toLowerCase()
+            end: new Date(end), symbol: symbol.toLowerCase()
         });
         ctx.sendSuccess({ data: res });
     }

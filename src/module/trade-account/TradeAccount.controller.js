@@ -34,7 +34,7 @@ const get = async (ctx) => {
     try {
         let res;
         if (id) {
-            res = await TradeAccountService.findOne({ id });
+            res = await TradeAccountService.findOne({ id: id });
             if (!res) {
                 ctx.sendError({ message: 'error' });
                 return;

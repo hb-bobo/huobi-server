@@ -5,34 +5,21 @@ class CacheSockett {
     constructor(ws) {
         this.cache = {};
         this.ws = ws;
-        ws.on('open', () => {
-            this.checkLive();
-            // this.cache = {};
-        });
-        ws.on('message', () => {
-            this.id = Date.now();
-        });
     }
     reStart(ws = this.ws) {
         this.ws = ws;
-        // ws.close();
         ws.open();
         ws.once('open', () => {
             const list = Object.keys(this.cache);
-            // list.forEach((str) => {
-            //     this.ws.send(str.replace('sub', 'unsub'));
-            // });
-            setTimeout(() => {
-                list.forEach((str) => {
-                    this.ws.send(str);
-                });
-            }, 1000 * 10);
+            list.forEach((str) => {
+                this.ws.send(str);
+            });
             // this.checkLive();
             // this.cache = {};
         });
-        ws.on('message', () => {
-            this.id = Date.now();
-        });
+        // ws.on('message', () => {
+        //     this.id = Date.now();
+        // });
     }
     checkLive() {
         if (typeof this.id === 'number' && (Date.now() - this.id) > (1000 * 60 * 10)) {
@@ -102,7 +89,7 @@ class CacheSockett {
      * 退阅行为会删除缓存
      * @param data
      */
-    async upsub(data, id) {
+    upsub(data, id) {
         const _id = id ? id : 'system';
         const dataStr = JSON.stringify(data);
         if (data.unsub === undefined) {

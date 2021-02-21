@@ -29,7 +29,7 @@ const get = async (ctx) => {
     try {
         let res;
         if (id) {
-            res = await WatchEntityService.findOne({ id });
+            res = await WatchEntityService.findOne({ id: id });
             if (!res) {
                 ctx.sendError({ message: 'error' });
                 return;

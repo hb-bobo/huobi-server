@@ -20,7 +20,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trader = void 0;
-// import { outLogger } from "../common/logger";
+// import { outLogger } from "ROOT/common/logger";
 const lodash_1 = require("lodash");
 const logger_1 = require("../common/logger");
 const quant_1 = require("../lib/quant");
@@ -246,6 +246,7 @@ class Trader {
                     userId: userId || 1,
                     type: action,
                     status: 1,
+                    state: '',
                     clientOrderId: orderId,
                     row: ''
                 }).catch((err) => {
@@ -260,6 +261,7 @@ class Trader {
                     userId: userId || 1,
                     type: action || 'buy',
                     status: -1,
+                    state: '',
                     clientOrderId: '',
                     row: JSON.stringify(lodash_1.omit(row, ['close', 'vol', 'time']))
                 }).catch((err) => {

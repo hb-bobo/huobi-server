@@ -28,7 +28,7 @@ const ConfigService = __importStar(require("./config.service"));
 const index = async (ctx) => {
     const { mail } = ctx.request.query;
     try {
-        const list = await ConfigService.findOne({ mail });
+        const list = await ConfigService.findOne({ mail: mail });
         ctx.sendSuccess({ message: '' });
     }
     catch (error) {

@@ -16,9 +16,7 @@ exports.default = async (ctx, next) => {
             message,
             status: 'ok',
         }, otherData);
-        if (data !== undefined) {
-            ctx.body.data = data;
-        }
+        ctx.body.data = data;
     };
     /**
      * 失败反馈的数据格式

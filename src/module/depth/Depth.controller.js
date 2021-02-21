@@ -52,7 +52,7 @@ const get = async (ctx) => {
         return;
     }
     try {
-        let res = await DepthService.find({
+        const res = await DepthService.find({
             start: new Date(start),
             end: new Date(end),
             symbol: symbol.toLowerCase()
@@ -70,7 +70,7 @@ exports.get = get;
 const create = async (ctx) => {
     const data = ctx.request.body;
     try {
-        let res = await DepthService.create(data);
+        const res = await DepthService.create(data);
         ctx.sendSuccess({
             data: res
         });

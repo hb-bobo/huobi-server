@@ -34,7 +34,7 @@ AutoOrderConfigLogController.index = async (ctx) => {
     try {
         let res;
         if (id) {
-            res = await AutoOrderConfigService.findOne({ id });
+            res = await AutoOrderConfigService.findOne({ id: id });
             if (!res) {
                 ctx.sendError({ message: 'error' });
                 return;

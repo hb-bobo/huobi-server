@@ -43,7 +43,7 @@ AutoOrderController.index = async (ctx) => {
             });
         }
         else {
-            res = await AutoOrderHistoryService.find({ userId: userId }, { current, pageSize });
+            res = await AutoOrderHistoryService.find({ userId: userId }, { current: Number(current), pageSize: Number(pageSize) });
             ctx.sendSuccess({ data: res });
         }
     }
