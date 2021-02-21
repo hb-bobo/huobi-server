@@ -297,23 +297,6 @@ export class Trader {
                 }).catch((err) => {
                     outLogger.error(err)
                 });
-
-
-            }).catch(() => {
-                 AutoOrderHistoryService.create({
-                    datetime: new Date(),
-                    symbol,
-                    price: price || 0,
-                    amount: amount || 0,
-                    userId: userId || 1,
-                    type: action || 'buy',
-                    status: -1,
-                    state: '',
-                    clientOrderId: '',
-                    row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
-                }).catch((err) => {
-                    outLogger.error(err)
-                });
             });
 
 
