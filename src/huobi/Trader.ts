@@ -291,6 +291,7 @@ export class Trader {
                     userId: userId || 1,
                     type: action,
                     status: 1,
+                    state: '',
                     clientOrderId: orderId,
                     row: ''
                 }).catch((err) => {
@@ -307,6 +308,7 @@ export class Trader {
                     userId: userId || 1,
                     type: action || 'buy',
                     status: -1,
+                    state: '',
                     clientOrderId: '',
                     row: JSON.stringify(omit(row, ['close', 'vol', 'time']))
                 }).catch((err) => {
