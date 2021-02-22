@@ -84,11 +84,11 @@ class Trader {
         });
         setInterval(async () => {
             const historys = await AutoOrderHistoryService.find({}, {
-                pageSize: 10,
+                pageSize: 20,
                 current: 1,
             });
             historys.list.forEach(item => {
-                if (!item.clientOrderId) {
+                if (!item.clientOrderId || item.state === 'filled') {
                     return;
                 }
                 this.sdk.getOrder(item.clientOrderId).then((data) => {
