@@ -23,6 +23,8 @@ interface SymbolConfig{
     overboughtRatio: number;
     buyAmountRatio: number;
     sellAmountRatio: number;
+    min: number;
+    max: number;
     depth: {
         bidsList: any[];
         asksList: any[];
@@ -163,7 +165,9 @@ export class Trader {
             trainer: new Trainer(quant, {
                 buy_usdt,
                 sell_usdt,
-            })
+            }),
+            min: 0,
+            max: 0,
         }
         const orderConfig = this.orderConfigMap[symbol];
 
@@ -255,6 +259,12 @@ export class Trader {
             }
 
             if (!action && (row['amount/amountMA20'] > 2 || row.amplitude > 2)) {
+                if (quant.dc.maxs && quant.dc.maxs.length === 0) {
+                    quant.updateConfig({
+                        mins: [row.close * 0.9],
+                        maxs: [row.close * 1.1],
+                    });
+                }
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (tradingAdvice) {
                     action = tradingAdvice.action;
