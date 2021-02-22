@@ -75,11 +75,11 @@ export class Trader {
 
         setInterval(async () => {
             const historys = await AutoOrderHistoryService.find({}, {
-                pageSize: 10,
+                pageSize: 20,
                 current: 1,
             })
             historys.list.forEach(item => {
-                if (!item.clientOrderId) {
+                if (!item.clientOrderId || item.state === 'filled') {
                     return;
                 }
                 this.sdk.getOrder(item.clientOrderId).then((data) => {
@@ -268,7 +268,7 @@ export class Trader {
                 return;
             }
             outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
-            
+
             if (amount < Number.MIN_SAFE_INTEGER) {
                 amount = buy_usdt / row.close;
             }
