@@ -214,6 +214,7 @@ class Trader {
                 && row['amount/amountMA20'] > orderConfig.buyAmountRatio) {
                 action = 'buy';
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
+                logger_1.outLogger.info(pricePoolFormDepth);
                 amount = buy_usdt / row.close;
                 price = pricePoolFormDepth.buy[0] || row.close * 0.98;
             }
