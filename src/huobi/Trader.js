@@ -224,13 +224,13 @@ class Trader {
                 //         maxs: [row.close * 1.1],
                 //     });
                 // }
-                const tradingAdvice = quant.safeTrade(row.close);
-                if (tradingAdvice) {
-                    action = tradingAdvice.action;
-                    amount = tradingAdvice.volume;
-                    price = tradingAdvice.price || row.close * 0.9;
-                    logger_1.outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
-                }
+                // const tradingAdvice = quant.safeTrade(row.close);
+                // if (tradingAdvice) {
+                //     action = tradingAdvice.action;
+                //     amount = tradingAdvice.volume;
+                //     price = tradingAdvice.price || row.close *  0.9;
+                //     outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
+                // }
             }
             if (!action) {
                 return;
