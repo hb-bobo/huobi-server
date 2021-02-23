@@ -254,6 +254,7 @@ export class Trader {
             ) {
                 action = 'buy';
                 const pricePoolFormDepth = getTracePrice(orderConfig.depth);
+                outLogger.info(pricePoolFormDepth);
                 amount = buy_usdt / row.close;
                 price =  pricePoolFormDepth.buy[0] || row.close *  0.98;
             }
@@ -265,13 +266,13 @@ export class Trader {
                 //         maxs: [row.close * 1.1],
                 //     });
                 // }
-                const tradingAdvice = quant.safeTrade(row.close);
-                if (tradingAdvice) {
-                    action = tradingAdvice.action;
-                    amount = tradingAdvice.volume;
-                    price = tradingAdvice.price || row.close *  0.9;
-                    outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
-                }
+                // const tradingAdvice = quant.safeTrade(row.close);
+                // if (tradingAdvice) {
+                //     action = tradingAdvice.action;
+                //     amount = tradingAdvice.volume;
+                //     price = tradingAdvice.price || row.close *  0.9;
+                //     outLogger.info('tradingAdvice', JSON.stringify(tradingAdvice), `, row.amplitude: ${row.amplitude},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
+                // }
             }
 
             if (!action) {
