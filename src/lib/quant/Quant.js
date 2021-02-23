@@ -21,7 +21,17 @@ class Quant {
         }
         this.analyser.use((row) => {
             if (this.dc) {
-                this.dc.updateConfig({ balance: this.config.quoteCurrencyBalance / row.close });
+                let max = 0;
+                let min = 0;
+                this.analyser.result.forEach((item) => {
+                    if (item.close > max) {
+                        max = item.close;
+                    }
+                    if (item.low < min) {
+                        min = item.low;
+                    }
+                });
+                this.dc.updateConfig({ balance: this.config.quoteCurrencyBalance / row.close, mins: [min], maxs: [max] });
             }
             this.config.price = row.close;
         });
