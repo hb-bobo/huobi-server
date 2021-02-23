@@ -52,6 +52,14 @@ __decorate([
     typeorm_1.Column({ type: 'float' }),
     __metadata("design:type", Number)
 ], AutoOrderConfigEntity.prototype, "buyAmountRatio", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float', nullable: true }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "min", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'float', nullable: true }),
+    __metadata("design:type", Number)
+], AutoOrderConfigEntity.prototype, "max", void 0);
 AutoOrderConfigEntity = __decorate([
     typeorm_1.Entity()
 ], AutoOrderConfigEntity);

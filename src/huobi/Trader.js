@@ -139,7 +139,9 @@ class Trader {
             trainer: new Trainer_1.Trainer(quant, {
                 buy_usdt,
                 sell_usdt,
-            })
+            }),
+            min: 0,
+            max: 0,
         };
         const orderConfig = this.orderConfigMap[symbol];
         this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
@@ -216,6 +218,12 @@ class Trader {
                 price = pricePoolFormDepth.buy[0] || row.close * 0.98;
             }
             if (!action && (row['amount/amountMA20'] > 2 || row.amplitude > 2)) {
+                // if (quant.dc.maxs && quant.dc.maxs.length === 0) {
+                //     quant.updateConfig({
+                //         mins: [row.close * 0.9],
+                //         maxs: [row.close * 1.1],
+                //     });
+                // }
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (tradingAdvice) {
                     action = tradingAdvice.action;

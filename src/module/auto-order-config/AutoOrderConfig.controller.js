@@ -87,8 +87,14 @@ AutoOrderConfigLogController.updateOne = async (ctx) => {
                 'overboughtRatio',
                 'sellAmountRatio',
                 'buyAmountRatio',
+                'min',
+                'max'
             ]);
             Object.assign(start_1.trader.orderConfigMap[data.symbol], mergeData);
+            if (mergeData.max) {
+                start_1.trader.orderConfigMap[data.symbol].quant.dc.maxs = [mergeData.max];
+                start_1.trader.orderConfigMap[data.symbol].quant.dc.mins = [mergeData.min];
+            }
             ctx.sendSuccess({
                 data: mergeData
             });
