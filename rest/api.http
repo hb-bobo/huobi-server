@@ -68,13 +68,13 @@ Authorization: test
 content-type: application/json
 
 {
-    "symbol": "dogeusdt",
+    "symbol": "htusdt",
     "period": "5min",
     "size": 300,
     "quoteCurrencyBalance": 600,
-    "baseCurrencyBalance": 0,
-    "buy_usdt": 10,
-    "sell_usdt": 10
+    "baseCurrencyBalance": 1,
+    "buy_usdt": 50,
+    "sell_usdt": 50
 }
 
 ###
