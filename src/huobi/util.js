@@ -108,7 +108,7 @@ exports.getSameAmount = getSameAmount;
  */
 function getTop(arr, len = 3) {
     return arr.sort(function (a, b) {
-        return Number(a.price) - Number(b.price);
+        return Number(b.amount) - Number(a.amount);
     }).slice(0, len);
 }
 exports.getTop = getTop;
