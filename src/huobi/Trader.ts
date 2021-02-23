@@ -259,12 +259,12 @@ export class Trader {
             }
 
             if (!action && (row['amount/amountMA20'] > 2 || row.amplitude > 2)) {
-                if (quant.dc.maxs && quant.dc.maxs.length === 0) {
-                    quant.updateConfig({
-                        mins: [row.close * 0.9],
-                        maxs: [row.close * 1.1],
-                    });
-                }
+                // if (quant.dc.maxs && quant.dc.maxs.length === 0) {
+                //     quant.updateConfig({
+                //         mins: [row.close * 0.9],
+                //         maxs: [row.close * 1.1],
+                //     });
+                // }
                 const tradingAdvice = quant.safeTrade(row.close);
                 if (tradingAdvice) {
                     action = tradingAdvice.action;

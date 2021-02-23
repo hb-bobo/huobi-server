@@ -28,6 +28,11 @@ export default class AutoOrderConfigEntity extends BaseEntity{
     @Column({type: 'float'})
     public buyAmountRatio: number;
 
+    @Column({type: 'float', nullable: true})
+    public min: number;
+    @Column({type: 'float', nullable: true})
+    public max: number;
+
 
 
 
