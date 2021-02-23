@@ -67,8 +67,14 @@ export default class AutoOrderConfigLogController {
                     'overboughtRatio',
                     'sellAmountRatio',
                     'buyAmountRatio',
+                    'min',
+                    'max'
                 ]);
                 Object.assign(trader.orderConfigMap[data.symbol], mergeData);
+                if (mergeData.max) {
+                    trader.orderConfigMap[data.symbol].quant.dc.maxs = [mergeData.max];
+                    trader.orderConfigMap[data.symbol].quant.dc.mins = [mergeData.min];
+                }
                 ctx.sendSuccess({
                     data: mergeData
                 });
