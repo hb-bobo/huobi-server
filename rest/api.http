@@ -41,8 +41,8 @@ Authorization: test
 content-type: application/json
 
 {
-    "symbol": "eosusdt",
-    "period": "5min",
+    "symbol": "htusdt",
+    "period": "1day",
     "size": 300
 }
 
@@ -58,7 +58,7 @@ Authorization: test
 content-type: application/json
 
 {
-    "url": "http://localhost:3003/download/history-data/htusdt-5min-2021-02-21.json"
+    "url": "http://localhost:3003/download/history-data/htusdt-1day-2021-02-26.json"
 }
 
 ###

@@ -13,7 +13,7 @@ import got from 'got/dist/source';
 const writeFilePromisify = promisify(writeFile);
 const readFilePromisify = promisify(readFile);
 const publicPath = config.get<string>('publicPath');
-const fileName = 'htusdt-5min-2021-02-21'
+const fileName = 'btcusdt-5min-2021-02-26'
 const jsonFilePath = join(publicPath, `/download/history-data/${fileName}.json`);
 
 async function download() {
