@@ -38,8 +38,8 @@ class Trainer {
      */
     async run(history) {
         const overRatio = await this.trainOverRatio(history).then(result => this.getTop(result));
-        const amountRatio = {}; // await this.trainAmountRatio(history).then(result => this.getTop(result));
-        logger_1.outLogger.info('Training complete:', this.quant.config.symbol, overRatio, amountRatio);
+        const amountRatio = this.trainAmountRatio(history).then(result => this.getTop(result));
+        logger_1.outLogger.info('Training complete:', this.quant.config.symbol, overRatio);
         const config = {};
         if (overRatio.return > 1) {
             Object.assign(config, overRatio);
@@ -66,38 +66,34 @@ class Trainer {
             minVolume: minVolume,
         });
         const result = [];
-        for (let oversoldRatio = 0.001; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.004) {
-            for (let overboughtRatio = -0.001; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.004) {
-                const bt = new Backtest_1.default({
-                    symbol: quant.config.symbol,
-                    buyAmount: this.quant.config.minVolume * 50,
-                    sellAmount: this.quant.config.minVolume * 50,
-                    quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
-                    baseCurrencyBalance: quant.config.baseCurrencyBalance,
-                });
-                let buyCount = 0;
-                let sellCount = 0;
-                quant.analyser.result = [];
-                quant.use((row) => {
+        const bt = new Backtest_1.default({
+            symbol: quant.config.symbol,
+            buyAmount: this.quant.config.minVolume * 50,
+            sellAmount: this.quant.config.minVolume * 50,
+            quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
+            baseCurrencyBalance: quant.config.baseCurrencyBalance,
+        });
+        quant.analysis(history);
+        for (let oversoldRatio = -0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.004) {
+            for (let overboughtRatio = 0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.004) {
+                bt.reset();
+                quant.mockUse((row) => {
                     if (!row.MA5 || !row.MA30 || !row.MA10 || !row.MA60) {
                         return;
                     }
                     if (row["close/MA60"] > oversoldRatio) {
-                        sellCount++;
-                        bt.sell(row.close, this.sell_usdt / row.close);
+                        bt.sell(row.close * 1.002, this.sell_usdt / row.close);
                     }
                     if (row["close/MA60"] < overboughtRatio) {
-                        buyCount++;
-                        bt.buy(row.close, this.buy_usdt / row.close);
+                        bt.buy(row.close * 0.998, this.buy_usdt / row.close);
                     }
                 });
-                quant.analysis(history);
                 result.push({
                     oversoldRatio: utils_1.keepDecimalFixed(oversoldRatio, 3),
                     overboughtRatio: utils_1.keepDecimalFixed(overboughtRatio, 3),
                     return: bt.getReturn() * 100,
-                    buyCount,
-                    sellCount
+                    buyCount: bt.buyCount,
+                    sellCount: bt.sellCount
                 });
             }
         }

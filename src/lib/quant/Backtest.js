@@ -17,14 +17,25 @@ class Backtest {
             "takerFeeRate": 0.002,
         };
         this._lastPrice = 0;
+        this.sellCount = 0;
+        this.buyCount = 0;
         Object.assign(this, option);
         this.initOption = { ...option };
+    }
+    reset() {
+        this._startPrice = undefined;
+        this._lastPrice = 0;
+        this.sellCount = 0;
+        this.buyCount = 0;
+        this.quoteCurrencyBalance = this.initOption.quoteCurrencyBalance;
+        this.baseCurrencyBalance = this.initOption.baseCurrencyBalance;
     }
     buy(price, amount = this.buyAmount) {
         const sum = amount * price;
         if (this.quoteCurrencyBalance > sum) {
             this.quoteCurrencyBalance -= (sum + this.transactFeeRate['makerFeeRate'] * sum);
             this.baseCurrencyBalance += amount;
+            this.buyCount++;
         }
         this._lastPrice = price;
         if (this._startPrice === undefined) {
@@ -35,6 +46,7 @@ class Backtest {
         if (this.baseCurrencyBalance > amount) {
             this.quoteCurrencyBalance += (amount - this.transactFeeRate['makerFeeRate'] * amount) * price;
             this.baseCurrencyBalance -= amount;
+            this.sellCount++;
         }
         this._lastPrice = price;
         if (this._startPrice === undefined) {

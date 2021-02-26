@@ -15,7 +15,7 @@ const Backtest_1 = __importDefault(require("./Backtest"));
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const readFilePromisify = util_1.promisify(fs_1.readFile);
 const publicPath = config_1.default.get('publicPath');
-const fileName = 'htusdt-5min-2021-02-21';
+const fileName = 'btcusdt-5min-2021-02-26';
 const jsonFilePath = path_1.join(publicPath, `/download/history-data/${fileName}.json`);
 async function download() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
