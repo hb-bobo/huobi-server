@@ -34,6 +34,7 @@ const ConfigController = __importStar(require("../module/config/config.controlle
 const TrainController = __importStar(require("../module/train/train.controller"));
 const AutoOrderConfig_controller_1 = __importDefault(require("../module/auto-order-config/AutoOrderConfig.controller"));
 const AutoOrderHistory_controller_1 = __importDefault(require("../module/auto-order-history/AutoOrderHistory.controller"));
+const Statistics_controller_1 = __importDefault(require("../module/statistics/Statistics.controller"));
 // /index
 const apiPrefix = '/api';
 const router = new koa_router_1.default();
@@ -63,3 +64,4 @@ router.get(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConf
 router.post(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.updateOne);
 router.delete(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.removeOne);
 router.get(`${apiPrefix}/auto-order-history`, checkToken_1.default, AutoOrderHistory_controller_1.default.index);
+router.get(`${apiPrefix}/statistics/analyser`, checkToken_1.default, Statistics_controller_1.default.index);

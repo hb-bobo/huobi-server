@@ -31,6 +31,7 @@ class AutoOrderConfigLogController {
 exports.default = AutoOrderConfigLogController;
 AutoOrderConfigLogController.index = async (ctx) => {
     const { id } = ctx.request.query;
+    const userId = ctx.state.user && ctx.state.user.id;
     try {
         let res;
         if (id) {
@@ -44,7 +45,7 @@ AutoOrderConfigLogController.index = async (ctx) => {
             });
         }
         else {
-            res = await AutoOrderConfigService.find({});
+            res = await AutoOrderConfigService.find({ userId: userId });
             ctx.sendSuccess({ data: res });
         }
     }
