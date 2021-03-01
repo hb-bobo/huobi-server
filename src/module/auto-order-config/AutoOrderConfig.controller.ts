@@ -11,6 +11,7 @@ import { pick } from 'lodash';
 export default class AutoOrderConfigLogController {
     public static index = async (ctx: AppContext) => {
         const { id } = ctx.request.query;
+        const userId = ctx.state.user && ctx.state.user.id;
         try {
             let res: AutoOrderConfigEntity | AutoOrderConfigEntity[] | undefined;
             if (id) {
@@ -23,7 +24,8 @@ export default class AutoOrderConfigLogController {
                     data: res
                 });
             } else {
-                res = await AutoOrderConfigService.find({});
+                res = await AutoOrderConfigService.find({userId: userId});
+
                 ctx.sendSuccess({data: res});
             }
         } catch (error) {

@@ -12,7 +12,7 @@ import * as ConfigController from 'ROOT/module/config/config.controller';
 import * as TrainController from 'ROOT/module/train/train.controller';
 import AutoOrderConfigController from 'ROOT/module/auto-order-config/AutoOrderConfig.controller';
 import AutoOrderHistoryController from 'ROOT/module/auto-order-history/AutoOrderHistory.controller';
-
+import StatisticsController from 'ROOT/module/statistics/Statistics.controller';
 // /index
 const apiPrefix = '/api';
 const router = new Router<AppState, AppContext>();
@@ -54,3 +54,5 @@ router.post(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigControl
 router.delete(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.removeOne);
 
 router.get(`${apiPrefix}/auto-order-history`, checkToken, AutoOrderHistoryController.index);
+
+router.get(`${apiPrefix}/statistics/analyser`, checkToken, StatisticsController.index);
