@@ -5,6 +5,7 @@ import { AppContext } from 'ROOT/interface/App';
 
 import { trader } from 'ROOT/huobi/start';
 import { pick } from 'lodash';
+import dayjs from 'dayjs';
 
 export default class StatisticsController {
     public static index = async (ctx: AppContext) => {
@@ -19,8 +20,14 @@ export default class StatisticsController {
             const symbols = Object.keys(trader.orderConfigMap);
             const symbolsData = {};
             symbols.forEach(symbol => {
-                console.log(trader.orderConfigMap[symbol].quant.analyser.result)
-                symbolsData[symbol] = trader.orderConfigMap[symbol].quant.analyser.result;
+                const { result } = trader.orderConfigMap[symbol].quant.analyser;
+                symbolsData[symbol] = result.map((item) => {
+                    const time = dayjs(item.time).utcOffset(8).format('YYYY-MM-DD H:mm:ss');
+                    return {
+                        ...item,
+                        time
+                    }
+                });
             });
             ctx.sendSuccess({
                 data: symbolsData
