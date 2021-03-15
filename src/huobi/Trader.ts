@@ -81,7 +81,7 @@ export class Trader {
                 current: 1,
             })
             historys.list.forEach(item => {
-                if (!item.clientOrderId || item.state === 'filled') {
+                if (!item.clientOrderId || item.state !== '') {
                     return;
                 }
                 this.sdk.getOrder(item.clientOrderId).then((data) => {
