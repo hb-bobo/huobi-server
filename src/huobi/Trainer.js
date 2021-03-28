@@ -50,6 +50,9 @@ class Trainer {
         delete config.return;
         return config;
     }
+    fit(fn) {
+        setTimeout(fn, 0);
+    }
     async trainOverRatio(history) {
         if (!history.length) {
             return [];
@@ -74,29 +77,32 @@ class Trainer {
             baseCurrencyBalance: quant.config.baseCurrencyBalance,
         });
         quant.analysis(history);
-        for (let oversoldRatio = -0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.004) {
-            for (let overboughtRatio = 0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.004) {
-                bt.reset();
-                quant.mockUse((row) => {
-                    if (!row.MA5 || !row.MA30 || !row.MA10 || !row.MA60) {
-                        return;
-                    }
-                    if (row["close/MA60"] > oversoldRatio) {
-                        bt.sell(row.close * 1.002, this.sell_usdt / row.close);
-                    }
-                    if (row["close/MA60"] < overboughtRatio) {
-                        bt.buy(row.close * 0.998, this.buy_usdt / row.close);
-                    }
-                });
-                result.push({
-                    oversoldRatio: utils_1.keepDecimalFixed(oversoldRatio, 3),
-                    overboughtRatio: utils_1.keepDecimalFixed(overboughtRatio, 3),
-                    return: bt.getReturn() * 100,
-                    buyCount: bt.buyCount,
-                    sellCount: bt.sellCount
-                });
+        const matrax = [];
+        for (let oversoldRatio = -0.02; oversoldRatio < 0.1; oversoldRatio = oversoldRatio + 0.005) {
+            for (let overboughtRatio = 0.02; overboughtRatio > -0.1; overboughtRatio = overboughtRatio - 0.005) {
+                matrax.push([overboughtRatio, oversoldRatio]);
+                // bt.reset();
+                // quant.mockUse((row) => {
+                //     if (!row.MA5  || !row.MA30 || !row.MA10  || !row.MA60) {
+                //         return;
+                //     }
+                //     if (row["close/MA60"] > oversoldRatio) {
+                //         bt.sell(row.close * 1.002, this.sell_usdt / row.close);
+                //     }
+                //     if (row["close/MA60"] < overboughtRatio) {
+                //         bt.buy(row.close * 0.998, this.buy_usdt / row.close);
+                //     }
+                // });
+                // result.push({
+                //     oversoldRatio: keepDecimalFixed(oversoldRatio, 3),
+                //     overboughtRatio: keepDecimalFixed(overboughtRatio, 3),
+                //     return: bt.getReturn() * 100,
+                //     buyCount: bt.buyCount,
+                //     sellCount: bt.sellCount
+                // });
             }
         }
+        console.log(matrax.length);
         return result;
         // const sortedList = result.sort((a, b) => {
         //     return  b.return - a.return

@@ -20,6 +20,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeOne = exports.updateOne = exports.get = void 0;
+const node_huobi_sdk_1 = require("node-huobi-sdk");
+const hbsdk_1 = require("../../huobi/hbsdk");
+const huobi_handler_1 = require("../../huobi/huobi-handler");
 const WatchEntityService = __importStar(require("./watch.service"));
 /**
  * 查询单个或者多个
@@ -61,9 +64,9 @@ const updateOne = async (ctx) => {
         else if (data.symbol) {
             res = await WatchEntityService.create(data);
             const SYMBOL = data.symbol.toLowerCase();
-            // HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
-            // HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
-            // HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
+            hbsdk_1.hbsdk.subMarketDepth({ symbol: SYMBOL }, huobi_handler_1.handleDepth);
+            hbsdk_1.hbsdk.subMarketKline({ symbol: SYMBOL, period: node_huobi_sdk_1.CandlestickIntervalEnum.MIN5 }, huobi_handler_1.handleKline);
+            hbsdk_1.hbsdk.subMarketTrade({ symbol: SYMBOL }, huobi_handler_1.handleTrade);
         }
         else {
             ctx.sendError({ message: '格式有误' });
