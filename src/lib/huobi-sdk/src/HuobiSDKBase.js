@@ -78,6 +78,26 @@ class HuobiSDKBase extends events_1.EventEmitter {
                 json: data
             });
         };
+        this.auth_get_contract = (path, params = {}) => {
+            if (!this.options.url.contract) {
+                return Promise.reject('未设置options.url.contract');
+            }
+            const PATH = `${this.options.url.contract}${path}`;
+            const { accessKey, secretKey } = this.options;
+            return this._request(PATH, {
+                method: "GET",
+                searchParams: signature_1.signature("GET", PATH, accessKey, secretKey, params)
+            });
+        };
+        this.auth_post_contract = (path, data) => {
+            const PATH = `${this.options.url.contract}${path}`;
+            const { accessKey, secretKey } = this.options;
+            return this._request(PATH, {
+                method: "POST",
+                searchParams: signature_1.signature("POST", PATH, accessKey, secretKey, data),
+                json: data
+            });
+        };
         this.errLogger = (msg, ...arg) => {
             if (typeof this.options.errLogger === "function") {
                 this.options.errLogger(msg, ...arg);

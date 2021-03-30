@@ -133,6 +133,19 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         return this.auth_get(`${path}`);
     }
     /**
+     * 获取合约信息
+     * @param symbol
+     * @param contract_type
+     * @returns
+     */
+    getContractMarketDetailMerged(symbol, contract_type) {
+        const path = `/v1/contract_contract_info`;
+        return this.auth_get_contract(path, {
+            symbol,
+            contract_type,
+        });
+    }
+    /**
      * 下单(现货)
      * @param symbol
      * @param type

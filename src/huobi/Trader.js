@@ -18,17 +18,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trader = void 0;
 // import { outLogger } from "ROOT/common/logger";
 const lodash_1 = require("lodash");
 const logger_1 = require("../common/logger");
+const config_1 = __importDefault(require("config"));
 const quant_1 = require("../lib/quant");
 const utils_1 = require("../utils");
-const node_huobi_sdk_1 = require("node-huobi-sdk");
+const src_1 = require("../lib/huobi-sdk/src");
 const util_1 = require("./util");
 const Trainer_1 = require("./Trainer");
 const AutoOrderHistoryService = __importStar(require("../module/auto-order-history/AutoOrderHistory.service"));
+const sentMail_1 = __importDefault(require("../common/sentMail"));
 class Trader {
     constructor(sdk) {
         this._balanceMap = {};
@@ -63,6 +68,10 @@ class Trader {
         }
     }
     init() {
+        // TODO test
+        // this.sdk.getContractMarketDetailMerged('BTC', 'quarter').then((data) => {
+        //     console.log(data)
+        // })
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         });
@@ -107,7 +116,7 @@ class Trader {
         }
         return symbolInfo;
     }
-    async autoTrader({ symbol, buy_usdt, sell_usdt, period = node_huobi_sdk_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, }, userId) {
+    async autoTrader({ symbol, buy_usdt, sell_usdt, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, }, userId) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance();
@@ -258,6 +267,14 @@ class Trader {
                     row: ''
                 }).catch((err) => {
                     logger_1.outLogger.error(err);
+                });
+            }).finally(() => {
+                sentMail_1.default(config_1.default.get('email'), {
+                    from: 'hubo2008@163.com',
+                    to: 'hubo11@jd.com',
+                    subject: `Hello ✔${symbol}`,
+                    text: 'Hello world?',
+                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
                 });
             });
             // orderConfig.trainer.run().then((config) => {

@@ -55,6 +55,7 @@ async function start() {
             rest: huobi_1.REST_URL,
             market_ws: huobi_1.MARKET_WS,
             account_ws: huobi_1.ACCOUNT_WS,
+            contract: huobi_1.CONTRACT_URL,
         }
     });
     exports.trader.init();
