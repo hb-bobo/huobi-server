@@ -1,5 +1,8 @@
 
 import config from 'config';
+import { CandlestickIntervalEnum } from 'node-huobi-sdk';
+import { hbsdk } from 'ROOT/huobi/hbsdk';
+import { handleDepth, handleKline, handleTrade } from 'ROOT/huobi/huobi-handler';
 
 import { AppContext } from 'ROOT/interface/App';
 
@@ -43,9 +46,10 @@ export const updateOne = async (ctx: AppContext) => {
         } else if (data.symbol) {
             res = await WatchEntityService.create(data);
             const SYMBOL = data.symbol.toLowerCase();
-            // HUOBI_WS.sub(WS_SUB.kline(SYMBOL, '1min'));
-            // HUOBI_WS.sub(WS_SUB.depth(SYMBOL));
-            // HUOBI_WS.sub(WS_SUB.tradeDetail(SYMBOL));
+
+            hbsdk.subMarketDepth({symbol: SYMBOL}, handleDepth)
+            hbsdk.subMarketKline({symbol: SYMBOL, period: CandlestickIntervalEnum.MIN5}, handleKline)
+            hbsdk.subMarketTrade({symbol: SYMBOL}, handleTrade)
         } else {
             ctx.sendError({message: '格式有误'});
             return;

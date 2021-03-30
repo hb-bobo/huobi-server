@@ -7,7 +7,7 @@ import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { errLogger, outLogger } from 'ROOT/common/logger';
 import { Trader } from 'ROOT/huobi/Trader';
 import { CandlestickIntervalEnum } from "node-huobi-sdk";
-import { REST_URL, MARKET_WS, ACCOUNT_WS } from "ROOT/constants/huobi";
+import { REST_URL, MARKET_WS, ACCOUNT_WS, CONTRACT_URL } from "ROOT/constants/huobi";
 import { handleDepth, handleKline, handleTrade } from './huobi-handler';
 import { hbsdk } from './hbsdk';
 
@@ -40,6 +40,7 @@ export async function start() {
             rest: REST_URL,
             market_ws: MARKET_WS,
             account_ws: ACCOUNT_WS,
+            contract: CONTRACT_URL,
         }
     });
     trader.init();

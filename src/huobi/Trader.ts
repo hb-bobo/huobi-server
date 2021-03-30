@@ -5,12 +5,13 @@ import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
 import { Quant } from "ROOT/lib/quant";
 import { keepDecimalFixed } from "ROOT/utils";
-import HuobiSDK, { CandlestickIntervalEnum, SymbolInfo } from "node-huobi-sdk";
+import HuobiSDK, { CandlestickIntervalEnum, SymbolInfo } from "../lib/huobi-sdk/src";
 import { Period } from "./interface";
 import { getPriceIndex, getSameAmount, getSymbolInfo, getTracePrice, _SYMBOL_INFO_MAP } from "./util";
 import { Trainer } from "./Trainer";
 import * as AutoOrderHistoryService from 'ROOT/module/auto-order-history/AutoOrderHistory.service';
 import dayjs from "dayjs";
+import sentMail from "ROOT/common/sentMail";
 
 interface SymbolConfig{
     kline?: Record<string, any>;
@@ -53,6 +54,10 @@ export class Trader {
         }
     }
     init() {
+        // TODO test
+        // this.sdk.getContractMarketDetailMerged('BTC', 'quarter').then((data) => {
+        //     console.log(data)
+        // })
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         })
@@ -170,7 +175,7 @@ export class Trader {
             max: 0,
         }
         const orderConfig = this.orderConfigMap[symbol];
-
+ 
         this.sdk.subMarketDepth({symbol}, throttle((data) => {
              // 处理数据
             const bidsList = getSameAmount(data.data.bids, {
@@ -308,6 +313,14 @@ export class Trader {
                 }).catch((err) => {
                     outLogger.error(err)
                 });
+            }).finally(() => {
+                sentMail(config.get('email'), {
+                    from: 'hubo2008@163.com', // sender address
+                    to: 'hubo11@jd.com', // list of receivers
+                    subject: `Hello ✔${symbol}`, // Subject line
+                    text: 'Hello world?', // plain text body
+                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
+                })
             });
 
 
@@ -330,7 +343,7 @@ export class Trader {
     cancelAutoTrader(userId, symbol) {
         delete this.orderConfigMap[symbol];
     }
-    async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number) {
+    async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number): Promise<any> {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
 
         const priceIndex = getPriceIndex(symbol);
@@ -383,6 +396,7 @@ export class Trader {
     cancelOrder(id: string) {
         return this.sdk.cancelOrder(id);
     }
+
     amountToFixed(symbol, amount: number) {
         const symbolInfo = _SYMBOL_INFO_MAP[symbol];
         return keepDecimalFixed(amount, symbolInfo['amount-precision']);

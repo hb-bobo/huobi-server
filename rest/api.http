@@ -41,9 +41,9 @@ Authorization: test
 content-type: application/json
 
 {
-    "symbol": "htusdt",
-    "period": "1day",
-    "size": 300
+    "symbol": "eosusdt",
+    "period": "15min",
+    "size": 1000
 }
 
 ###
