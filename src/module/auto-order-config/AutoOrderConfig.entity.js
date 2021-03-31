@@ -60,6 +60,10 @@ __decorate([
     typeorm_1.Column({ type: 'float', nullable: true }),
     __metadata("design:type", Number)
 ], AutoOrderConfigEntity.prototype, "max", void 0);
+__decorate([
+    typeorm_1.Column({ type: 'boolean', nullable: true }),
+    __metadata("design:type", Boolean)
+], AutoOrderConfigEntity.prototype, "contract", void 0);
 AutoOrderConfigEntity = __decorate([
     typeorm_1.Entity()
 ], AutoOrderConfigEntity);

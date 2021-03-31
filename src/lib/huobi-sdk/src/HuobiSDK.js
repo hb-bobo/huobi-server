@@ -49,6 +49,20 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
                         });
                     }
                 }
+                if ((this['futures_cache_ws'] === undefined || this['futures_ws'] === undefined) && type.includes('futures')) {
+                    const futures_ws = this.createFuturesWS();
+                    if (this.futures_cache_ws === undefined) {
+                        this.futures_cache_ws = new CacheSockett_1.CacheSockett(futures_ws);
+                    }
+                    if (futures_ws.isOpen()) {
+                        resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
+                    }
+                    else {
+                        this.once('account_ws.open', () => {
+                            resolve(this[type] || HuobiSDKBase_1.HuobiSDKBase[type]);
+                        });
+                    }
+                }
                 // if (this[type] === undefined && HuobiSDKBase[type]) {
                 //     reject(`${type} 不存在`);
                 // }
@@ -134,15 +148,41 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
     }
     /**
      * 获取合约信息
+     * "BTC_CQ"表示BTC当季合约,
      * @param symbol
      * @param contract_type
      * @returns
      */
-    getContractMarketDetailMerged(symbol, contract_type) {
-        const path = `/v1/contract_contract_info`;
-        return this.auth_get_contract(path, {
-            symbol,
-            contract_type,
+    getContractMarketDetailMerged(symbol) {
+        const path = `/market/detail/merged`;
+        return this._request(`${this.options.url.contract}${path}`, {
+            searchParams: {
+                symbol,
+            }
+        });
+    }
+    /**
+     *  合约k线数据
+     * @param symbol
+     */
+    getContractMarketHistoryKline(symbol, period, size) {
+        const path = `/market/history/kline`;
+        return this._request(`${this.options.url.contract}${path}`, {
+            searchParams: {
+                period: symbol,
+                size: period,
+                symbol: size
+            }
+        });
+    }
+    /**
+     * 获取用户持仓信息
+     * @param symbol
+     */
+    getContractPositionInfo(symbol) {
+        const path = `/api/v1/contract_position_info`;
+        return this.auth_post_contract(path, {
+            period: symbol,
         });
     }
     /**
@@ -162,6 +202,22 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
             amount,
             price,
         });
+    }
+    /**
+     * 合约下单
+     *
+     * 开多：买入开多(direction用buy、offset用open)
+     *
+     * 平多：卖出平多(direction用sell、offset用close)
+     *
+     * 开空：卖出开空(direction用sell、offset用open)
+     *
+     * 平空：买入平空(direction用buy、offset用close)
+     *
+     */
+    contractOrder(params) {
+        const path = '/api/v1/contract_order';
+        return this.auth_post_contract(`${path}`, params);
     }
     cancelOrder(orderId) {
         const path = `/v1/order/orders/${orderId}/submitcancel`;

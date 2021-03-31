@@ -68,10 +68,6 @@ class Trader {
         }
     }
     init() {
-        // TODO test
-        // this.sdk.getContractMarketDetailMerged('BTC', 'quarter').then((data) => {
-        //     console.log(data)
-        // })
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         });
@@ -116,7 +112,7 @@ class Trader {
         }
         return symbolInfo;
     }
-    async autoTrader({ symbol, buy_usdt, sell_usdt, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, }, userId) {
+    async autoTrader({ symbol, buy_usdt, sell_usdt, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, contract, }, userId) {
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance();
@@ -151,6 +147,7 @@ class Trader {
             }),
             min: 0,
             max: 0,
+            contract: Boolean(contract),
         };
         const orderConfig = this.orderConfigMap[symbol];
         this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
@@ -269,6 +266,85 @@ class Trader {
                     logger_1.outLogger.error(err);
                 });
             }).finally(() => {
+                if (this.orderConfigMap[symbol].contract) {
+                    const contractSymbol = symbol.replace('usdt', '').toUpperCase();
+                    // TODO test
+                    this.sdk.getContractMarketDetailMerged(`${contractSymbol}_CQ`).then(async (data) => {
+                        // const action = 'buy'
+                        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.');
+                        const rate = action === 'buy' ? 0.998 : 1.002;
+                        const closeRate = 1;
+                        const buyVolume = buy_usdt * 10;
+                        const sellVolume = sell_usdt * 10;
+                        const lever_rate = 20;
+                        if (action === 'buy') {
+                            // 开多
+                            await this.sdk.contractOrder({
+                                symbol: contractSymbol,
+                                contract_type: 'quarter',
+                                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                                volume: buyVolume,
+                                direction: action,
+                                offset: 'open',
+                                /**
+                                 * 开仓倍数
+                                 */
+                                lever_rate,
+                                order_price_type: 'limit'
+                            });
+                            const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
+                            if (list.length > 0) {
+                                // 平空
+                                this.sdk.contractOrder({
+                                    symbol: contractSymbol,
+                                    contract_type: 'quarter',
+                                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                                    volume: sellVolume,
+                                    direction: action,
+                                    offset: 'close',
+                                    /**
+                                     * 开仓倍数
+                                     */
+                                    lever_rate,
+                                    order_price_type: 'limit'
+                                });
+                            }
+                        }
+                        else if (action === 'sell') {
+                            // 开空
+                            await this.sdk.contractOrder({
+                                symbol: contractSymbol,
+                                contract_type: 'quarter',
+                                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                                volume: sellVolume,
+                                direction: action,
+                                offset: 'open',
+                                /**
+                                 * 开仓倍数
+                                 */
+                                lever_rate,
+                                order_price_type: 'limit'
+                            });
+                            const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
+                            if (list.length > 0) {
+                                // 平多
+                                this.sdk.contractOrder({
+                                    symbol: contractSymbol,
+                                    contract_type: 'quarter',
+                                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                                    volume: buyVolume,
+                                    direction: action,
+                                    offset: 'close',
+                                    /**
+                                     * 开仓倍数
+                                     */
+                                    lever_rate,
+                                    order_price_type: 'limit'
+                                });
+                            }
+                        }
+                    });
+                }
                 sentMail_1.default(config_1.default.get('email'), {
                     from: 'hubo2008@163.com',
                     to: 'hubo11@jd.com',

@@ -41,7 +41,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
                         return json.data || json;
                     }
                     else {
-                        this.errLogger(options.method, "-", path, json['err-msg']);
+                        this.errLogger(options.method, "-", path, json['err-msg'] || json['err_msg'] || json);
                     }
                 }
                 catch (error) {
@@ -255,6 +255,50 @@ class HuobiSDKBase extends events_1.EventEmitter {
             this.outLogger(`account_ws  error: `, e.message);
         });
         return HuobiSDKBase.account_ws;
+    }
+    createFuturesWS() {
+        if (HuobiSDKBase.futures_ws) {
+            return HuobiSDKBase.futures_ws;
+        }
+        HuobiSDKBase.futures_ws = new sockett_1.Sockett(this.options.url.futures_ws, {
+            ...this.options.socket
+        });
+        HuobiSDKBase.futures_ws.on('open', () => {
+            this.emit('futures_ws.open');
+            this.outLogger(`${this.options.url.futures_ws} open`);
+        });
+        HuobiSDKBase.futures_ws.on("message", ev => {
+            if (typeof ev.data !== 'string') {
+                this.outLogger(`futures_ws: !ev.data ${ev.data}`);
+            }
+            const msg = JSON.parse(ev.data);
+            if (msg.action === 'ping') {
+                HuobiSDKBase.futures_ws.json({
+                    action: "pong",
+                    data: {
+                        ts: msg.data.ts // 使用Ping消息中的ts值
+                    }
+                });
+            }
+            else if (msg.data) {
+                this.handleAccountWSMessage(msg);
+            }
+            else {
+                this.outLogger(`futures_ws: on message ${JSON.stringify(msg)}`);
+            }
+        });
+        HuobiSDKBase.futures_ws.on('close', (e) => {
+            if (e.code === 1006) {
+                this.outLogger(`futures_ws closed:`, 'connect ECONNREFUSED');
+            }
+            else {
+                this.outLogger(`futures_ws closed:`, e.reason, ` code ${e.code}`);
+            }
+        });
+        HuobiSDKBase.futures_ws.on('error', (e) => {
+            this.outLogger(`futures_ws  error: `, e.message);
+        });
+        return HuobiSDKBase.futures_ws;
     }
     handleAccountWSMessage(msg) {
         if (!msg.ch) {
