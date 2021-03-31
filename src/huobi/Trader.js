@@ -266,84 +266,8 @@ class Trader {
                     logger_1.outLogger.error(err);
                 });
             }).finally(() => {
-                if (this.orderConfigMap[symbol].contract) {
-                    const contractSymbol = symbol.replace('usdt', '').toUpperCase();
-                    // TODO test
-                    this.sdk.getContractMarketDetailMerged(`${contractSymbol}_CQ`).then(async (data) => {
-                        // const action = 'buy'
-                        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.');
-                        const rate = action === 'buy' ? 0.998 : 1.002;
-                        const closeRate = 1;
-                        const buyVolume = buy_usdt * 10;
-                        const sellVolume = sell_usdt * 10;
-                        const lever_rate = 20;
-                        if (action === 'buy') {
-                            // 开多
-                            await this.sdk.contractOrder({
-                                symbol: contractSymbol,
-                                contract_type: 'quarter',
-                                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
-                                volume: buyVolume,
-                                direction: action,
-                                offset: 'open',
-                                /**
-                                 * 开仓倍数
-                                 */
-                                lever_rate,
-                                order_price_type: 'limit'
-                            });
-                            const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
-                            if (list.length > 0) {
-                                // 平空
-                                this.sdk.contractOrder({
-                                    symbol: contractSymbol,
-                                    contract_type: 'quarter',
-                                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                                    volume: sellVolume,
-                                    direction: action,
-                                    offset: 'close',
-                                    /**
-                                     * 开仓倍数
-                                     */
-                                    lever_rate,
-                                    order_price_type: 'limit'
-                                });
-                            }
-                        }
-                        else if (action === 'sell') {
-                            // 开空
-                            await this.sdk.contractOrder({
-                                symbol: contractSymbol,
-                                contract_type: 'quarter',
-                                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
-                                volume: sellVolume,
-                                direction: action,
-                                offset: 'open',
-                                /**
-                                 * 开仓倍数
-                                 */
-                                lever_rate,
-                                order_price_type: 'limit'
-                            });
-                            const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
-                            if (list.length > 0) {
-                                // 平多
-                                this.sdk.contractOrder({
-                                    symbol: contractSymbol,
-                                    contract_type: 'quarter',
-                                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                                    volume: buyVolume,
-                                    direction: action,
-                                    offset: 'close',
-                                    /**
-                                     * 开仓倍数
-                                     */
-                                    lever_rate,
-                                    order_price_type: 'limit'
-                                });
-                            }
-                        }
-                    });
+                if (this.orderConfigMap[symbol].contract && action) {
+                    this.beforeContractOrder(symbol, action);
                 }
                 sentMail_1.default(config_1.default.get('email'), {
                     from: 'hubo2008@163.com',
@@ -370,6 +294,106 @@ class Trader {
     }
     cancelAutoTrader(userId, symbol) {
         delete this.orderConfigMap[symbol];
+    }
+    /**
+     * 开单前处理
+     * @param symbol
+     * @param action
+     */
+    async beforeContractOrder(symbol, action) {
+        const contractSymbol = symbol.replace('usdt', '').toUpperCase();
+        const data = await this.sdk.contractMarketDetailMerged(`${contractSymbol}_CQ`);
+        const list = await this.sdk.contractPositionInfo(contractSymbol.toLocaleLowerCase());
+        // const action = 'buy'
+        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.');
+        const rate = action === 'buy' ? 0.998 : 1.002;
+        const closeRate = 1;
+        const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
+        const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
+        const lever_rate = 20;
+        let buyAvailable = 0;
+        let sellAvailable = 0;
+        list.forEach((item) => {
+            if (item.direction === 'buy') {
+                buyAvailable += item.available;
+            }
+            else {
+                sellAvailable += item.available;
+            }
+        });
+        logger_1.outLogger.info(`
+            symbol: ${symbol}
+            action: ${action}
+            close: ${data.tick.close}
+            buyVolume: ${buyVolume}
+            sellVolume: ${sellVolume}
+            buyAvailable: ${buyAvailable}
+            sellAvailable: ${sellAvailable}
+        `);
+        if (action === 'buy') {
+            // 开多
+            await this.contractOrder({
+                symbol: contractSymbol,
+                contract_type: 'quarter',
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                volume: buyVolume,
+                direction: action,
+                offset: 'open',
+                /**
+                 * 开仓倍数
+                 */
+                lever_rate,
+                order_price_type: 'limit'
+            });
+            if (sellAvailable > 0) {
+                // 平空
+                this.contractOrder({
+                    symbol: contractSymbol,
+                    contract_type: 'quarter',
+                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
+                    direction: action,
+                    offset: 'close',
+                    /**
+                     * 开仓倍数
+                     */
+                    lever_rate,
+                    order_price_type: 'limit'
+                });
+            }
+        }
+        else if (action === 'sell') {
+            // 开空
+            await this.contractOrder({
+                symbol: contractSymbol,
+                contract_type: 'quarter',
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                volume: sellVolume,
+                direction: action,
+                offset: 'open',
+                /**
+                 * 开仓倍数
+                 */
+                lever_rate,
+                order_price_type: 'limit'
+            });
+            if (buyAvailable >= 0) {
+                // 平多
+                this.contractOrder({
+                    symbol: contractSymbol,
+                    contract_type: 'quarter',
+                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: buyAvailable < buyVolume ? sellAvailable : buyVolume,
+                    direction: action,
+                    offset: 'close',
+                    /**
+                     * 开仓倍数
+                     */
+                    lever_rate,
+                    order_price_type: 'limit'
+                });
+            }
+        }
     }
     async order(symbol, type, amount, price, userId) {
         logger_1.outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
@@ -417,6 +441,17 @@ class Trader {
         }
         const data = await this.sdk.order(symbol, `${type}-limit`, this.amountToFixed(symbol, amount), this.priceToFixed(symbol, price));
         return data;
+    }
+    async contractOrder(params) {
+        const textMap = {
+            'buyopen': '买入开多',
+            'sellclose': '卖出平多',
+            'sellopen': '卖出开空',
+            'buyclose': '买入平空',
+        };
+        return this.sdk.contractOrder(params).finally(() => {
+            logger_1.outLogger.info(`${textMap[params.direction + params.offset]}`);
+        });
     }
     cancelOrder(id) {
         return this.sdk.cancelOrder(id);

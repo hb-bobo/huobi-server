@@ -7,7 +7,6 @@ exports.HuobiSDKBase = void 0;
 const events_1 = require("events");
 const dayjs_1 = __importDefault(require("dayjs"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
-const json_bigint_1 = __importDefault(require("json-bigint"));
 const pako_1 = __importDefault(require("pako"));
 const constant_1 = require("./constant");
 const httpClient_1 = require("./utils/httpClient");
@@ -36,7 +35,7 @@ class HuobiSDKBase extends events_1.EventEmitter {
             })
                 .then(data => {
                 try {
-                    const json = json_bigint_1.default.parse(data);
+                    const json = JSON.parse(data);
                     if (json.status === "ok") {
                         return json.data || json;
                     }

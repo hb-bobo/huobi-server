@@ -147,45 +147,6 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         return this.auth_get(`${path}`);
     }
     /**
-     * 获取合约信息
-     * "BTC_CQ"表示BTC当季合约,
-     * @param symbol
-     * @param contract_type
-     * @returns
-     */
-    getContractMarketDetailMerged(symbol) {
-        const path = `/market/detail/merged`;
-        return this._request(`${this.options.url.contract}${path}`, {
-            searchParams: {
-                symbol,
-            }
-        });
-    }
-    /**
-     *  合约k线数据
-     * @param symbol
-     */
-    getContractMarketHistoryKline(symbol, period, size) {
-        const path = `/market/history/kline`;
-        return this._request(`${this.options.url.contract}${path}`, {
-            searchParams: {
-                period: symbol,
-                size: period,
-                symbol: size
-            }
-        });
-    }
-    /**
-     * 获取用户持仓信息
-     * @param symbol
-     */
-    getContractPositionInfo(symbol) {
-        const path = `/api/v1/contract_position_info`;
-        return this.auth_post_contract(path, {
-            period: symbol,
-        });
-    }
-    /**
      * 下单(现货)
      * @param symbol
      * @param type
@@ -201,6 +162,45 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
             type,
             amount,
             price,
+        });
+    }
+    /**
+    * 获取合约信息
+    * "BTC_CQ"表示BTC当季合约,
+    * @param symbol
+    * @param contract_type
+    * @returns
+    */
+    contractMarketDetailMerged(symbol) {
+        const path = `/market/detail/merged`;
+        return this._request(`${this.options.url.contract}${path}`, {
+            searchParams: {
+                symbol,
+            }
+        });
+    }
+    /**
+     *  合约k线数据
+     * @param symbol
+     */
+    contractMarketHistoryKline(symbol, period, size) {
+        const path = `/market/history/kline`;
+        return this._request(`${this.options.url.contract}${path}`, {
+            searchParams: {
+                period: symbol,
+                size: period,
+                symbol: size
+            }
+        });
+    }
+    /**
+     * 获取用户持仓信息
+     * @param symbol
+     */
+    contractPositionInfo(symbol) {
+        const path = `/api/v1/contract_position_info`;
+        return this.auth_post_contract(path, {
+            period: symbol,
         });
     }
     /**
@@ -242,15 +242,28 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
     /**
      * 获取当前可用合约总持仓量
      */
-    contractOpenInterest() {
-        return this.auth_get('/api/v1/contract_open_interest');
+    contractOpenInterest(symbol, contract_type) {
+        const path = `/api/v1/contract_open_interest`;
+        return this._request(`${this.options.url.contract}${path}`, {
+            searchParams: {
+                symbol: symbol,
+                contract_type,
+            }
+        });
     }
     /**
      * 获取合约用户账户信息
      */
     contractAccountInfo(symbol) {
         const path = `/api/v1/contract_account_info`;
-        return this.auth_post(path, { symbol: symbol });
+        return this.auth_post_contract(path, { symbol: symbol });
+    }
+    /**
+     * 获取合约订单信息
+     */
+    contractOrderInfo(symbol) {
+        const path = `/api/v1/contract_order_info`;
+        return this.auth_post_contract(path, { symbol: symbol });
     }
     async subMarketDepth({ symbol, step, id }, subscription) {
         const subMessage = ws_cmd_1.WS_SUB.depth(symbol, step);
