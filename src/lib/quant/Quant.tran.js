@@ -12,6 +12,7 @@ const util_1 = require("util");
 const analyse_1 = require("./analyse");
 const dayjs_1 = __importDefault(require("dayjs"));
 const Backtest_1 = __importDefault(require("./Backtest"));
+const source_1 = __importDefault(require("got/dist/source"));
 const writeFilePromisify = util_1.promisify(fs_1.writeFile);
 const readFilePromisify = util_1.promisify(fs_1.readFile);
 const publicPath = config_1.default.get('publicPath');
@@ -68,25 +69,26 @@ async function tranSafeTrade() {
         `);
 }
 // tranSafeTrade();
-async function tran2() {
-    const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    const history = JSON.parse(data).splice(900, data.length - 1);
+async function tran2(data) {
+    // const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
+    // const history = JSON.parse(data).splice(900, data.length - 1);
+    const history = data;
     const quant = new _1.Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
-        quoteCurrencyBalance: 0,
-        baseCurrencyBalance: 600,
+        quoteCurrencyBalance: 1000,
+        baseCurrencyBalance: 1000,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
-        minVolume: 8,
+        minVolume: 1,
     });
     const result = [];
-    for (let oversoldRatio = -0.00; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.004) {
-        for (let overboughtRatio = -0.000; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.004) {
+    for (let oversoldRatio = -0.00; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.003) {
+        for (let overboughtRatio = -0.000; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.003) {
             const bt = new Backtest_1.default({
                 symbol: 'btcusdt',
-                buyAmount: 10,
-                sellAmount: 10,
+                buyAmount: 3,
+                sellAmount: 3,
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             });
@@ -98,53 +100,68 @@ async function tran2() {
                 if (!row.MA5 || !row.MA30 || !row.MA10) {
                     return;
                 }
-                if (row["close/MA60"] > oversoldRatio) {
+                if (row["close/MA60"] > oversoldRatio && row['amount/amountMA20'] > 2) {
                     sellCount++;
-                    bt.sell(row.close, 10 / row.close);
+                    bt.sell(row.close, 50 / row.close);
                     tradeList.push({
                         type: 'sell',
                         close: row.close,
-                        time: row.time
+                        time: row.time,
+                        amount: row['amount/amountMA20']
                     });
                 }
-                if (row["close/MA60"] < overboughtRatio) {
+                if (row["close/MA60"] < overboughtRatio && row['amount/amountMA20'] > 2) {
                     buyCount++;
-                    bt.buy(row.close), 10 / row.close;
+                    bt.buy(row.close), 50 / row.close;
                     tradeList.push({
                         type: 'buy',
                         price: row.close,
-                        time: row.time
+                        time: row.time,
+                        amount: row['amount/amountMA20']
                     });
                 }
             });
             quant.analysis(history);
-            if (oversoldRatio === 0) {
-                console.log(quant.analyser.result[0]);
-            }
             result.push({
                 oversoldRatio: oversoldRatio,
                 overboughtRatio: overboughtRatio,
                 return: bt.getReturn() * 100,
                 buyCount,
                 sellCount,
-                tradeList
+                tradeList: [...tradeList]
             });
+            tradeList.length = 0;
         }
     }
     const sortedList = result.sort((a, b) => {
         return b.return - a.return;
     });
-    const sheet = xlsx_1.default.utils.json_to_sheet(sortedList);
-    const workbook = {
-        SheetNames: ['超卖超买分析'],
-        Sheets: {
-            '超卖超买分析': sheet //表对象[注意表明]
-        },
-    };
+    // const sheet = xlsx.utils.json_to_sheet(sortedList);
+    // const workbook = {
+    //     SheetNames: ['超卖超买分析'], //定义表名
+    //     Sheets: {
+    //         '超卖超买分析': sheet //表对象[注意表明]
+    //     },
+    // }
     console.log(sortedList[0]);
     // xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
 }
-tran2();
+// tran2();
+async function fetchNewData() {
+    const path = `https://api.huobi.de.com/market/history/kline`;
+    const res = await source_1.default(path, {
+        method: 'GET',
+        searchParams: {
+            symbol: 'eosusdt',
+            period: '5min',
+            size: 400,
+        }
+    });
+    const json = JSON.parse(res.body);
+    // console.log(json.data.reverse())
+    tran2(json.data.reverse());
+}
+fetchNewData();
 async function tranMA() {
     const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
     const history = JSON.parse(data);
