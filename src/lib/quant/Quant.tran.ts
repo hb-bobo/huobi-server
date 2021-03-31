@@ -86,14 +86,14 @@ async function tranSafeTrade() {
 
 async function tran2(data) {
     // const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
-    
+
     // const history = JSON.parse(data).splice(900, data.length - 1);
     const history = data;
     const quant = new Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
-        quoteCurrencyBalance: 200,
-        baseCurrencyBalance: 600,
+        quoteCurrencyBalance: 1000,
+        baseCurrencyBalance: 1000,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
         minVolume: 1,
@@ -118,27 +118,29 @@ async function tran2(data) {
                 if (!row.MA5 || !row.MA30 || !row.MA10) {
                     return;
                 }
-                if (row["close/MA60"] > oversoldRatio && row['amount/amountMA20'] > 1) {
+                if (row["close/MA60"] > oversoldRatio && row['amount/amountMA20'] > 2) {
                     sellCount++;
-                    bt.sell(row.close, 30 / row.close);
+                    bt.sell(row.close, 50 / row.close);
                     tradeList.push({
                         type: 'sell',
                         close: row.close,
-                        time: row.time
+                        time: row.time,
+                        amount: row['amount/amountMA20']
                     })
                 }
-                if (row["close/MA60"] < overboughtRatio && row['amount/amountMA20'] > 1) {
+                if (row["close/MA60"] < overboughtRatio && row['amount/amountMA20'] > 2) {
                     buyCount++;
-                    bt.buy(row.close), 30 / row.close;
+                    bt.buy(row.close), 50 / row.close;
                     tradeList.push({
                         type: 'buy',
                         price: row.close,
-                        time: row.time
+                        time: row.time,
+                        amount: row['amount/amountMA20']
                     })
                 }
 
             });
-        
+
             quant.analysis(history);
 
             result.push({
@@ -174,13 +176,13 @@ async function fetchNewData() {
         searchParams: {
             symbol: 'eosusdt',
             period: '5min',
-            size: 300,
+            size: 400,
         }
     });
     const json = JSON.parse(res.body)
     // console.log(json.data.reverse())
     tran2(json.data.reverse());
-  
+
 }
 fetchNewData()
 async function tranMA() {

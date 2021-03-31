@@ -59,6 +59,7 @@ export async function start() {
                 overboughtRatio: autoOrderConfigEntity.overboughtRatio,
                 sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
                 buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
+                contract: autoOrderConfigEntity.contract,
             }, autoOrderConfigEntity.userId)
         });
     }

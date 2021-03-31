@@ -32,8 +32,11 @@ export default class AutoOrderConfigEntity extends BaseEntity{
     public min: number;
     @Column({type: 'float', nullable: true})
     public max: number;
-
-
+    /**
+     * 合约
+     */
+    @Column({type: 'boolean', nullable: true})
+    public contract: boolean;
 
 
 }

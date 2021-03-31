@@ -4,7 +4,7 @@ import xlsx from 'xlsx';
 import { errLogger, outLogger } from "ROOT/common/logger";
 import config from 'config';
 import { Quant } from "ROOT/lib/quant";
-import { keepDecimalFixed } from "ROOT/utils";
+import { autoToFixed, keepDecimalFixed } from "ROOT/utils";
 import HuobiSDK, { CandlestickIntervalEnum, SymbolInfo } from "../lib/huobi-sdk/src";
 import { Period } from "./interface";
 import { getPriceIndex, getSameAmount, getSymbolInfo, getTracePrice, _SYMBOL_INFO_MAP } from "./util";
@@ -31,6 +31,7 @@ interface SymbolConfig{
         asksList: any[];
     }
     trainer: Trainer
+    contract: boolean
 }
 
 export class Trader {
@@ -54,10 +55,8 @@ export class Trader {
         }
     }
     init() {
-        // TODO test
-        // this.sdk.getContractMarketDetailMerged('BTC', 'quarter').then((data) => {
-        //     console.log(data)
-        // })
+
+
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         })
@@ -134,6 +133,7 @@ export class Trader {
         overboughtRatio,
         sellAmountRatio,
         buyAmountRatio,
+        contract,
         // forceTrade,
     }, userId: number) {
         await this.getSymbolInfo(symbol);
@@ -173,9 +173,10 @@ export class Trader {
             }),
             min: 0,
             max: 0,
+            contract: Boolean(contract),
         }
         const orderConfig = this.orderConfigMap[symbol];
- 
+
         this.sdk.subMarketDepth({symbol}, throttle((data) => {
              // 处理数据
             const bidsList = getSameAmount(data.data.bids, {
@@ -314,6 +315,85 @@ export class Trader {
                     outLogger.error(err)
                 });
             }).finally(() => {
+                if (this.orderConfigMap[symbol].contract) {
+                    const contractSymbol: string = symbol.replace('usdt', '').toUpperCase()
+                    // TODO test
+                    this.sdk.getContractMarketDetailMerged(`${contractSymbol}_CQ`).then(async (data) => {
+                        // const action = 'buy'
+                        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.')
+                        const rate = action === 'buy' ? 0.998 : 1.002
+                        const closeRate = 1
+                        const buyVolume = buy_usdt * 10;
+                        const sellVolume = sell_usdt * 10;
+                        const lever_rate = 20
+                        if (action === 'buy') {
+                            // 开多
+                            await this.sdk.contractOrder({
+                               symbol: contractSymbol,
+                               contract_type: 'quarter',
+                               price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                               volume: buyVolume,
+                               direction: action,
+                               offset: 'open',
+                               /**
+                                * 开仓倍数
+                                */
+                               lever_rate,
+                               order_price_type: 'limit'
+                            })
+                            const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
+                            if (list.length > 0) {
+                                // 平空
+                                this.sdk.contractOrder({
+                                    symbol: contractSymbol,
+                                    contract_type: 'quarter',
+                                    price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                                    volume: sellVolume,
+                                    direction: action,
+                                    offset: 'close',
+                                    /**
+                                     * 开仓倍数
+                                     */
+                                    lever_rate,
+                                    order_price_type: 'limit'
+                                })
+                            }
+                        } else if (action === 'sell') {
+                            // 开空
+                            await this.sdk.contractOrder({
+                                symbol: contractSymbol,
+                                contract_type: 'quarter',
+                                price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                                volume: sellVolume,
+                                direction: action,
+                                offset: 'open',
+                                /**
+                                 * 开仓倍数
+                                 */
+                                lever_rate,
+                                order_price_type: 'limit'
+                             })
+                             const list = await this.sdk.getContractPositionInfo(contractSymbol.toLocaleLowerCase());
+                             if (list.length > 0) {
+                                 // 平多
+                                 this.sdk.contractOrder({
+                                     symbol: contractSymbol,
+                                     contract_type: 'quarter',
+                                     price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                                     volume: buyVolume,
+                                     direction: action,
+                                     offset: 'close',
+                                     /**
+                                      * 开仓倍数
+                                      */
+                                     lever_rate,
+                                     order_price_type: 'limit'
+                                 })
+                             }
+                        }
+
+                    })
+                }
                 sentMail(config.get('email'), {
                     from: 'hubo2008@163.com', // sender address
                     to: 'hubo11@jd.com', // list of receivers

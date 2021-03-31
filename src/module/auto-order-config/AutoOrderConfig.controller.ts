@@ -70,7 +70,8 @@ export default class AutoOrderConfigLogController {
                     'sellAmountRatio',
                     'buyAmountRatio',
                     'min',
-                    'max'
+                    'max',
+                    'contract'
                 ]);
                 Object.assign(trader.orderConfigMap[data.symbol], mergeData);
                 if (mergeData.max) {
