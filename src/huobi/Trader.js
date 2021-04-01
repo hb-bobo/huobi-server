@@ -18,22 +18,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trader = void 0;
 // import { outLogger } from "ROOT/common/logger";
 const lodash_1 = require("lodash");
 const logger_1 = require("../common/logger");
-const config_1 = __importDefault(require("config"));
 const quant_1 = require("../lib/quant");
 const utils_1 = require("../utils");
 const src_1 = require("../lib/huobi-sdk/src");
 const util_1 = require("./util");
 const Trainer_1 = require("./Trainer");
 const AutoOrderHistoryService = __importStar(require("../module/auto-order-history/AutoOrderHistory.service"));
-const sentMail_1 = __importDefault(require("../common/sentMail"));
 class Trader {
     constructor(sdk) {
         this._balanceMap = {};
@@ -269,13 +264,13 @@ class Trader {
                 if (this.orderConfigMap[symbol].contract && action) {
                     this.beforeContractOrder(symbol, action);
                 }
-                sentMail_1.default(config_1.default.get('email'), {
-                    from: 'hubo2008@163.com',
-                    to: 'hubo11@jd.com',
-                    subject: `Hello ✔${symbol}`,
-                    text: 'Hello world?',
-                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
-                });
+                // sentMail(config.get('email'), {
+                //     from: 'hubo2008@163.com', // sender address
+                //     to: 'hubo11@jd.com', // list of receivers
+                //     subject: `Hello ✔${symbol}`, // Subject line
+                //     text: 'Hello world?', // plain text body
+                //     html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
+                // })
             });
             // orderConfig.trainer.run().then((config) => {
             //     Object.assign(orderConfig,
