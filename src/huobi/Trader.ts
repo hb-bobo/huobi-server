@@ -317,13 +317,13 @@ export class Trader {
                 if (this.orderConfigMap[symbol].contract && action) {
                    this.beforeContractOrder(symbol, action)
                 }
-                sentMail(config.get('email'), {
-                    from: 'hubo2008@163.com', // sender address
-                    to: 'hubo11@jd.com', // list of receivers
-                    subject: `Hello ✔${symbol}`, // Subject line
-                    text: 'Hello world?', // plain text body
-                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
-                })
+                // sentMail(config.get('email'), {
+                //     from: 'hubo2008@163.com', // sender address
+                //     to: 'hubo11@jd.com', // list of receivers
+                //     subject: `Hello ✔${symbol}`, // Subject line
+                //     text: 'Hello world?', // plain text body
+                //     html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
+                // })
             });
 
 
