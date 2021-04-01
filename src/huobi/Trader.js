@@ -378,7 +378,7 @@ class Trader {
                     symbol: contractSymbol,
                     contract_type: 'quarter',
                     price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: buyAvailable < buyVolume ? sellAvailable : buyVolume,
+                    volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
                     direction: action,
                     offset: 'close',
                     /**
