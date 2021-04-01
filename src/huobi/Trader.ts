@@ -348,14 +348,14 @@ export class Trader {
     }
     /**
      * 开单前处理
-     * @param symbol 
-     * @param action 
+     * @param symbol
+     * @param action
      */
     async beforeContractOrder(symbol: string, action: 'buy' | 'sell') {
         const contractSymbol: string = symbol.replace('usdt', '').toUpperCase();
         const data = await this.sdk.contractMarketDetailMerged(`${contractSymbol}_CQ`);
         const list = await this.sdk.contractPositionInfo(contractSymbol.toLocaleLowerCase());
-  
+
         // const action = 'buy'
         const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.')
         const rate = action === 'buy' ? 0.998 : 1.002
@@ -396,7 +396,7 @@ export class Trader {
                lever_rate,
                order_price_type: 'limit'
             })
-           
+
             if (sellAvailable > 0) {
                 // 平空
                 this.contractOrder({
@@ -435,7 +435,7 @@ export class Trader {
                      symbol: contractSymbol,
                      contract_type: 'quarter',
                      price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                     volume: buyAvailable < buyVolume ? sellAvailable : buyVolume,
+                     volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
                      direction: action,
                      offset: 'close',
                      /**
