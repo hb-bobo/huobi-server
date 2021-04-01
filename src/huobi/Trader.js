@@ -362,7 +362,7 @@ class Trader {
             await this.contractOrder({
                 symbol: contractSymbol,
                 contract_type: 'quarter',
-                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
                 volume: sellVolume,
                 direction: action,
                 offset: 'open',
