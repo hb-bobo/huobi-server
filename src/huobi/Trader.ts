@@ -215,19 +215,6 @@ export class Trader {
             }
             this.orderConfigMap[symbol].kline = data.data;
         })
-        // orderConfig.trainer.run(rData).then((config) => {
-        //     Object.assign(orderConfig,
-        //         pick(
-        //             config,
-        //             [
-        //                 'oversoldRatio',
-        //                 'overboughtRatio',
-        //                 'sellAmountRatio',
-        //                 'buyAmountRatio',
-        //             ]
-        //         )
-        //     );
-        // });
 
         quant.use((row) => {
             orderConfig.price = row.close;
@@ -317,13 +304,6 @@ export class Trader {
                 if (this.orderConfigMap[symbol].contract && action) {
                    this.beforeContractOrder(symbol, action)
                 }
-                sentMail(config.get('email'), {
-                    from: 'hubo2008@163.com', // sender address
-                    to: 'hubo11@jd.com', // list of receivers
-                    subject: `Hello ✔${symbol}`, // Subject line
-                    text: 'Hello world?', // plain text body
-                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
-                })
             });
 
 
@@ -372,6 +352,18 @@ export class Trader {
                 sellAvailable += item.available
             }
         })
+        const params = {
+            symbol: contractSymbol,
+            contract_type: 'quarter',
+            direction: action,
+            price: -1,
+            volume: 0,
+            /**
+            * 开仓倍数
+            */
+            lever_rate,
+            order_price_type: 'limit'
+        }
         outLogger.info(`
             symbol: ${symbol}
             action: ${action}
@@ -382,8 +374,11 @@ export class Trader {
             sellAvailable: ${sellAvailable}
         `)
         if (action === 'buy') {
+            params.price = keepDecimalFixed(Number(data.tick.close) * rate, digit),
+            params.volume = buyVolume,
             // 开多
             await this.contractOrder({
+                ...params,
                symbol: contractSymbol,
                contract_type: 'quarter',
                price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
@@ -415,19 +410,19 @@ export class Trader {
             }
         } else if (action === 'sell') {
             // 开空
-            await this.contractOrder({
-                symbol: contractSymbol,
-                contract_type: 'quarter',
-                price: keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
-                volume: sellVolume,
-                direction: action,
-                offset: 'open',
-                /**
-                 * 开仓倍数
-                 */
-                lever_rate,
-                order_price_type: 'limit'
-             })
+            // await this.contractOrder({
+            //     symbol: contractSymbol,
+            //     contract_type: 'quarter',
+            //     price: keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
+            //     volume: sellVolume,
+            //     direction: action,
+            //     offset: 'open',
+            //     /**
+            //      * 开仓倍数
+            //      */
+            //     lever_rate,
+            //     order_price_type: 'limit'
+            //  })
 
              if (buyAvailable >= 0) {
                  // 平多
@@ -446,6 +441,13 @@ export class Trader {
                  })
              }
         }
+        // sentMail(config.get('email'), {
+        //     from: 'hubo2008@163.com', // sender address
+        //     to: 'hubo11@jd.com', // list of receivers
+        //     subject: `Hello ✔${symbol}`, // Subject line
+        //     text: 'Hello world?', // plain text body
+        //     html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
+        // })
     }
     async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number): Promise<any> {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);

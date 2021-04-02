@@ -93,7 +93,7 @@ async function tran2(data) {
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
         quoteCurrencyBalance: 1000,
-        baseCurrencyBalance: 1000,
+        baseCurrencyBalance: 100,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
         minVolume: 1,
@@ -120,21 +120,23 @@ async function tran2(data) {
                 }
                 if (row["close/MA60"] > oversoldRatio && row['amount/amountMA20'] > 2) {
                     sellCount++;
-                    bt.sell(row.close, 50 / row.close);
+                    bt.sell(row.close, 10 / row.close);
                     tradeList.push({
                         type: 'sell',
-                        close: row.close,
+                        price: row.close,
                         time: row.time,
+                        "close/MA60": row["close/MA60"],
                         amount: row['amount/amountMA20']
                     })
                 }
                 if (row["close/MA60"] < overboughtRatio && row['amount/amountMA20'] > 2) {
                     buyCount++;
-                    bt.buy(row.close), 50 / row.close;
+                    bt.buy(row.close), 10 / row.close;
                     tradeList.push({
                         type: 'buy',
                         price: row.close,
                         time: row.time,
+                        "close/MA60": row["close/MA60"],
                         amount: row['amount/amountMA20']
                     })
                 }
@@ -158,15 +160,16 @@ async function tran2(data) {
         return  b.return - a.return
     });
 
-    // const sheet = xlsx.utils.json_to_sheet(sortedList);
+    // const sheet = xlsx.utils.json_to_sheet(sortedList[0].tradeList);
     // const workbook = {
     //     SheetNames: ['超卖超买分析'], //定义表名
     //     Sheets: {
     //         '超卖超买分析': sheet //表对象[注意表明]
     //     },
     // }
-    console.log(sortedList[0])
     // xlsx.writeFile(workbook, join(publicPath, '/download/tran2.xlsx'));
+    console.log(sortedList[0])
+
 }
 // tran2();
 async function fetchNewData() {
@@ -174,8 +177,8 @@ async function fetchNewData() {
     const res = await got(path, {
         method: 'GET',
         searchParams: {
-            symbol: 'eosusdt',
-            period: '5min',
+            symbol: 'filusdt',
+            period: '15min',
             size: 400,
         }
     });
