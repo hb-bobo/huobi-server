@@ -223,8 +223,8 @@ const analyseAndWriteDepth = async function (data: {symbol: string, bids: any[],
     });
     const bidsHistoryStatus = buyMaxAM.historyStatus;
     const asksHistoryStatus = sellMaxAM.historyStatus;
-    const buyStatus = getRepeatCount(bidsHistoryStatus);
-    const sellStatus = getRepeatCount(asksHistoryStatus);
+    const buyStatus = getRepeatCount(bidsHistoryStatus.map((item) => item.status));
+    const sellStatus = getRepeatCount(asksHistoryStatus.map((item) => item.status));
 
     // 无状况
     if (

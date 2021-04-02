@@ -354,7 +354,7 @@ export class Trader {
         })
         const params = {
             symbol: contractSymbol,
-            contract_type: 'quarter',
+            contract_type: 'quarter' as const,
             direction: action,
             price: -1,
             volume: 0,
@@ -362,9 +362,47 @@ export class Trader {
             * 开仓倍数
             */
             lever_rate,
-            order_price_type: 'limit'
+            order_price_type: 'limit' as const
         }
-        outLogger.info(`
+
+        if (action === 'buy') {
+            // 开多
+            await this.contractOrder({
+                ...params,
+               price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
+               volume: buyVolume,
+               offset: 'open',
+            })
+
+            if (sellAvailable > 0) {
+                // 平空
+                this.contractOrder({
+                    ...params,
+                    price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
+                    offset: 'close',
+                })
+            }
+        } else if (action === 'sell') {
+            // 开空
+            // await this.contractOrder({
+            //     ...params,
+            //     price:keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
+            //     volume: sellVolume,
+            //     offset: 'open',
+            // })
+
+             if (buyAvailable >= 0) {
+                 // 平多
+                 this.contractOrder({
+                    ...params,
+                    price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
+                    offset: 'close',
+                 })
+             }
+        }
+         outLogger.info(`
             symbol: ${symbol}
             action: ${action}
             close: ${data.tick.close}
@@ -373,81 +411,13 @@ export class Trader {
             buyAvailable: ${buyAvailable}
             sellAvailable: ${sellAvailable}
         `)
-        if (action === 'buy') {
-            params.price = keepDecimalFixed(Number(data.tick.close) * rate, digit),
-            params.volume = buyVolume,
-            // 开多
-            await this.contractOrder({
-                ...params,
-               symbol: contractSymbol,
-               contract_type: 'quarter',
-               price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
-               volume: buyVolume,
-               direction: action,
-               offset: 'open',
-               /**
-                * 开仓倍数
-                */
-               lever_rate,
-               order_price_type: 'limit'
-            })
-
-            if (sellAvailable > 0) {
-                // 平空
-                this.contractOrder({
-                    symbol: contractSymbol,
-                    contract_type: 'quarter',
-                    price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
-                    direction: action,
-                    offset: 'close',
-                    /**
-                     * 开仓倍数
-                     */
-                    lever_rate,
-                    order_price_type: 'limit'
-                })
-            }
-        } else if (action === 'sell') {
-            // 开空
-            // await this.contractOrder({
-            //     symbol: contractSymbol,
-            //     contract_type: 'quarter',
-            //     price: keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
-            //     volume: sellVolume,
-            //     direction: action,
-            //     offset: 'open',
-            //     /**
-            //      * 开仓倍数
-            //      */
-            //     lever_rate,
-            //     order_price_type: 'limit'
-            //  })
-
-             if (buyAvailable >= 0) {
-                 // 平多
-                 this.contractOrder({
-                     symbol: contractSymbol,
-                     contract_type: 'quarter',
-                     price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                     volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
-                     direction: action,
-                     offset: 'close',
-                     /**
-                      * 开仓倍数
-                      */
-                     lever_rate,
-                     order_price_type: 'limit'
-                 })
-             }
-        }
-        // sentMail(config.get('email'), {
-        //     from: 'hubo2008@163.com', // sender address
-        //     to: 'hubo11@jd.com', // list of receivers
-        //     subject: `Hello ✔${symbol}`, // Subject line
-        //     text: 'Hello world?', // plain text body
-        //     html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
-        // })
+        sentMail(config.get('email'), {
+            from: 'hubo2008@163.com', // sender address
+            to: 'hubo11@jd.com', // list of receivers
+            subject: `Hello ✔${symbol}`, // Subject line
+            text: 'Hello world?', // plain text body
+            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${new Date()}</p>` // html body
+        })
     }
     async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number): Promise<any> {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);

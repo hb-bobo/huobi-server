@@ -178,8 +178,8 @@ async function fetchNewData() {
         method: 'GET',
         searchParams: {
             symbol: 'filusdt',
-            period: '15min',
-            size: 400,
+            period: '5min',
+            size: 800,
         }
     });
     const json = JSON.parse(res.body)
