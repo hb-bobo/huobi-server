@@ -217,8 +217,8 @@ const analyseAndWriteDepth = async function (data) {
     });
     const bidsHistoryStatus = buyMaxAM.historyStatus;
     const asksHistoryStatus = sellMaxAM.historyStatus;
-    const buyStatus = utils_1.getRepeatCount(bidsHistoryStatus);
-    const sellStatus = utils_1.getRepeatCount(asksHistoryStatus);
+    const buyStatus = utils_1.getRepeatCount(bidsHistoryStatus.map((item) => item.status));
+    const sellStatus = utils_1.getRepeatCount(asksHistoryStatus.map((item) => item.status));
     // 无状况
     if (bidsHistoryStatus.length > 2
         && buyStatus['涨'] === 0

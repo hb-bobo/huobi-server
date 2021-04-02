@@ -184,19 +184,6 @@ class Trader {
             }
             this.orderConfigMap[symbol].kline = data.data;
         });
-        // orderConfig.trainer.run(rData).then((config) => {
-        //     Object.assign(orderConfig,
-        //         pick(
-        //             config,
-        //             [
-        //                 'oversoldRatio',
-        //                 'overboughtRatio',
-        //                 'sellAmountRatio',
-        //                 'buyAmountRatio',
-        //             ]
-        //         )
-        //     );
-        // });
         quant.use((row) => {
             orderConfig.price = row.close;
             if (!row.MA120 || !row.MA5 || !row.MA10 || !row.MA30 || !row.MA60) {
@@ -269,13 +256,6 @@ class Trader {
                 if (this.orderConfigMap[symbol].contract && action) {
                     this.beforeContractOrder(symbol, action);
                 }
-                sentMail_1.default(config_1.default.get('email'), {
-                    from: 'hubo2008@163.com',
-                    to: 'hubo11@jd.com',
-                    subject: `Hello ✔${symbol}`,
-                    text: 'Hello world?',
-                    html: `<p><br>${action} ${symbol}(${price}) at ${new Date()}</p>` // html body
-                });
             });
             // orderConfig.trainer.run().then((config) => {
             //     Object.assign(orderConfig,
@@ -321,6 +301,54 @@ class Trader {
                 sellAvailable += item.available;
             }
         });
+        const params = {
+            symbol: contractSymbol,
+            contract_type: 'quarter',
+            direction: action,
+            price: -1,
+            volume: 0,
+            /**
+            * 开仓倍数
+            */
+            lever_rate,
+            order_price_type: 'limit'
+        };
+        if (action === 'buy') {
+            // 开多
+            await this.contractOrder({
+                ...params,
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
+                volume: buyVolume,
+                offset: 'open',
+            });
+            if (sellAvailable > 0) {
+                // 平空
+                this.contractOrder({
+                    ...params,
+                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
+                    offset: 'close',
+                });
+            }
+        }
+        else if (action === 'sell') {
+            // 开空
+            // await this.contractOrder({
+            //     ...params,
+            //     price:keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
+            //     volume: sellVolume,
+            //     offset: 'open',
+            // })
+            if (buyAvailable >= 0) {
+                // 平多
+                this.contractOrder({
+                    ...params,
+                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
+                    volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
+                    offset: 'close',
+                });
+            }
+        }
         logger_1.outLogger.info(`
             symbol: ${symbol}
             action: ${action}
@@ -330,70 +358,13 @@ class Trader {
             buyAvailable: ${buyAvailable}
             sellAvailable: ${sellAvailable}
         `);
-        if (action === 'buy') {
-            // 开多
-            await this.contractOrder({
-                symbol: contractSymbol,
-                contract_type: 'quarter',
-                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
-                volume: buyVolume,
-                direction: action,
-                offset: 'open',
-                /**
-                 * 开仓倍数
-                 */
-                lever_rate,
-                order_price_type: 'limit'
-            });
-            if (sellAvailable > 0) {
-                // 平空
-                this.contractOrder({
-                    symbol: contractSymbol,
-                    contract_type: 'quarter',
-                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
-                    direction: action,
-                    offset: 'close',
-                    /**
-                     * 开仓倍数
-                     */
-                    lever_rate,
-                    order_price_type: 'limit'
-                });
-            }
-        }
-        else if (action === 'sell') {
-            // 开空
-            await this.contractOrder({
-                symbol: contractSymbol,
-                contract_type: 'quarter',
-                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
-                volume: sellVolume,
-                direction: action,
-                offset: 'open',
-                /**
-                 * 开仓倍数
-                 */
-                lever_rate,
-                order_price_type: 'limit'
-            });
-            if (buyAvailable >= 0) {
-                // 平多
-                this.contractOrder({
-                    symbol: contractSymbol,
-                    contract_type: 'quarter',
-                    price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
-                    direction: action,
-                    offset: 'close',
-                    /**
-                     * 开仓倍数
-                     */
-                    lever_rate,
-                    order_price_type: 'limit'
-                });
-            }
-        }
+        sentMail_1.default(config_1.default.get('email'), {
+            from: 'hubo2008@163.com',
+            to: 'hubo11@jd.com',
+            subject: `Hello ✔${symbol}`,
+            text: 'Hello world?',
+            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${new Date()}</p>` // html body
+        });
     }
     async order(symbol, type, amount, price, userId) {
         logger_1.outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
