@@ -333,12 +333,12 @@ class Trader {
         }
         else if (action === 'sell') {
             // 开空
-            // await this.contractOrder({
-            //     ...params,
-            //     price:keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
-            //     volume: sellVolume,
-            //     offset: 'open',
-            // })
+            await this.contractOrder({
+                ...params,
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
+                volume: sellVolume,
+                offset: 'open',
+            });
             if (buyAvailable >= 0) {
                 // 平多
                 this.contractOrder({
