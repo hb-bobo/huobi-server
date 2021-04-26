@@ -338,7 +338,7 @@ export class Trader {
 
         // const action = 'buy'
         const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.')
-        const rate = action === 'buy' ? 0.998 : 1.002
+        const rate = action === 'buy' ? 0.997 : 1.004
         const closeRate = 1
         const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
         const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
@@ -385,12 +385,12 @@ export class Trader {
             }
         } else if (action === 'sell') {
             // 开空
-            // await this.contractOrder({
-            //     ...params,
-            //     price:keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
-            //     volume: sellVolume,
-            //     offset: 'open',
-            // })
+            await this.contractOrder({
+                ...params,
+                price:keepDecimalFixed(Number(data.tick.close) * rate * 1.008, digit),
+                volume: sellVolume,
+                offset: 'open',
+            })
 
              if (buyAvailable >= 0) {
                  // 平多
@@ -416,7 +416,7 @@ export class Trader {
             to: 'hubo11@jd.com', // list of receivers
             subject: `Hello ✔${symbol}`, // Subject line
             text: 'Hello world?', // plain text body
-            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${new Date()}</p>` // html body
+            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${dayjs(new Date()).utcOffset(8).format("YYYY-MM-DD HH:mm:ss")}</p>` // html body
         })
     }
     async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number): Promise<any> {
