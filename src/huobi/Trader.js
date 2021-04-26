@@ -33,6 +33,7 @@ const src_1 = require("../lib/huobi-sdk/src");
 const util_1 = require("./util");
 const Trainer_1 = require("./Trainer");
 const AutoOrderHistoryService = __importStar(require("../module/auto-order-history/AutoOrderHistory.service"));
+const dayjs_1 = __importDefault(require("dayjs"));
 const sentMail_1 = __importDefault(require("../common/sentMail"));
 class Trader {
     constructor(sdk) {
@@ -286,7 +287,7 @@ class Trader {
         const list = await this.sdk.contractPositionInfo(contractSymbol.toLocaleLowerCase());
         // const action = 'buy'
         const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.');
-        const rate = action === 'buy' ? 0.998 : 1.002;
+        const rate = action === 'buy' ? 0.997 : 1.004;
         const closeRate = 1;
         const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
         const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
@@ -335,7 +336,7 @@ class Trader {
             // 开空
             await this.contractOrder({
                 ...params,
-                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.004, digit),
+                price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.008, digit),
                 volume: sellVolume,
                 offset: 'open',
             });
@@ -363,7 +364,7 @@ class Trader {
             to: 'hubo11@jd.com',
             subject: `Hello ✔${symbol}`,
             text: 'Hello world?',
-            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${new Date()}</p>` // html body
+            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${dayjs_1.default(new Date()).utcOffset(8).format("YYYY-MM-DD HH:mm:ss")}</p>` // html body
         });
     }
     async order(symbol, type, amount, price, userId) {

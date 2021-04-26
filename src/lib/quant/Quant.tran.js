@@ -73,22 +73,23 @@ async function tran2(data) {
     // const data = await readFilePromisify(jsonFilePath, { encoding: 'utf-8' });
     // const history = JSON.parse(data).splice(900, data.length - 1);
     const history = data;
+    const tradeBalance = 50;
     const quant = new _1.Quant({
         symbol: 'btcusdt',
         price: history[history.length - 1].close,
         quoteCurrencyBalance: 1000,
-        baseCurrencyBalance: 100,
+        baseCurrencyBalance: 0,
         maxs: [history[history.length - 1].close * 1.04],
         mins: [history[history.length - 1].close * 0.96],
-        minVolume: 1,
+        minVolume: 0.001,
     });
     const result = [];
     for (let oversoldRatio = -0.00; oversoldRatio < 0.08; oversoldRatio = oversoldRatio + 0.003) {
         for (let overboughtRatio = -0.000; overboughtRatio > -0.08; overboughtRatio = overboughtRatio - 0.003) {
             const bt = new Backtest_1.default({
                 symbol: 'btcusdt',
-                buyAmount: 3,
-                sellAmount: 3,
+                buyAmount: 0.01,
+                sellAmount: 0.01,
                 quoteCurrencyBalance: quant.config.quoteCurrencyBalance,
                 baseCurrencyBalance: quant.config.baseCurrencyBalance,
             });
@@ -102,25 +103,25 @@ async function tran2(data) {
                 }
                 if (row["close/MA60"] > oversoldRatio && row['amount/amountMA20'] > 2) {
                     sellCount++;
-                    bt.sell(row.close, 10 / row.close);
-                    tradeList.push({
-                        type: 'sell',
-                        price: row.close,
-                        time: row.time,
-                        "close/MA60": row["close/MA60"],
-                        amount: row['amount/amountMA20']
-                    });
+                    bt.sell(row.close, tradeBalance / row.close);
+                    // tradeList.push({
+                    //     type: 'sell',
+                    //     price: row.close,
+                    //     time: row.time,
+                    //     "close/MA60": row["close/MA60"],
+                    //     amount: row['amount/amountMA20']
+                    // })
                 }
                 if (row["close/MA60"] < overboughtRatio && row['amount/amountMA20'] > 2) {
                     buyCount++;
-                    bt.buy(row.close), 10 / row.close;
-                    tradeList.push({
-                        type: 'buy',
-                        price: row.close,
-                        time: row.time,
-                        "close/MA60": row["close/MA60"],
-                        amount: row['amount/amountMA20']
-                    });
+                    bt.buy(row.close), tradeBalance / row.close;
+                    // tradeList.push({
+                    //     type: 'buy',
+                    //     price: row.close,
+                    //     time: row.time,
+                    //     "close/MA60": row["close/MA60"],
+                    //     amount: row['amount/amountMA20']
+                    // })
                 }
             });
             quant.analysis(history);
@@ -130,7 +131,6 @@ async function tran2(data) {
                 return: bt.getReturn() * 100,
                 buyCount,
                 sellCount,
-                tradeList: [...tradeList]
             });
             tradeList.length = 0;
         }
@@ -154,9 +154,9 @@ async function fetchNewData() {
     const res = await source_1.default(path, {
         method: 'GET',
         searchParams: {
-            symbol: 'filusdt',
+            symbol: 'btcusdt',
             period: '5min',
-            size: 800,
+            size: 600,
         }
     });
     const json = JSON.parse(res.body);
