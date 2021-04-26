@@ -35,7 +35,7 @@ export async function handleDepth(data: MarketMessageData) {
     const symbol = data.symbol;
     await getWatchSymbols();
     if (typeof depthHandles[symbol] !== 'function') {
-        depthHandles[symbol] = throttle(analyseAndWriteDepth, 5000, { trailing: false, leading: true }) as typeof analyseAndWriteDepth;
+        depthHandles[symbol] = throttle(analyseAndWriteDepth, 1000, { trailing: false, leading: true }) as typeof analyseAndWriteDepth;
     }
     /* ch:"market.bchusdt.depth.step0"
     channel:"depth"
