@@ -364,7 +364,6 @@ export class Trader {
             lever_rate,
             order_price_type: 'limit' as const
         }
-
         if (action === 'buy') {
             // 开多
             await this.contractOrder({
@@ -372,7 +371,7 @@ export class Trader {
                price: keepDecimalFixed(Number(data.tick.close) * rate, digit),
                volume: buyVolume,
                offset: 'open',
-            })
+            });
 
             if (sellAvailable > 0) {
                 // 平空
@@ -381,7 +380,7 @@ export class Trader {
                     price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
                     volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
                     offset: 'close',
-                })
+                });
             }
         } else if (action === 'sell') {
             // 开空
@@ -390,7 +389,7 @@ export class Trader {
                 price:keepDecimalFixed(Number(data.tick.close) * rate * 1.008, digit),
                 volume: sellVolume,
                 offset: 'open',
-            })
+            });
 
              if (buyAvailable >= 0) {
                  // 平多
@@ -399,10 +398,10 @@ export class Trader {
                     price: keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
                     volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
                     offset: 'close',
-                 })
+                 });
              }
         }
-         outLogger.info(`
+        outLogger.info(`
             symbol: ${symbol}
             action: ${action}
             close: ${data.tick.close}
@@ -410,14 +409,14 @@ export class Trader {
             sellVolume: ${sellVolume}
             buyAvailable: ${buyAvailable}
             sellAvailable: ${sellAvailable}
-        `)
+        `);
         sentMail(config.get('email'), {
             from: 'hubo2008@163.com', // sender address
             to: 'hubo11@jd.com', // list of receivers
             subject: `Hello ✔${symbol}`, // Subject line
             text: 'Hello world?', // plain text body
             html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${dayjs(new Date()).utcOffset(8).format("YYYY-MM-DD HH:mm:ss")}</p>` // html body
-        })
+        });
     }
     async order(symbol: string, type: 'buy' | 'sell', amount: number, price: number, userId: number): Promise<any> {
         outLogger.info(`order:  ${type} ${symbol} -> (${price}, ${amount})`);
@@ -491,7 +490,7 @@ export class Trader {
         }
 
         return this.sdk.contractOrder(params).finally(() => {
-            outLogger.info(`${textMap[params.direction + params.offset]}`)
+            outLogger.info(`${textMap[params.direction + params.offset]}`);
         })
     }
     cancelOrder(id: string) {
