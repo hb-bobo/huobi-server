@@ -149,9 +149,10 @@ class Trader {
             min: 0,
             max: 0,
             contract: Boolean(contract),
+            cancelAutoTraderTask: [],
         };
         const orderConfig = this.orderConfigMap[symbol];
-        this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
+        const unSubMarketDepth = await this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
             // 处理数据
             const bidsList = util_1.getSameAmount(data.data.bids, {
                 type: 'bids',
@@ -166,6 +167,8 @@ class Trader {
                 asksList: asksList,
             };
         }, 10000, { leading: true }));
+        // 添加到取消跟单任务里
+        this.orderConfigMap[symbol].cancelAutoTraderTask.push(unSubMarketDepth);
         const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 400);
         if (!data) {
             logger_1.errLogger.error('getMarketHistoryKline', data);
@@ -173,7 +176,7 @@ class Trader {
         }
         const rData = data.reverse();
         quant.analysis(rData);
-        this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
+        const unSubMarketKline = await this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
             orderConfig.price = data.data.close;
             const kline = this.orderConfigMap[symbol].kline;
             if (!kline) {
@@ -185,7 +188,9 @@ class Trader {
             }
             this.orderConfigMap[symbol].kline = data.data;
         });
-        quant.use((row) => {
+        // 添加到取消跟单任务里
+        this.orderConfigMap[symbol].cancelAutoTraderTask.push(unSubMarketKline);
+        const unUse = quant.use((row) => {
             orderConfig.price = row.close;
             if (!row.MA120 || !row.MA5 || !row.MA10 || !row.MA30 || !row.MA60) {
                 return;
@@ -272,8 +277,11 @@ class Trader {
             //     );
             // });
         });
+        // 添加到取消跟单任务里
+        this.orderConfigMap[symbol].cancelAutoTraderTask.push(unUse);
     }
     cancelAutoTrader(userId, symbol) {
+        this.orderConfigMap[symbol].cancelAutoTraderTask.forEach(fn => fn());
         delete this.orderConfigMap[symbol];
     }
     /**

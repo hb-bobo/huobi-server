@@ -53,7 +53,7 @@ async function handleDepth(data) {
     const symbol = data.symbol;
     await getWatchSymbols();
     if (typeof depthHandles[symbol] !== 'function') {
-        depthHandles[symbol] = throttle_1.default(analyseAndWriteDepth, 5000, { trailing: false, leading: true });
+        depthHandles[symbol] = throttle_1.default(analyseAndWriteDepth, 1000, { trailing: false, leading: true });
     }
     /* ch:"market.bchusdt.depth.step0"
     channel:"depth"

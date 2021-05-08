@@ -79,6 +79,12 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (typeof callback === 'function') {
             this.on(event, callback);
         }
+        // unuse
+        return () => {
+            if (callback) {
+                this.off(event, callback);
+            }
+        };
     }
     /**
      */
@@ -271,7 +277,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(subMessage.sub, subscription);
+        return this.addEvent(subMessage.sub, subscription);
     }
     async upMarketDepth({ symbol, step, id }, subscription) {
         const subMessage = ws_cmd_1.WS_UNSUB.depth(symbol, step);
@@ -285,7 +291,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(subMessage.sub, subscription);
+        return this.addEvent(subMessage.sub, subscription);
     }
     async upMarketKline({ symbol, period, id }, subscription) {
         const subMessage = ws_cmd_1.WS_UNSUB.kline(symbol, period);
@@ -299,7 +305,7 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         if (!market_cache_ws.hasCache(subMessage)) {
             market_cache_ws.sub(subMessage, id);
         }
-        this.addEvent(subMessage.sub, subscription);
+        return this.addEvent(subMessage.sub, subscription);
     }
     async upMarketTrade({ symbol, id }, subscription) {
         const subMessage = ws_cmd_1.WS_UNSUB.tradeDetail(symbol);

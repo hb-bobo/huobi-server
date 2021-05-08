@@ -110,6 +110,13 @@ class Analyser {
             throw Error('use param muse be a function');
         }
         this.middlewares.push(middleware);
+        // unuse
+        return () => {
+            const index = this.middlewares.findIndex((fn) => fn === middleware);
+            if (index > -1) {
+                this.middlewares.splice(index, 1);
+            }
+        };
     }
 }
 exports.default = Analyser;
