@@ -30,8 +30,13 @@ interface SymbolConfig{
         bidsList: any[];
         asksList: any[];
     }
-    trainer: Trainer
-    contract: boolean
+    trainer: Trainer;
+    contract: boolean;
+    buy_open: number;
+    sell_close: number;
+    sell_open: number;
+    buy_close: number;
+    lever_rate: number;
 }
 
 export class Trader {
@@ -141,7 +146,7 @@ export class Trader {
         if (!this._balanceMap) {
             return errLogger.error('_balanceMap', this.sdk.spot_account_id);
         }
-
+        
         const quant = new Quant({
             symbol: symbol,
             quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
@@ -172,6 +177,11 @@ export class Trader {
             min: 0,
             max: 0,
             contract: Boolean(contract),
+            buy_open: 0,
+            sell_close: 0,
+            sell_open: 0,
+            buy_close: 0,
+            lever_rate: 20,
         }
         const orderConfig = this.orderConfigMap[symbol];
 
@@ -342,7 +352,7 @@ export class Trader {
         const closeRate = 1
         const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
         const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
-        const lever_rate = 20
+        const lever_rate = this.orderConfigMap[symbol].lever_rate;
         let buyAvailable = 0;
         let sellAvailable = 0;
         list.forEach((item) => {

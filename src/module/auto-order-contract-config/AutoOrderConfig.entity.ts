@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
 
 
 @Entity()
-export default class AutoOrderConfigEntity extends BaseEntity{
+export default class AutoOrderContractConfigEntity extends BaseEntity{
     @PrimaryGeneratedColumn()
     public id!: number;
 
@@ -11,10 +11,17 @@ export default class AutoOrderConfigEntity extends BaseEntity{
 
     @Column({type: 'varchar', length: 10})
     public symbol!: string;
-    @Column({type: 'float'})
-    public buy_usdt!: number;
-    @Column({type: 'float'})
-    public sell_usdt!: number;
+    @Column()
+    public buy_open!: number;
+    @Column()
+    public sell_close!: number;
+    @Column()
+    public sell_open!: number;
+    @Column()
+    public buy_close!: number;
+
+    @Column()
+    public lever_rate!: number;
 
     @Column({type: 'varchar', length: 10})
     public period!: string;
@@ -28,15 +35,10 @@ export default class AutoOrderConfigEntity extends BaseEntity{
     @Column({type: 'float'})
     public buyAmountRatio: number;
 
-    @Column({type: 'float', nullable: true})
-    public min: number;
-    @Column({type: 'float', nullable: true})
-    public max: number;
     /**
      * 合约
      */
     @Column({type: 'boolean', nullable: true})
     public contract: boolean;
-
 
 }

@@ -11,6 +11,7 @@ import * as MailController from 'ROOT/module/email/config.controller';
 import * as ConfigController from 'ROOT/module/config/config.controller';
 import * as TrainController from 'ROOT/module/train/train.controller';
 import AutoOrderConfigController from 'ROOT/module/auto-order-config/AutoOrderConfig.controller';
+import AutoOrderContractConfigController from 'ROOT/module/auto-order-contract-config/AutoOrderConfig.controller';
 import AutoOrderHistoryController from 'ROOT/module/auto-order-history/AutoOrderHistory.controller';
 import StatisticsController from 'ROOT/module/statistics/Statistics.controller';
 // /index
@@ -52,6 +53,10 @@ router.post(`${apiPrefix}/train/train`, checkToken, TrainController.Train);
 router.get(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.index);
 router.post(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.updateOne);
 router.delete(`${apiPrefix}/auto-order-config`, checkToken, AutoOrderConfigController.removeOne);
+
+router.get(`${apiPrefix}/auto-order-contract-config`, checkToken, AutoOrderContractConfigController.index);
+router.post(`${apiPrefix}/auto-order-contract-config`, checkToken, AutoOrderContractConfigController.updateOne);
+router.delete(`${apiPrefix}/auto-order-contract-config`, checkToken, AutoOrderContractConfigController.removeOne);
 
 router.get(`${apiPrefix}/auto-order-history`, checkToken, AutoOrderHistoryController.index);
 
