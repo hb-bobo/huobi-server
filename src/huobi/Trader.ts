@@ -30,7 +30,7 @@ interface SymbolConfig{
         bidsList: any[];
         asksList: any[];
     }
-    trainer: Trainer;
+    trainer?: Trainer;
     contract: boolean;
     /**
      * 取消跟单任务，包含退订消息
@@ -133,16 +133,56 @@ export class Trader {
     }
     async autoTrader({
         symbol,
-        buy_usdt,
-        sell_usdt,
+        buy_usdt = 0,
+        sell_usdt = 0,
         period = CandlestickIntervalEnum.MIN5,
         oversoldRatio,
         overboughtRatio,
         sellAmountRatio,
         buyAmountRatio,
         contract,
+        buy_open,
+        sell_close,
+        sell_open,
+        buy_close,
+        lever_rate,
         // forceTrade,
-    }, userId: number) {
+    }: Partial<SymbolConfig> & {symbol: string}, userId: number) {
+        if (this.orderConfigMap[symbol]) {
+            Object.assign(this.orderConfigMap[symbol], {
+                buy_open,
+                sell_close,
+                sell_open,
+                buy_close,
+                lever_rate,
+                period,
+            });
+            return
+        }
+        this.orderConfigMap[symbol] = {
+            buy_usdt: buy_usdt || 0,
+            sell_usdt: sell_usdt || 0,
+            period,
+     
+            oversoldRatio: oversoldRatio || 0.03,
+            overboughtRatio: overboughtRatio || -0.034,
+            sellAmountRatio: sellAmountRatio || 1.2,
+            buyAmountRatio: buyAmountRatio || 1.2,
+            price: 0,
+            depth: {
+                bidsList: [],
+                asksList: [],
+            },
+            min: 0,
+            max: 0,
+            contract: Boolean(contract),
+            cancelAutoTraderTask: [],
+            buy_open: 0,
+            sell_close: 0,
+            sell_open: 0,
+            buy_close: 0,
+            lever_rate: 20,
+        } as any;
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance();
@@ -160,34 +200,11 @@ export class Trader {
             minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
         });
 
-        this.orderConfigMap[symbol] = {
+        this.orderConfigMap[symbol].quant = quant;
+        this.orderConfigMap[symbol].trainer = new Trainer(quant, {
             buy_usdt,
             sell_usdt,
-            period,
-            quant: quant,
-            oversoldRatio: oversoldRatio || 0.03,
-            overboughtRatio: overboughtRatio || -0.034,
-            sellAmountRatio: sellAmountRatio || 1.2,
-            buyAmountRatio: buyAmountRatio || 1.2,
-            price: 0,
-            depth: {
-                bidsList: [],
-                asksList: [],
-            },
-            trainer: new Trainer(quant, {
-                buy_usdt,
-                sell_usdt,
-            }),
-            min: 0,
-            max: 0,
-            contract: Boolean(contract),
-            cancelAutoTraderTask: [],
-            buy_open: 0,
-            sell_close: 0,
-            sell_open: 0,
-            buy_close: 0,
-            lever_rate: 20,
-        }
+        });
         const orderConfig = this.orderConfigMap[symbol];
 
         const unSubMarketDepth = await this.sdk.subMarketDepth({symbol}, throttle((data) => {
@@ -251,7 +268,7 @@ export class Trader {
             ) {
                 action = 'sell';
                 const pricePoolFormDepth = getTracePrice(orderConfig.depth);
-                amount = sell_usdt / row.close;
+                amount = (sell_usdt as number) / row.close;
                 price =  pricePoolFormDepth.sell[0] || row.close * 1.02;
             }
 
@@ -264,7 +281,7 @@ export class Trader {
                 action = 'buy';
                 const pricePoolFormDepth = getTracePrice(orderConfig.depth);
                 outLogger.info(pricePoolFormDepth);
-                amount = buy_usdt / row.close;
+                amount = (buy_usdt as number) / row.close;
                 price =  pricePoolFormDepth.buy[0] || row.close *  0.98;
             }
 

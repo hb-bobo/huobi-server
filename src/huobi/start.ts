@@ -64,21 +64,22 @@ export async function start() {
             }, autoOrderConfigEntity.userId)
         });
         // TODO 合约与现货合并
-        // autoContractOrderList.forEach((autoOrderConfigEntity) => {
-        //     trader.autoTrader({
-        //         symbol: autoOrderConfigEntity.symbol,
-        //         buy_open: autoOrderConfigEntity.buy_open,
-        //         sell_close: autoOrderConfigEntity.sell_close,
-        //         sell_open: autoOrderConfigEntity.sell_open,
-        //         buy_close: autoOrderConfigEntity.buy_close,
-        //         period: autoOrderConfigEntity.period as any,
-        //         oversoldRatio: autoOrderConfigEntity.oversoldRatio,
-        //         overboughtRatio: autoOrderConfigEntity.overboughtRatio,
-        //         sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
-        //         buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
-        //         contract: autoOrderConfigEntity.contract,
-        //     }, autoOrderConfigEntity.userId)
-        // });
+        autoContractOrderList.forEach((autoOrderConfigEntity) => {
+            trader.autoTrader({
+                symbol: autoOrderConfigEntity.symbol,
+                buy_open: autoOrderConfigEntity.buy_open,
+                sell_close: autoOrderConfigEntity.sell_close,
+                sell_open: autoOrderConfigEntity.sell_open,
+                buy_close: autoOrderConfigEntity.buy_close,
+                period: autoOrderConfigEntity.period as any,
+                lever_rate: autoOrderConfigEntity.lever_rate,
+                oversoldRatio: autoOrderConfigEntity.oversoldRatio,
+                overboughtRatio: autoOrderConfigEntity.overboughtRatio,
+                sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
+                buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
+                contract: autoOrderConfigEntity.contract,
+            }, autoOrderConfigEntity.userId)
+        });
     }
     if (WatchEntityList.length > 0) {
         WatchEntityList.forEach((WatchEntity) => {
