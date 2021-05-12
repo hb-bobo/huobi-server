@@ -43,10 +43,16 @@ export default class AutoOrderConfigLogController {
                 type: "string",
                 required: true,
             },
-            buy_usdt: {
+            buy_open: {
                 type: "number",
             },
-            sell_usdt: {
+            sell_close: {
+                type: "number",
+            },
+            sell_open: {
+                type: "number",
+            },
+            buy_close: {
                 type: "number",
             }
         });
@@ -63,21 +69,18 @@ export default class AutoOrderConfigLogController {
             if (data.id || data._id) {
                 res = await AutoOrderConfigService.updateOne({id: data.id || data._id}, data);
                 const mergeData = pick(data, [
-                    'buy_usdt',
-                    'sell_usdt',
+                    'buy_open',
+                    'sell_close',
+                    'sell_open',
+                    'buy_close',
                     'oversoldRatio',
                     'overboughtRatio',
                     'sellAmountRatio',
                     'buyAmountRatio',
-                    'min',
-                    'max',
                     'contract'
                 ]);
                 Object.assign(trader.orderConfigMap[data.symbol], mergeData);
-                if (mergeData.max) {
-                    trader.orderConfigMap[data.symbol].quant.dc.maxs = [mergeData.max];
-                    trader.orderConfigMap[data.symbol].quant.dc.mins = [mergeData.min];
-                }
+           
                 ctx.sendSuccess({
                     data: mergeData
                 });

@@ -36,6 +36,11 @@ interface SymbolConfig{
      * 取消跟单任务，包含退订消息
      */
     cancelAutoTraderTask: Array<() => void>;
+    buy_open: number;
+    sell_close: number;
+    sell_open: number;
+    buy_close: number;
+    lever_rate: number;
 }
 
 export class Trader {
@@ -177,6 +182,11 @@ export class Trader {
             max: 0,
             contract: Boolean(contract),
             cancelAutoTraderTask: [],
+            buy_open: 0,
+            sell_close: 0,
+            sell_open: 0,
+            buy_close: 0,
+            lever_rate: 20,
         }
         const orderConfig = this.orderConfigMap[symbol];
 
@@ -351,7 +361,7 @@ export class Trader {
         const closeRate = 1
         const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
         const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
-        const lever_rate = 20
+        const lever_rate = this.orderConfigMap[symbol].lever_rate;
         let buyAvailable = 0;
         let sellAvailable = 0;
         list.forEach((item) => {

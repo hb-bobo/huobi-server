@@ -2,14 +2,14 @@ import { isNil } from "lodash";
 import { errLogger } from "ROOT/common/logger";
 import { DEFAULT_PAGE_SIZE } from "ROOT/constants/common";
 import { SaveOptions } from "typeorm";
-import AutoOrderConfigEntity from "./AutoOrderConfig.entity";
+import AutoOrderContractConfigEntity from "./AutoOrderConfig.entity";
 
 /**
  * 查询
  * @param {object} query
  */
 export const find = async function(query: Record<string, any>) {
-    const res = await AutoOrderConfigEntity.find(query)
+    const res = await AutoOrderContractConfigEntity.find(query)
     return res;
 }
 
@@ -17,8 +17,8 @@ export const find = async function(query: Record<string, any>) {
  * 查询单个
  * @param {object} query
  */
-export const findOne = async function(query: Partial<AutoOrderConfigEntity>) {
-    return AutoOrderConfigEntity.findOne(query);
+export const findOne = async function(query: Partial<AutoOrderContractConfigEntity>) {
+    return AutoOrderContractConfigEntity.findOne(query);
 }
 
 /**
@@ -26,8 +26,8 @@ export const findOne = async function(query: Partial<AutoOrderConfigEntity>) {
  * @param {object} query
  * @param { Document }
  */
-export const updateOne = async function(query: Partial<AutoOrderConfigEntity>, newData: Partial<AutoOrderConfigEntity>, options?: SaveOptions) {
-    return AutoOrderConfigEntity.update(query, newData, options);
+export const updateOne = async function(query: Partial<AutoOrderContractConfigEntity>, newData: Partial<AutoOrderContractConfigEntity>, options?: SaveOptions) {
+    return AutoOrderContractConfigEntity.update(query, newData, options);
 }
 
 /**
@@ -35,12 +35,12 @@ export const updateOne = async function(query: Partial<AutoOrderConfigEntity>, n
  * @param {object} query
  * @param { Document }
  */
-export const deleteOne = async function(query: Partial<AutoOrderConfigEntity>) {
+export const deleteOne = async function(query: Partial<AutoOrderContractConfigEntity>) {
     const target = await findOne(query);
     if (!target) {
         return Promise.reject('删除出错');
     }
-    const deleted = await AutoOrderConfigEntity.remove(target);
+    const deleted = await AutoOrderContractConfigEntity.remove(target);
     if (isNil(deleted)) {
         errLogger.info(query)
         return Promise.reject('删除出错');
@@ -53,7 +53,7 @@ export const deleteOne = async function(query: Partial<AutoOrderConfigEntity>) {
  * @param {object} query
  * @param { Document }
  */
-export const create = async function(data: Partial<AutoOrderConfigEntity>) {
-    const Doc = AutoOrderConfigEntity.create(data)
+export const create = async function(data: Partial<AutoOrderContractConfigEntity>) {
+    const Doc = AutoOrderContractConfigEntity.create(data)
     return Doc.save();
 }

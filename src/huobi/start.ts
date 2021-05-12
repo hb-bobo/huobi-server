@@ -2,6 +2,7 @@
 import * as TradeAccountService from 'ROOT/module/trade-account/TradeAccount.service';
 import * as WatchService from 'ROOT/module/watch/watch.service';
 import * as AutoOrderConfigService from 'ROOT/module/auto-order-config/AutoOrderConfig.service';
+import * as AutoContractOrderConfigService from 'ROOT/module/auto-order-contract-config/AutoOrderConfig.service';
 import { dbEvent } from "ROOT/db/orm";
 import { redis, KEY_MAP } from 'ROOT/db/redis';
 import { errLogger, outLogger } from 'ROOT/common/logger';
@@ -24,8 +25,8 @@ export async function start() {
     if (!account) {
         return;
     }
-
     const autoOrderList = await AutoOrderConfigService.find({userId: account.userId})
+    const autoContractOrderList = await AutoContractOrderConfigService.find({userId: account.userId})
 
     hbsdk.setOptions({
         accessKey: account.access_key,
@@ -62,6 +63,22 @@ export async function start() {
                 contract: autoOrderConfigEntity.contract,
             }, autoOrderConfigEntity.userId)
         });
+        // TODO 合约与现货合并
+        // autoContractOrderList.forEach((autoOrderConfigEntity) => {
+        //     trader.autoTrader({
+        //         symbol: autoOrderConfigEntity.symbol,
+        //         buy_open: autoOrderConfigEntity.buy_open,
+        //         sell_close: autoOrderConfigEntity.sell_close,
+        //         sell_open: autoOrderConfigEntity.sell_open,
+        //         buy_close: autoOrderConfigEntity.buy_close,
+        //         period: autoOrderConfigEntity.period as any,
+        //         oversoldRatio: autoOrderConfigEntity.oversoldRatio,
+        //         overboughtRatio: autoOrderConfigEntity.overboughtRatio,
+        //         sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
+        //         buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
+        //         contract: autoOrderConfigEntity.contract,
+        //     }, autoOrderConfigEntity.userId)
+        // });
     }
     if (WatchEntityList.length > 0) {
         WatchEntityList.forEach((WatchEntity) => {
