@@ -21,7 +21,7 @@ export const trader = new Trader(hbsdk);
 export async function start() {
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
 
-    outLogger.info(`start: ${account && account.auto_trade}`);
+    outLogger.info(`start : ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
