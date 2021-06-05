@@ -63,6 +63,14 @@ class Trader {
                 return this._balanceMap;
             });
         };
+        this.cancelAutoTrader = (userId, symbol) => {
+            if (!this.orderConfigMap[symbol]) {
+                logger_1.errLogger.error(`${symbol} not exist`);
+                return;
+            }
+            this.orderConfigMap[symbol].cancelAutoTraderTask.forEach(fn => fn());
+            delete this.orderConfigMap[symbol];
+        };
         this.sdk = sdk;
         if (this.sdk.options.url) {
             this.init();
@@ -113,7 +121,41 @@ class Trader {
         }
         return symbolInfo;
     }
-    async autoTrader({ symbol, buy_usdt, sell_usdt, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, contract, }, userId) {
+    async autoTrader({ symbol, buy_usdt = 0, sell_usdt = 0, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, contract, buy_open, sell_close, sell_open, buy_close, lever_rate, }, userId) {
+        if (this.orderConfigMap[symbol]) {
+            Object.assign(this.orderConfigMap[symbol], {
+                buy_open,
+                sell_close,
+                sell_open,
+                buy_close,
+                lever_rate,
+                period,
+            });
+            return;
+        }
+        this.orderConfigMap[symbol] = {
+            buy_usdt: buy_usdt || 0,
+            sell_usdt: sell_usdt || 0,
+            period,
+            oversoldRatio: oversoldRatio || 0.03,
+            overboughtRatio: overboughtRatio || -0.034,
+            sellAmountRatio: sellAmountRatio || 1.2,
+            buyAmountRatio: buyAmountRatio || 1.2,
+            price: 0,
+            depth: {
+                bidsList: [],
+                asksList: [],
+            },
+            min: 0,
+            max: 0,
+            contract: Boolean(contract),
+            cancelAutoTraderTask: [],
+            buy_open: 0,
+            sell_close: 0,
+            sell_open: 0,
+            buy_close: 0,
+            lever_rate: 20,
+        };
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance();
@@ -128,29 +170,11 @@ class Trader {
             maxs: [],
             minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
         });
-        this.orderConfigMap[symbol] = {
+        this.orderConfigMap[symbol].quant = quant;
+        this.orderConfigMap[symbol].trainer = new Trainer_1.Trainer(quant, {
             buy_usdt,
             sell_usdt,
-            period,
-            quant: quant,
-            oversoldRatio: oversoldRatio || 0.03,
-            overboughtRatio: overboughtRatio || -0.034,
-            sellAmountRatio: sellAmountRatio || 1.2,
-            buyAmountRatio: buyAmountRatio || 1.2,
-            price: 0,
-            depth: {
-                bidsList: [],
-                asksList: [],
-            },
-            trainer: new Trainer_1.Trainer(quant, {
-                buy_usdt,
-                sell_usdt,
-            }),
-            min: 0,
-            max: 0,
-            contract: Boolean(contract),
-            cancelAutoTraderTask: [],
-        };
+        });
         const orderConfig = this.orderConfigMap[symbol];
         const unSubMarketDepth = await this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
             // 处理数据
@@ -280,10 +304,6 @@ class Trader {
         // 添加到取消跟单任务里
         this.orderConfigMap[symbol].cancelAutoTraderTask.push(unUse);
     }
-    cancelAutoTrader(userId, symbol) {
-        this.orderConfigMap[symbol].cancelAutoTraderTask.forEach(fn => fn());
-        delete this.orderConfigMap[symbol];
-    }
     /**
      * 开单前处理
      * @param symbol
@@ -299,7 +319,7 @@ class Trader {
         const closeRate = 1;
         const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
         const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
-        const lever_rate = 20;
+        const lever_rate = this.orderConfigMap[symbol].lever_rate;
         let buyAvailable = 0;
         let sellAvailable = 0;
         list.forEach((item) => {

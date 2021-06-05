@@ -63,10 +63,16 @@ AutoOrderConfigLogController.updateOne = async (ctx) => {
             type: "string",
             required: true,
         },
-        buy_usdt: {
+        buy_open: {
             type: "number",
         },
-        sell_usdt: {
+        sell_close: {
+            type: "number",
+        },
+        sell_open: {
+            type: "number",
+        },
+        buy_close: {
             type: "number",
         }
     });
@@ -82,21 +88,17 @@ AutoOrderConfigLogController.updateOne = async (ctx) => {
         if (data.id || data._id) {
             res = await AutoOrderConfigService.updateOne({ id: data.id || data._id }, data);
             const mergeData = lodash_1.pick(data, [
-                'buy_usdt',
-                'sell_usdt',
+                'buy_open',
+                'sell_close',
+                'sell_open',
+                'buy_close',
                 'oversoldRatio',
                 'overboughtRatio',
                 'sellAmountRatio',
                 'buyAmountRatio',
-                'min',
-                'max',
                 'contract'
             ]);
             Object.assign(start_1.trader.orderConfigMap[data.symbol], mergeData);
-            if (mergeData.max) {
-                start_1.trader.orderConfigMap[data.symbol].quant.dc.maxs = [mergeData.max];
-                start_1.trader.orderConfigMap[data.symbol].quant.dc.mins = [mergeData.min];
-            }
             ctx.sendSuccess({
                 data: mergeData
             });

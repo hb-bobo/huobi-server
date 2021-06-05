@@ -41,12 +41,12 @@ exports.updateOne = updateOne;
 const deleteOne = async function (query) {
     const target = await exports.findOne(query);
     if (!target) {
-        return Promise.reject('删除出错');
+        return Promise.reject('remove fail, target not exist');
     }
     const deleted = await AutoOrderConfig_entity_1.default.remove(target);
     if (lodash_1.isNil(deleted)) {
         logger_1.errLogger.info(query);
-        return Promise.reject('删除出错');
+        return Promise.reject('remove fail');
     }
     return target;
 };

@@ -153,6 +153,20 @@ class HuobiSDK extends HuobiSDKBase_1.HuobiSDKBase {
         return this.auth_get(`${path}`);
     }
     /**
+     * 币币现货转合约
+     * @param currency 币种
+     * @param amount 数量
+     * @param type 从合约账户到现货账户：“futures-to-pro”，从现货账户到合约账户： “pro-to-futures”
+     */
+    futuresTransfer(currency, amount, type) {
+        const path = '/v1/futures/transfer';
+        return this.auth_post(`${path}`, {
+            currency,
+            amount,
+            type,
+        });
+    }
+    /**
      * 下单(现货)
      * @param symbol
      * @param type

@@ -41,7 +41,7 @@ exports.socketIO.on('connection', function (socket) {
     });
     // 发送单个
     // socket.send( 'sss')
-    // 发送所有连接
+    // 发送所有连接1
     // socketIO.sockets.emit('event', 'xxx')
     logger_1.outLogger.info(`socket connected: ${socket.id}`);
 });

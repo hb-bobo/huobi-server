@@ -23,6 +23,7 @@ exports.start = exports.trader = void 0;
 const TradeAccountService = __importStar(require("../module/trade-account/TradeAccount.service"));
 const WatchService = __importStar(require("../module/watch/watch.service"));
 const AutoOrderConfigService = __importStar(require("../module/auto-order-config/AutoOrderConfig.service"));
+const AutoContractOrderConfigService = __importStar(require("../module/auto-order-contract-config/AutoOrderConfig.service"));
 const orm_1 = require("../db/orm");
 const logger_1 = require("../common/logger");
 const Trader_1 = require("./Trader");
@@ -37,11 +38,12 @@ exports.trader = new Trader_1.Trader(hbsdk_1.hbsdk);
  */
 async function start() {
     const account = await TradeAccountService.findOne({ auto_trade: 1 });
-    logger_1.outLogger.info(`start: ${account && account.auto_trade}`);
+    logger_1.outLogger.info(`start:  ${account && account.auto_trade}`);
     if (!account) {
         return;
     }
     const autoOrderList = await AutoOrderConfigService.find({ userId: account.userId });
+    const autoContractOrderList = await AutoContractOrderConfigService.find({ userId: account.userId });
     hbsdk_1.hbsdk.setOptions({
         accessKey: account.access_key,
         secretKey: account.secret_key,
@@ -68,6 +70,23 @@ async function start() {
                 buy_usdt: autoOrderConfigEntity.buy_usdt,
                 sell_usdt: autoOrderConfigEntity.sell_usdt,
                 period: autoOrderConfigEntity.period,
+                oversoldRatio: autoOrderConfigEntity.oversoldRatio,
+                overboughtRatio: autoOrderConfigEntity.overboughtRatio,
+                sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,
+                buyAmountRatio: autoOrderConfigEntity.buyAmountRatio,
+                contract: autoOrderConfigEntity.contract,
+            }, autoOrderConfigEntity.userId);
+        });
+        // TODO 合约与现货合并
+        autoContractOrderList.forEach((autoOrderConfigEntity) => {
+            exports.trader.autoTrader({
+                symbol: autoOrderConfigEntity.symbol,
+                buy_open: autoOrderConfigEntity.buy_open,
+                sell_close: autoOrderConfigEntity.sell_close,
+                sell_open: autoOrderConfigEntity.sell_open,
+                buy_close: autoOrderConfigEntity.buy_close,
+                period: autoOrderConfigEntity.period,
+                lever_rate: autoOrderConfigEntity.lever_rate,
                 oversoldRatio: autoOrderConfigEntity.oversoldRatio,
                 overboughtRatio: autoOrderConfigEntity.overboughtRatio,
                 sellAmountRatio: autoOrderConfigEntity.sellAmountRatio,

@@ -33,6 +33,7 @@ const MailController = __importStar(require("../module/email/config.controller")
 const ConfigController = __importStar(require("../module/config/config.controller"));
 const TrainController = __importStar(require("../module/train/train.controller"));
 const AutoOrderConfig_controller_1 = __importDefault(require("../module/auto-order-config/AutoOrderConfig.controller"));
+const AutoOrderConfig_controller_2 = __importDefault(require("../module/auto-order-contract-config/AutoOrderConfig.controller"));
 const AutoOrderHistory_controller_1 = __importDefault(require("../module/auto-order-history/AutoOrderHistory.controller"));
 const Statistics_controller_1 = __importDefault(require("../module/statistics/Statistics.controller"));
 // /index
@@ -63,5 +64,8 @@ router.post(`${apiPrefix}/train/train`, checkToken_1.default, TrainController.Tr
 router.get(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.index);
 router.post(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.updateOne);
 router.delete(`${apiPrefix}/auto-order-config`, checkToken_1.default, AutoOrderConfig_controller_1.default.removeOne);
+router.get(`${apiPrefix}/auto-order-contract-config`, checkToken_1.default, AutoOrderConfig_controller_2.default.index);
+router.post(`${apiPrefix}/auto-order-contract-config`, checkToken_1.default, AutoOrderConfig_controller_2.default.updateOne);
+router.delete(`${apiPrefix}/auto-order-contract-config`, checkToken_1.default, AutoOrderConfig_controller_2.default.removeOne);
 router.get(`${apiPrefix}/auto-order-history`, checkToken_1.default, AutoOrderHistory_controller_1.default.index);
 router.get(`${apiPrefix}/statistics/analyser`, checkToken_1.default, Statistics_controller_1.default.index);
