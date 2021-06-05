@@ -114,8 +114,8 @@ export default class AutoOrderConfigLogController {
 
         try {
             const res = await AutoOrderConfigService.deleteOne({id: id});
-            if (userId) {
-                trader.cancelAutoTrader(userId, data.symbol);
+            if (userId && res) {
+                trader.cancelAutoTrader(userId, res.symbol);
             }
             ctx.sendSuccess({
                 data: res

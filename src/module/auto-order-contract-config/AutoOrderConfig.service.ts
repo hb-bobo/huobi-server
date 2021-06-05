@@ -38,14 +38,14 @@ export const updateOne = async function(query: Partial<AutoOrderContractConfigEn
 export const deleteOne = async function(query: Partial<AutoOrderContractConfigEntity>) {
     const target = await findOne(query);
     if (!target) {
-        return Promise.reject('删除出错');
+        return Promise.reject('remove fail, target not exist');
     }
     const deleted = await AutoOrderContractConfigEntity.remove(target);
     if (isNil(deleted)) {
         errLogger.info(query)
-        return Promise.reject('删除出错');
+        return Promise.reject('remove fail');
     }
-    return;
+    return target;
 }
 
 /**
