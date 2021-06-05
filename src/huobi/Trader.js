@@ -43,20 +43,20 @@ class Trader {
          * 交易费率
          */
         this.transactFeeRate = {
-            "makerFeeRate": 0.002,
-            "takerFeeRate": 0.002,
+            makerFeeRate: 0.002,
+            takerFeeRate: 0.002
         };
         /**
          * 获取余额
          * @param symbol usdt btc ht
          */
         this.getBalance = () => {
-            return this.sdk.getAccountBalance().then((data) => {
+            return this.sdk.getAccountBalance().then(data => {
                 if (!Array.isArray(data.list)) {
                     return;
                 }
-                data.list.forEach((item) => {
-                    if (item.type === 'trade') {
+                data.list.forEach(item => {
+                    if (item.type === "trade") {
                         this._balanceMap[item.currency] = lodash_1.toNumber(item.balance);
                     }
                 });
@@ -80,11 +80,11 @@ class Trader {
         this.sdk.getAccountId().then(() => {
             this.getBalance();
         });
-        this.sdk.subAuth((data) => {
-            logger_1.outLogger.info('subAuth', data);
-            this.sdk.subAccountsUpdate({}, (data) => {
+        this.sdk.subAuth(data => {
+            logger_1.outLogger.info("subAuth", data);
+            this.sdk.subAccountsUpdate({}, data => {
                 if (Array.isArray(data)) {
-                    data.forEach((item) => {
+                    data.forEach(item => {
                         this._balanceMap[item.currency] = lodash_1.toNumber(item.available);
                     });
                 }
@@ -99,13 +99,13 @@ class Trader {
         setInterval(async () => {
             const historys = await AutoOrderHistoryService.find({}, {
                 pageSize: 20,
-                current: 1,
+                current: 1
             });
             historys.list.forEach(item => {
-                if (!item.clientOrderId || item.state !== '') {
+                if (!item.clientOrderId || item.state !== "") {
                     return;
                 }
-                this.sdk.getOrder(item.clientOrderId).then((data) => {
+                this.sdk.getOrder(item.clientOrderId).then(data => {
                     if (lodash_1.isObjectLike(data)) {
                         item.state = data.state;
                         AutoOrderHistoryService.updateOne({ id: item.id }, item);
@@ -121,7 +121,7 @@ class Trader {
         }
         return symbolInfo;
     }
-    async autoTrader({ symbol, buy_usdt = 0, sell_usdt = 0, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, contract, buy_open, sell_close, sell_open, buy_close, lever_rate, }, userId) {
+    async autoTrader({ symbol, buy_usdt = 0, sell_usdt = 0, period = src_1.CandlestickIntervalEnum.MIN5, oversoldRatio, overboughtRatio, sellAmountRatio, buyAmountRatio, contract, buy_open, sell_close, sell_open, buy_close, lever_rate }, userId) {
         if (this.orderConfigMap[symbol]) {
             Object.assign(this.orderConfigMap[symbol], {
                 buy_open,
@@ -129,7 +129,7 @@ class Trader {
                 sell_open,
                 buy_close,
                 lever_rate,
-                period,
+                period
             });
             return;
         }
@@ -144,7 +144,7 @@ class Trader {
             price: 0,
             depth: {
                 bidsList: [],
-                asksList: [],
+                asksList: []
             },
             min: 0,
             max: 0,
@@ -154,57 +154,57 @@ class Trader {
             sell_close: 0,
             sell_open: 0,
             buy_close: 0,
-            lever_rate: 20,
+            lever_rate: 20
         };
         await this.getSymbolInfo(symbol);
         await this.sdk.getAccountId();
         await this.getBalance();
         if (!this._balanceMap) {
-            return logger_1.errLogger.error('_balanceMap', this.sdk.spot_account_id);
+            return logger_1.errLogger.error("_balanceMap", this.sdk.spot_account_id);
         }
         const quant = new quant_1.Quant({
             symbol: symbol,
-            quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['quote-currency']],
-            baseCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]['base-currency']],
+            quoteCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]["quote-currency"]],
+            baseCurrencyBalance: this._balanceMap[Trader.symbolInfoMap[symbol]["base-currency"]],
             mins: [],
             maxs: [],
-            minVolume: Trader.symbolInfoMap[symbol]['limit-order-min-order-amt'],
+            minVolume: Trader.symbolInfoMap[symbol]["limit-order-min-order-amt"]
         });
         this.orderConfigMap[symbol].quant = quant;
         this.orderConfigMap[symbol].trainer = new Trainer_1.Trainer(quant, {
             buy_usdt,
-            sell_usdt,
+            sell_usdt
         });
         const orderConfig = this.orderConfigMap[symbol];
-        const unSubMarketDepth = await this.sdk.subMarketDepth({ symbol }, lodash_1.throttle((data) => {
+        const unSubMarketDepth = await this.sdk.subMarketDepth({ symbol }, lodash_1.throttle(data => {
             // 处理数据
             const bidsList = util_1.getSameAmount(data.data.bids, {
-                type: 'bids',
-                symbol: symbol,
+                type: "bids",
+                symbol: symbol
             });
             const asksList = util_1.getSameAmount(data.data.asks, {
-                type: 'asks',
-                symbol: symbol,
+                type: "asks",
+                symbol: symbol
             });
             orderConfig.depth = {
                 bidsList: bidsList,
-                asksList: asksList,
+                asksList: asksList
             };
         }, 10000, { leading: true }));
         // 添加到取消跟单任务里
         this.orderConfigMap[symbol].cancelAutoTraderTask.push(unSubMarketDepth);
         const data = await this.sdk.getMarketHistoryKline(symbol, orderConfig.period, 400);
         if (!data) {
-            logger_1.errLogger.error('getMarketHistoryKline', data);
+            logger_1.errLogger.error("getMarketHistoryKline", data);
             return;
         }
         const rData = data.reverse();
         quant.analysis(rData);
-        const unSubMarketKline = await this.sdk.subMarketKline({ symbol, period: orderConfig.period }, (data) => {
+        const unSubMarketKline = await this.sdk.subMarketKline({ symbol, period: orderConfig.period }, data => {
             orderConfig.price = data.data.close;
             const kline = this.orderConfigMap[symbol].kline;
             if (!kline) {
-                logger_1.outLogger.error('subMarketKline err', kline);
+                logger_1.outLogger.error("subMarketKline err", kline);
             }
             if (kline && kline.id !== data.data.id) {
                 orderConfig.quant.analysis(kline);
@@ -214,7 +214,7 @@ class Trader {
         });
         // 添加到取消跟单任务里
         this.orderConfigMap[symbol].cancelAutoTraderTask.push(unSubMarketKline);
-        const unUse = quant.use((row) => {
+        const unUse = quant.use(row => {
             orderConfig.price = row.close;
             if (!row.MA120 || !row.MA5 || !row.MA10 || !row.MA30 || !row.MA60) {
                 return;
@@ -222,26 +222,27 @@ class Trader {
             let action;
             let amount = 0;
             let price = 0;
-            if (row.MA5 > row.MA10
+            if (row.MA5 > row.MA10 &&
                 //  && row.MA10 > row.MA30 && row.MA30 > row.MA60 && row.MA60 > row.MA120
-                && row["close/MA60"] > orderConfig.oversoldRatio
-                && row['amount/amountMA20'] > orderConfig.sellAmountRatio) {
-                action = 'sell';
+                row["close/MA60"] > orderConfig.oversoldRatio &&
+                row["amount/amountMA20"] > orderConfig.sellAmountRatio) {
+                action = "sell";
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
                 amount = sell_usdt / row.close;
                 price = pricePoolFormDepth.sell[0] || row.close * 1.02;
             }
             // 买
             if (row.MA5 < row.MA10 &&
-                row["close/MA60"] < orderConfig.overboughtRatio
-                && row['amount/amountMA20'] > orderConfig.buyAmountRatio) {
-                action = 'buy';
+                row["close/MA60"] < orderConfig.overboughtRatio &&
+                row["amount/amountMA20"] > orderConfig.buyAmountRatio) {
+                action = "buy";
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
                 logger_1.outLogger.info(pricePoolFormDepth);
                 amount = buy_usdt / row.close;
                 price = pricePoolFormDepth.buy[0] || row.close * 0.98;
             }
-            if (!action && (row['amount/amountMA20'] > 2 || row.amplitude > 2)) {
+            if (!action &&
+                (row["amount/amountMA20"] > 2 || row.amplitude > 2)) {
                 // if (quant.dc.maxs && quant.dc.maxs.length === 0) {
                 //     quant.updateConfig({
                 //         mins: [row.close * 0.9],
@@ -259,15 +260,19 @@ class Trader {
             if (!action) {
                 return;
             }
-            logger_1.outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row['amount/amountMA20']}`);
+            logger_1.outLogger.info(`context: ${symbol}, row.close/MA60: ${row["close/MA60"]},`, ` amount/amountMA20: ${row["amount/amountMA20"]}`);
             if (amount < Number.MIN_SAFE_INTEGER) {
                 amount = buy_usdt / row.close;
             }
             if (!lodash_1.isNumber(price) || price < Number.MIN_SAFE_INTEGER) {
                 const pricePoolFormDepth = util_1.getTracePrice(orderConfig.depth);
-                price = action === 'sell' ? pricePoolFormDepth.sell[0] : pricePoolFormDepth.buy[0];
+                price =
+                    action === "sell"
+                        ? pricePoolFormDepth.sell[0]
+                        : pricePoolFormDepth.buy[0];
             }
-            this.order(symbol, action, amount, price, userId).then(async (orderId) => {
+            this.order(symbol, action, amount, price, userId)
+                .then(async (orderId) => {
                 AutoOrderHistoryService.create({
                     datetime: new Date(),
                     symbol,
@@ -276,13 +281,14 @@ class Trader {
                     userId: userId || 1,
                     type: action,
                     status: 1,
-                    state: '',
+                    state: "",
                     clientOrderId: orderId,
-                    row: ''
-                }).catch((err) => {
+                    row: ""
+                }).catch(err => {
                     logger_1.outLogger.error(err);
                 });
-            }).finally(() => {
+            })
+                .finally(() => {
                 if (this.orderConfigMap[symbol].contract && action) {
                     this.beforeContractOrder(symbol, action);
                 }
@@ -310,20 +316,18 @@ class Trader {
      * @param action
      */
     async beforeContractOrder(symbol, action) {
-        const contractSymbol = symbol.replace('usdt', '').toUpperCase();
+        const contractSymbol = symbol.replace("usdt", "").toUpperCase();
         const data = await this.sdk.contractMarketDetailMerged(`${contractSymbol}_CQ`);
         const list = await this.sdk.contractPositionInfo(contractSymbol.toLocaleLowerCase());
         // const action = 'buy'
-        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf('.');
-        const rate = action === 'buy' ? 0.997 : 1.004;
+        const digit = data.tick.close.length - 1 - data.tick.close.lastIndexOf(".");
+        const rate = action === "buy" ? 0.997 : 1.004;
         const closeRate = 1;
-        const buyVolume = this.orderConfigMap[symbol].buy_usdt * 10;
-        const sellVolume = this.orderConfigMap[symbol].sell_usdt * 10;
-        const lever_rate = this.orderConfigMap[symbol].lever_rate;
+        const { buy_open, sell_close, sell_open, buy_close, lever_rate } = this.orderConfigMap[symbol];
         let buyAvailable = 0;
         let sellAvailable = 0;
-        list.forEach((item) => {
-            if (item.direction === 'buy') {
+        list.forEach(item => {
+            if (item.direction === "buy") {
                 buyAvailable += item.available;
             }
             else {
@@ -332,67 +336,69 @@ class Trader {
         });
         const params = {
             symbol: contractSymbol,
-            contract_type: 'quarter',
+            contract_type: "quarter",
             direction: action,
             price: -1,
             volume: 0,
             /**
-            * 开仓倍数
-            */
+             * 开仓倍数
+             */
             lever_rate,
-            order_price_type: 'limit'
+            order_price_type: "limit"
         };
-        if (action === 'buy') {
+        if (action === "buy") {
             // 开多
             await this.contractOrder({
                 ...params,
                 price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate, digit),
-                volume: buyVolume,
-                offset: 'open',
+                volume: buy_open,
+                offset: "open"
             });
             if (sellAvailable > 0) {
                 // 平空
                 this.contractOrder({
                     ...params,
                     price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: sellAvailable < sellVolume ? sellAvailable : sellVolume,
-                    offset: 'close',
+                    volume: sellAvailable < buy_close ? sellAvailable : buy_close,
+                    offset: "close"
                 });
             }
         }
-        else if (action === 'sell') {
+        else if (action === "sell") {
             // 开空
             await this.contractOrder({
                 ...params,
                 price: utils_1.keepDecimalFixed(Number(data.tick.close) * rate * 1.008, digit),
-                volume: sellVolume,
-                offset: 'open',
+                volume: sell_open,
+                offset: "open"
             });
             if (buyAvailable >= 0) {
                 // 平多
                 this.contractOrder({
                     ...params,
                     price: utils_1.keepDecimalFixed(Number(data.tick.close) * closeRate, digit),
-                    volume: buyAvailable < buyVolume ? buyAvailable : buyVolume,
-                    offset: 'close',
+                    volume: buyAvailable < sell_close ? buyAvailable : sell_close,
+                    offset: "close"
                 });
             }
         }
-        logger_1.outLogger.info(`
-            symbol: ${symbol}
-            action: ${action}
-            close: ${data.tick.close}
-            buyVolume: ${buyVolume}
-            sellVolume: ${sellVolume}
-            buyAvailable: ${buyAvailable}
-            sellAvailable: ${sellAvailable}
-        `);
-        sentMail_1.default(config_1.default.get('email'), {
-            from: 'hubo2008@163.com',
-            to: 'hubo11@jd.com',
+        // outLogger.info(`
+        //     symbol: ${symbol}
+        //     action: ${action}
+        //     close: ${data.tick.close}
+        //     buyVolume: ${buyVolume}
+        //     sellVolume: ${sellVolume}
+        //     buyAvailable: ${buyAvailable}
+        //     sellAvailable: ${sellAvailable}
+        // `);
+        sentMail_1.default(config_1.default.get("email"), {
+            from: "hubo2008@163.com",
+            to: "hubo11@jd.com",
             subject: `Hello ✔${symbol}`,
-            text: 'Hello world?',
-            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${dayjs_1.default(new Date()).utcOffset(8).format("YYYY-MM-DD HH:mm:ss")}</p>` // html body
+            text: "Hello world?",
+            html: `<p><br><b>${action}</b> <i>${symbol}<i> (${data.tick.close}) at ${dayjs_1.default(new Date())
+                .utcOffset(8)
+                .format("YYYY-MM-DD HH:mm:ss")}</p>` // html body
         });
     }
     async order(symbol, type, amount, price, userId) {
@@ -403,27 +409,28 @@ class Trader {
         if (!symbolInfo) {
             return await this.order(symbol, type, amount, price, userId);
         }
-        const quoteCurrencyBalance = this._balanceMap[symbolInfo['quote-currency']];
-        const baseCurrencyBalance = this._balanceMap[symbolInfo['base-currency']];
-        const hasEnoughBalance = quoteCurrencyBalance > (amount * this.orderConfigMap[symbol].price * priceIndex * 1.002);
-        const hasEnoughAmount = baseCurrencyBalance > (amount * 1.002);
+        const quoteCurrencyBalance = this._balanceMap[symbolInfo["quote-currency"]];
+        const baseCurrencyBalance = this._balanceMap[symbolInfo["base-currency"]];
+        const hasEnoughBalance = quoteCurrencyBalance >
+            amount * this.orderConfigMap[symbol].price * priceIndex * 1.002;
+        const hasEnoughAmount = baseCurrencyBalance > amount * 1.002;
         logger_1.outLogger.info(`quoteCurrencyBalance: ${quoteCurrencyBalance}, baseCurrencyBalance: ${baseCurrencyBalance}`);
-        if (!hasEnoughBalance && type === 'buy') {
-            const msg = `quote-currency( ${symbolInfo['quote-currency']} ) not enough`;
+        if (!hasEnoughBalance && type === "buy") {
+            const msg = `quote-currency( ${symbolInfo["quote-currency"]} ) not enough`;
             logger_1.outLogger.info(msg);
             return Promise.reject(msg);
         }
-        else if (!hasEnoughAmount && type === 'sell') {
-            const msg = `base-currency( ${symbolInfo['base-currency']} ) not enough`;
+        else if (!hasEnoughAmount && type === "sell") {
+            const msg = `base-currency( ${symbolInfo["base-currency"]} ) not enough`;
             logger_1.outLogger.info(msg);
             return Promise.reject(msg);
         }
         const openOrderRes = await this.sdk.getOpenOrders(symbol, {
-            size: 10,
+            size: 10
         });
         for (let i = 0; i < openOrderRes.length; i++) {
             const oriderInfo = openOrderRes[i];
-            if (oriderInfo.source === 'api') {
+            if (oriderInfo.source === "api") {
                 // 挂单价与下单是否过于相近
                 const gain = Math.abs((oriderInfo.price - price) / price);
                 if (gain < 0.01) {
@@ -444,10 +451,10 @@ class Trader {
     }
     async contractOrder(params) {
         const textMap = {
-            'buyopen': '买入开多',
-            'sellclose': '卖出平多',
-            'sellopen': '卖出开空',
-            'buyclose': '买入平空',
+            buyopen: "买入开多",
+            sellclose: "卖出平多",
+            sellopen: "卖出开空",
+            buyclose: "买入平空"
         };
         return this.sdk.contractOrder(params).finally(() => {
             logger_1.outLogger.info(`${textMap[params.direction + params.offset]}`);
@@ -458,11 +465,11 @@ class Trader {
     }
     amountToFixed(symbol, amount) {
         const symbolInfo = util_1._SYMBOL_INFO_MAP[symbol];
-        return utils_1.keepDecimalFixed(amount, symbolInfo['amount-precision']);
+        return utils_1.keepDecimalFixed(amount, symbolInfo["amount-precision"]);
     }
     priceToFixed(symbol, amount) {
         const symbolInfo = util_1._SYMBOL_INFO_MAP[symbol];
-        return utils_1.keepDecimalFixed(amount, symbolInfo['price-precision']);
+        return utils_1.keepDecimalFixed(amount, symbolInfo["price-precision"]);
     }
 }
 exports.Trader = Trader;
