@@ -45,7 +45,7 @@ export const deleteOne = async function(query: Partial<AutoOrderConfigEntity>) {
         errLogger.info(query)
         return Promise.reject('删除出错');
     }
-    return;
+    return target;
 }
 
 /**
