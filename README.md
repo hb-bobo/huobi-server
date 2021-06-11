@@ -2,7 +2,7 @@
 
 Trader for huobi
 
-site: [http://114.67.103.78:8082](http://114.67.103.78:8082)
+site: [http://114.67.103.78:8082/home](http://114.67.103.78:8082/home)
 
 ### TODO
 
