@@ -1,24 +1,17 @@
-### huobi-server
+## huobi-server
 
 Trader for huobi
 
-## run setup
+site: [http://114.67.103.78:8082](http://114.67.103.78:8082)
 
-``` bash
-# use npm
-npm install
+### TODO
 
-# run
-npm run dev
+交易特征记录 [x]
 
-# build
-npm run tsc
+现货自动下单 [x]
 
-# use pm2
+合约自动下单 [x]
 
-npm run pm2:prod
 
-```
-
-## node huobi-sdk
+### node huobi-sdk
 [https://github.com/hb-bobo/huobi-sdk](https://github.com/hb-bobo/huobi-sdk)
